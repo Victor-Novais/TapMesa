@@ -21,7 +21,11 @@ export async function getNextTableNumber(): Promise<NextTableNumberResponse> {
 export async function createTables(
   data: CreateTablesRequest,
 ): Promise<TableDto[]> {
-  const response = await api.post<TableDto[]>("/tables", data);
+  const response = await api.post<TableDto[]>("/tables", {
+    startNumber: data.startNumber,
+    count: data.count,
+    quantity: data.count,
+  });
   return response.data;
 }
 
@@ -46,4 +50,11 @@ export async function getTablesPrintView(): Promise<TablesPrintViewResponse> {
 
 export function getTableQrSvgUrl(id: string): string {
   return `/tables/${id}/qr?format=svg`;
+}
+
+export async function getTableQrSvg(id: string): Promise<string> {
+  const response = await api.get<string>(getTableQrSvgUrl(id), {
+    responseType: "text",
+  });
+  return response.data;
 }
