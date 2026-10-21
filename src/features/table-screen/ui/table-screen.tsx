@@ -66,7 +66,7 @@ export function TableScreen({
     String(tableNumber),
   );
 
-  const wifiSsid = socials.wifiSsid || socials.wifi_ssid;
+  const wifiSsid = socials.wifiSsid || socials.wifi_ssid || socials.wifiName;
   const wifiPassword = socials.wifiPassword || socials.wifi_password;
 
   const handleCopyWifi = async () => {

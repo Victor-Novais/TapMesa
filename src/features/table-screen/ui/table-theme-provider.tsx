@@ -14,14 +14,13 @@ export function TableThemeProvider({
   children,
 }: TableThemeProviderProps) {
   const colors = appearance?.colors || {};
-  const backgroundType = appearance?.backgroundType || "COLOR";
-  const backgroundValue = appearance?.backgroundValue || "#ffffff";
+  const bgType = (appearance?.backgroundType || "color").toLowerCase();
+  const backgroundValue = appearance?.backgroundValue || "";
 
   // Default color palette
   const rawBg =
-    backgroundType === "COLOR" && backgroundValue.startsWith("#")
-      ? backgroundValue
-      : "#ffffff";
+    colors.background ||
+    (backgroundValue.startsWith("#") ? backgroundValue : "#ffffff");
 
   const rawPrimary = colors.primary || "#ea580c";
   const rawText = colors.text || "#18181b";
@@ -31,7 +30,8 @@ export function TableThemeProvider({
   const safeText = getAccessibleTextColor(rawText, rawBg);
   const safePrimaryText = getAccessibleTextColor(rawPrimaryText, rawPrimary);
 
-  const isImageBg = backgroundType === "IMAGE" && Boolean(backgroundValue);
+  const isImageBg =
+    (bgType === "image" || bgType === "preset") && Boolean(backgroundValue);
 
   const styleVariables: React.CSSProperties = {
     "--table-bg": rawBg,

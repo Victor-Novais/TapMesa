@@ -5,6 +5,7 @@ import { useRouter, usePathname, useSearchParams } from "next/navigation";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/shared/ui/tabs";
 import { Card } from "@/shared/ui/card";
 import { ServiceSettingsForm } from "./service-settings-form";
+import { AppearanceSettingsForm } from "./appearance-settings-form";
 import { Clock, Palette, Bell } from "lucide-react";
 
 type SettingsTab = "service" | "appearance" | "notifications";
@@ -65,19 +66,7 @@ export function SettingsTabs() {
 
         {/* Aba 2: Aparência (F17) */}
         <TabsContent value="appearance" className="pt-4">
-          <Card className="p-8 text-center border-dashed">
-            <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-2xl bg-orange-100 text-orange-600 dark:bg-orange-950/40 dark:text-orange-400">
-              <Palette className="h-6 w-6" />
-            </div>
-            <h3 className="mt-4 text-base font-bold text-zinc-900 dark:text-zinc-50">
-              Personalização de Aparência
-            </h3>
-            <p className="mt-1.5 max-w-md mx-auto text-sm text-zinc-500">
-              Cores da marca, logotipo do restaurante, imagem ou cor de fundo do
-              salão e pré-visualização ao vivo em tempo real da tela da mesa
-              (F17).
-            </p>
-          </Card>
+          <AppearanceSettingsForm />
         </TabsContent>
 
         {/* Aba 3: Notificações (F18) */}
