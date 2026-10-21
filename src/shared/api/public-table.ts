@@ -39,14 +39,27 @@ export async function cancelPublicCall(
 export async function confirmPublicCall(
   token: string,
   callId: string,
-  data: ConfirmCallRequest,
-): Promise<void> {
-  await api.post(`/public/tables/${token}/calls/${callId}/confirm`, data);
+  data?: ConfirmCallRequest,
+): Promise<PublicCallDto> {
+  const response = await api.post<PublicCallDto>(
+    `/public/tables/${token}/calls/${callId}/confirm`,
+    data || {},
+  );
+  if (response.data?.serverNow) {
+    syncClock(response.data.serverNow);
+  }
+  return response.data;
 }
 
 export async function contestPublicCall(
   token: string,
   callId: string,
-): Promise<void> {
-  await api.post(`/public/tables/${token}/calls/${callId}/contest`);
+): Promise<PublicCallDto> {
+  const response = await api.post<PublicCallDto>(
+    `/public/tables/${token}/calls/${callId}/contest`,
+  );
+  if (response.data?.serverNow) {
+    syncClock(response.data.serverNow);
+  }
+  return response.data;
 }

@@ -725,7 +725,7 @@ function TableScreenDemo() {
     "light" | "dark" | "image" | "skeleton" | "not_found" | "paused"
   >("light");
   const [callScenario, setCallScenario] = React.useState<
-    "idle" | "waiter" | "bill" | "both"
+    "idle" | "waiter" | "attended" | "confirmed" | "both"
   >("idle");
   const [baseTime] = React.useState(() => Date.now());
 
@@ -829,9 +829,36 @@ function TableScreenDemo() {
       serverNow: nowIso,
     };
 
+    const attendedCall = {
+      id: "demo-attended-1",
+      type: "WAITER" as const,
+      status: "ATTENDED" as const,
+      note: "Trazer gelo e copos extras",
+      createdAt: tenMinAgo,
+      attendedAt: twoMinAgo,
+      confirmationDeadline: new Date(baseTime + 135000).toISOString(),
+      rating: null,
+      reopenCount: 0,
+      contested: false,
+      serverNow: nowIso,
+    };
+
+    const confirmedCall = {
+      id: "demo-confirmed-1",
+      type: "WAITER" as const,
+      status: "CONFIRMED" as const,
+      note: null,
+      createdAt: tenMinAgo,
+      attendedAt: twoMinAgo,
+      rating: 3,
+      reopenCount: 0,
+      serverNow: nowIso,
+    };
+
     if (callScenario === "waiter") return [waiterCall];
-    if (callScenario === "bill") return [billCall];
-    if (callScenario === "both") return [waiterCall, billCall];
+    if (callScenario === "attended") return [attendedCall];
+    if (callScenario === "confirmed") return [confirmedCall];
+    if (callScenario === "both") return [attendedCall, billCall];
     return [];
   }, [callScenario, baseTime]);
 
@@ -917,15 +944,27 @@ function TableScreenDemo() {
               </button>
               <button
                 type="button"
-                onClick={() => setCallScenario("bill")}
+                onClick={() => setCallScenario("attended")}
                 className={cn(
                   "px-2 py-1 text-xs font-medium rounded-lg transition-colors",
-                  callScenario === "bill"
+                  callScenario === "attended"
                     ? "bg-white shadow text-zinc-900 dark:bg-zinc-800 dark:text-zinc-50"
                     : "text-zinc-600 hover:text-zinc-900 dark:text-zinc-400 dark:hover:text-zinc-200",
                 )}
               >
-                Conta
+                Atendido
+              </button>
+              <button
+                type="button"
+                onClick={() => setCallScenario("confirmed")}
+                className={cn(
+                  "px-2 py-1 text-xs font-medium rounded-lg transition-colors",
+                  callScenario === "confirmed"
+                    ? "bg-white shadow text-zinc-900 dark:bg-zinc-800 dark:text-zinc-50"
+                    : "text-zinc-600 hover:text-zinc-900 dark:text-zinc-400 dark:hover:text-zinc-200",
+                )}
+              >
+                Confirmado
               </button>
               <button
                 type="button"

@@ -1,6 +1,7 @@
 "use client";
 
 import { useTableQuery } from "../api/use-table-query";
+import { useTableStream } from "../api/use-table-stream";
 import { TableThemeProvider } from "./table-theme-provider";
 import { TableScreen } from "./table-screen";
 import { TableScreenSkeleton } from "./table-screen-skeleton";
@@ -14,6 +15,16 @@ interface TableScreenViewProps {
 
 export function TableScreenView({ token }: TableScreenViewProps) {
   const { data, isLoading, error, refetch } = useTableQuery(token);
+  const { connectionStatus, isDeleted } = useTableStream(token);
+
+  if (isDeleted) {
+    return (
+      <TableScreenError
+        type="NOT_FOUND"
+        message="Esta mesa foi desativada pelo restaurante."
+      />
+    );
+  }
 
   if (isLoading) {
     return <TableScreenSkeleton />;
@@ -53,6 +64,7 @@ export function TableScreenView({ token }: TableScreenViewProps) {
         available={data.available}
         unavailableReason={data.unavailableReason}
         message={data.message}
+        connectionStatus={connectionStatus}
       >
         <CallActions
           token={token}

@@ -2,11 +2,17 @@
 
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { queryKeys } from "@/shared/api/query-client";
-import { openPublicCall, cancelPublicCall } from "@/shared/api/public-table";
+import {
+  openPublicCall,
+  cancelPublicCall,
+  confirmPublicCall,
+  contestPublicCall,
+} from "@/shared/api/public-table";
 import type {
   PublicTableDto,
   PublicCallDto,
   CreatePublicCallRequest,
+  QuickRating,
 } from "@/shared/types/api";
 import { triggerHaptic } from "@/shared/lib/haptics";
 
@@ -126,6 +132,157 @@ export function useCancelCallMutation(token: string) {
     },
     onSuccess: () => {
       triggerHaptic(25);
+    },
+    onError: (_err, _callId, context) => {
+      if (context?.previousTable) {
+        queryClient.setQueryData(
+          queryKeys.publicTable(token),
+          context.previousTable,
+        );
+      }
+    },
+    onSettled: () => {
+      queryClient.invalidateQueries({
+        queryKey: queryKeys.publicTable(token),
+      });
+    },
+  });
+}
+
+export function useConfirmCallMutation(token: string) {
+  const queryClient = useQueryClient();
+
+  return useMutation<
+    PublicCallDto,
+    Error,
+    { callId: string; rating?: QuickRating },
+    { previousTable?: PublicTableDto }
+  >({
+    mutationFn: ({ callId, rating }) =>
+      confirmPublicCall(token, callId, rating ? { rating } : undefined),
+    onMutate: async ({ callId, rating }) => {
+      await queryClient.cancelQueries({
+        queryKey: queryKeys.publicTable(token),
+      });
+
+      const previousTable = queryClient.getQueryData<PublicTableDto>(
+        queryKeys.publicTable(token),
+      );
+
+      if (previousTable) {
+        queryClient.setQueryData<PublicTableDto>(
+          queryKeys.publicTable(token),
+          (old) => {
+            if (!old) return old;
+            return {
+              ...old,
+              calls: old.calls.map((c) => {
+                if (c.id === callId) {
+                  return {
+                    ...c,
+                    status: "CONFIRMED",
+                    rating: rating ?? c.rating ?? null,
+                  };
+                }
+                return c;
+              }),
+            };
+          },
+        );
+      }
+
+      return { previousTable };
+    },
+    onSuccess: (updatedCall) => {
+      triggerHaptic(25);
+
+      queryClient.setQueryData<PublicTableDto>(
+        queryKeys.publicTable(token),
+        (old) => {
+          if (!old) return old;
+          return {
+            ...old,
+            calls: old.calls.map((c) =>
+              c.id === updatedCall.id ? updatedCall : c,
+            ),
+          };
+        },
+      );
+    },
+    onError: (_err, _vars, context) => {
+      if (context?.previousTable) {
+        queryClient.setQueryData(
+          queryKeys.publicTable(token),
+          context.previousTable,
+        );
+      }
+    },
+    onSettled: () => {
+      queryClient.invalidateQueries({
+        queryKey: queryKeys.publicTable(token),
+      });
+    },
+  });
+}
+
+export function useContestCallMutation(token: string) {
+  const queryClient = useQueryClient();
+
+  return useMutation<
+    PublicCallDto,
+    Error,
+    string,
+    { previousTable?: PublicTableDto }
+  >({
+    mutationFn: (callId) => contestPublicCall(token, callId),
+    onMutate: async (callId) => {
+      await queryClient.cancelQueries({
+        queryKey: queryKeys.publicTable(token),
+      });
+
+      const previousTable = queryClient.getQueryData<PublicTableDto>(
+        queryKeys.publicTable(token),
+      );
+
+      if (previousTable) {
+        queryClient.setQueryData<PublicTableDto>(
+          queryKeys.publicTable(token),
+          (old) => {
+            if (!old) return old;
+            return {
+              ...old,
+              calls: old.calls.map((c) => {
+                if (c.id === callId) {
+                  return {
+                    ...c,
+                    status: "PENDING",
+                    reopenCount: (c.reopenCount ?? 0) + 1,
+                  };
+                }
+                return c;
+              }),
+            };
+          },
+        );
+      }
+
+      return { previousTable };
+    },
+    onSuccess: (updatedCall) => {
+      triggerHaptic(25);
+
+      queryClient.setQueryData<PublicTableDto>(
+        queryKeys.publicTable(token),
+        (old) => {
+          if (!old) return old;
+          return {
+            ...old,
+            calls: old.calls.map((c) =>
+              c.id === updatedCall.id ? updatedCall : c,
+            ),
+          };
+        },
+      );
     },
     onError: (_err, _callId, context) => {
       if (context?.previousTable) {

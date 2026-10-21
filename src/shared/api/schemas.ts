@@ -23,6 +23,7 @@ export const publicCallSchema = z
     rating: z.number().nullable().optional(),
     confirmationDeadline: z.string().nullable().optional(),
     reopenCount: z.number().default(0),
+    contested: z.boolean().optional(),
     alreadyPending: z.boolean().optional(),
     serverNow: z.string().optional(),
   })

@@ -1,10 +1,19 @@
 "use client";
 
 import * as React from "react";
-import { Bell, Receipt, MessageSquare, AlertCircle, X } from "lucide-react";
+import {
+  Bell,
+  Receipt,
+  MessageSquare,
+  AlertCircle,
+  X,
+  Info,
+} from "lucide-react";
 import { Button } from "@/shared/ui/button";
 import { Textarea } from "@/shared/ui/textarea";
 import { PendingCallCard } from "./pending-call-card";
+import { AttendedCallCard } from "./attended-call-card";
+import { ConfirmedCallCard } from "./confirmed-call-card";
 import { useOpenCallMutation } from "../api/use-table-mutations";
 import { parseApiError } from "@/shared/api/problem-details";
 import { UI_MESSAGES } from "@/shared/messages/ui";
@@ -33,18 +42,39 @@ export function CallActions({
   const [activeSubmittingType, setActiveSubmittingType] =
     React.useState<CallType | null>(null);
   const [errorMessage, setErrorMessage] = React.useState<string | null>(null);
+  const [dismissedConfirmedIds, setDismissedConfirmedIds] = React.useState<
+    Set<string>
+  >(() => new Set());
+  const [dismissedExpired, setDismissedExpired] = React.useState(false);
 
   const openCallMutation = useOpenCallMutation(token);
 
-  // Check coexisting pending calls
-  const pendingWaiter = calls.find(
-    (c) => c.type === "WAITER" && c.status === "PENDING",
-  );
-  const pendingBill = calls.find(
-    (c) => c.type === "BILL" && c.status === "PENDING",
-  );
+  // Filtra chamados ativos por tipo
+  const waiterCall = calls.find((c) => c.type === "WAITER");
+  const billCall = calls.find((c) => c.type === "BILL");
 
-  const hasAnyFreeType = !pendingWaiter || !pendingBill;
+  // Exibe aviso gentil se houver chamado expirado ainda não dispensado
+  const hasExpired = calls.some((c) => c.status === "EXPIRED");
+  const showExpiredNotice = hasExpired && !dismissedExpired;
+
+  // Estados específicos para WAITER
+  const isWaiterPending = waiterCall?.status === "PENDING";
+  const isWaiterAttended = waiterCall?.status === "ATTENDED";
+  const isWaiterConfirmed =
+    waiterCall?.status === "CONFIRMED" &&
+    !dismissedConfirmedIds.has(waiterCall.id);
+  const isWaiterActive =
+    isWaiterPending || isWaiterAttended || isWaiterConfirmed;
+
+  // Estados específicos para BILL
+  const isBillPending = billCall?.status === "PENDING";
+  const isBillAttended = billCall?.status === "ATTENDED";
+  const isBillConfirmed =
+    billCall?.status === "CONFIRMED" && !dismissedConfirmedIds.has(billCall.id);
+  const isBillActive = isBillPending || isBillAttended || isBillConfirmed;
+
+  // Campo de observação disponível se ao menos uma das ações estiver livre
+  const hasAnyFreeType = !isWaiterActive || !isBillActive;
 
   const waiterButtonText =
     texts.callWaiterButton ||
@@ -58,6 +88,10 @@ export function CallActions({
 
   const notePlaceholder =
     texts.notePlaceholder || UI_MESSAGES.calls.notePlaceholder;
+
+  const handleDismissConfirmed = (callId: string) => {
+    setDismissedConfirmedIds((prev) => new Set(prev).add(callId));
+  };
 
   const handleOpenCall = (type: CallType) => {
     if (!available || openCallMutation.isPending) return;
@@ -119,20 +153,65 @@ export function CallActions({
         </div>
       )}
 
-      {/* Pending Waiter Card */}
-      {pendingWaiter && (
+      {/* Gentle expired notice */}
+      {showExpiredNotice && (
+        <div
+          role="alert"
+          className="flex items-start justify-between gap-3 rounded-2xl border border-amber-200 bg-amber-50/90 p-3.5 text-left shadow-sm backdrop-blur dark:border-amber-900/60 dark:bg-amber-950/80 animate-in fade-in"
+        >
+          <div className="flex items-start gap-2 min-w-0">
+            <Info className="mt-0.5 h-4 w-4 shrink-0 text-amber-600 dark:text-amber-400" />
+            <p className="text-xs font-medium text-amber-900 dark:text-amber-200">
+              {UI_MESSAGES.calls.expiredNotice}
+            </p>
+          </div>
+          <button
+            type="button"
+            onClick={() => setDismissedExpired(true)}
+            className="text-amber-700 hover:text-amber-900 dark:text-amber-300"
+            aria-label="Fechar aviso"
+          >
+            <X className="h-3.5 w-3.5" />
+          </button>
+        </div>
+      )}
+
+      {/* WAITER Active States */}
+      {waiterCall && isWaiterConfirmed && (
+        <ConfirmedCallCard
+          call={waiterCall}
+          onDismiss={() => handleDismissConfirmed(waiterCall.id)}
+        />
+      )}
+
+      {waiterCall && isWaiterAttended && (
+        <AttendedCallCard call={waiterCall} token={token} texts={texts} />
+      )}
+
+      {waiterCall && isWaiterPending && (
         <PendingCallCard
-          call={pendingWaiter}
+          call={waiterCall}
           token={token}
           showWaitTimeToCustomer={showWaitTimeToCustomer}
           texts={texts}
         />
       )}
 
-      {/* Pending Bill Card */}
-      {pendingBill && (
+      {/* BILL Active States */}
+      {billCall && isBillConfirmed && (
+        <ConfirmedCallCard
+          call={billCall}
+          onDismiss={() => handleDismissConfirmed(billCall.id)}
+        />
+      )}
+
+      {billCall && isBillAttended && (
+        <AttendedCallCard call={billCall} token={token} texts={texts} />
+      )}
+
+      {billCall && isBillPending && (
         <PendingCallCard
-          call={pendingBill}
+          call={billCall}
           token={token}
           showWaitTimeToCustomer={showWaitTimeToCustomer}
           texts={texts}
@@ -159,7 +238,7 @@ export function CallActions({
                   className="flex items-center gap-1.5 text-xs font-semibold text-zinc-700 dark:text-zinc-300"
                 >
                   <MessageSquare className="h-3.5 w-3.5 text-zinc-400" />
-                  <span>Observação para o garçom</span>
+                  <span>Observação para a equipe</span>
                 </label>
                 <button
                   type="button"
@@ -187,10 +266,10 @@ export function CallActions({
         </div>
       )}
 
-      {/* Action Buttons Section */}
+      {/* Action Buttons Section (rendered for whichever call type is currently free) */}
       <div className="space-y-3 pt-1">
-        {/* Call Waiter Button (if not already pending) */}
-        {!pendingWaiter && (
+        {/* Call Waiter Button (if not already active) */}
+        {!isWaiterActive && (
           <Button
             type="button"
             size="table"
@@ -208,8 +287,8 @@ export function CallActions({
           </Button>
         )}
 
-        {/* Request Bill Button (if not already pending) */}
-        {!pendingBill && (
+        {/* Request Bill Button (if not already active) */}
+        {!isBillActive && (
           <Button
             type="button"
             size="table"

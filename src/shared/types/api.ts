@@ -245,6 +245,7 @@ export interface PublicCallDto {
   rating: number | null;
   confirmationDeadline?: string | null;
   reopenCount: number;
+  contested?: boolean;
   alreadyPending?: boolean;
   serverNow: string;
 }

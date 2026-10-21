@@ -69,5 +69,25 @@ export const UI_MESSAGES = {
     reopenedBadge: "Reaberto",
     callSentSuccess: "Solicitação enviada com sucesso!",
     cancelSuccess: "Solicitação cancelada.",
+    attendedPrompt: "Você foi atendido?",
+    attendedSubtitle:
+      "A equipe marcou seu chamado como atendido. Como foi sua experiência?",
+    ratingBad: "Ruim",
+    ratingRegular: "Regular",
+    ratingGood: "Excelente",
+    confirmSimple: "Sim, tudo certo",
+    contestButton: "Garçom não veio",
+    contestConfirmTitle: "Contestar atendimento?",
+    contestConfirmDesc:
+      "Deseja informar que o garçom ainda não esteve na mesa? O chamado retornará ao painel com destaque.",
+    contestSuccess:
+      "Atendimento contestado. O chamado voltou à fila com prioridade.",
+    confirmedTitle: "Atendimento confirmado!",
+    confirmedSubtitle:
+      "Obrigado pela confirmação! Desejamos uma excelente refeição.",
+    autoConfirmPrefix: "Confirmação automática em",
+    expiredNotice:
+      "Seu chamado expirou após 20 minutos sem atendimento. Por favor, solicite novamente.",
+    invalidRatingError: "Avaliação inválida.",
   },
 } as const;
