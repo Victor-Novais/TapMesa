@@ -61,6 +61,8 @@ import {
   TableScreenError,
   CallActions,
 } from "@/features/table-screen";
+import { PanelCallCard, RecentCallsDrawer } from "@/features/panel";
+import type { PanelCallDto, RecentAttendedCallDto } from "@/shared/types/api";
 import { cn } from "@/shared/lib/cn";
 import {
   Moon,
@@ -694,6 +696,23 @@ export function UiShowcase() {
 
                 <TableScreenDemo />
               </section>
+
+              {/* Section: Painel de Operação - Cards, TV 3m & Alertas */}
+              <section className="space-y-4">
+                <div className="border-b border-zinc-200 dark:border-zinc-800 pb-3">
+                  <h2 className="text-lg font-bold text-zinc-900 dark:text-zinc-100">
+                    11. Painel de Operação (F10) — Cards, TV 3m & Alertas
+                    Semânticos
+                  </h2>
+                  <p className="text-xs text-zinc-500">
+                    Validação visual para TV a 3 metros, tablet e mobile. Níveis
+                    Normal, Alerta e Urgente (cor + ícone + texto), cronômetros
+                    ao vivo, notas e gaveta de recentes.
+                  </p>
+                </div>
+
+                <PanelScreenDemo />
+              </section>
             </div>
           </main>
         </div>
@@ -1007,6 +1026,250 @@ function TableScreenDemo() {
           </TableThemeProvider>
         )}
       </div>
+    </div>
+  );
+}
+
+const DEMO_BASE_TIME = 1792584000000; // Deterministic static timestamp
+const DEMO_SERVER_NOW = "2026-10-21T09:30:00.000Z";
+
+const INITIAL_DEMO_CALLS: PanelCallDto[] = [
+  {
+    id: "demo-call-1",
+    tableNumber: 4,
+    type: "WAITER",
+    status: "PENDING",
+    note: null,
+    createdAt: new Date(DEMO_BASE_TIME - 85 * 1000).toISOString(),
+    acknowledgedAt: null,
+    acknowledgedById: null,
+    firstAttendedAt: null,
+    attendedAt: null,
+    reopenCount: 0,
+    serverNow: DEMO_SERVER_NOW,
+  },
+  {
+    id: "demo-call-2",
+    tableNumber: 12,
+    type: "BILL",
+    status: "PENDING",
+    note: "Trazer maquininha de cartão e nota fiscal",
+    createdAt: new Date(DEMO_BASE_TIME - 210 * 1000).toISOString(),
+    acknowledgedAt: null,
+    acknowledgedById: null,
+    firstAttendedAt: null,
+    attendedAt: null,
+    reopenCount: 0,
+    serverNow: DEMO_SERVER_NOW,
+  },
+  {
+    id: "demo-call-3",
+    tableNumber: 2,
+    type: "WAITER",
+    status: "PENDING",
+    note: "Cliente com pressa",
+    createdAt: new Date(DEMO_BASE_TIME - 360 * 1000).toISOString(),
+    acknowledgedAt: null,
+    acknowledgedById: null,
+    firstAttendedAt: null,
+    attendedAt: null,
+    reopenCount: 2,
+    serverNow: DEMO_SERVER_NOW,
+  },
+  {
+    id: "demo-call-4",
+    tableNumber: 8,
+    type: "WAITER",
+    status: "PENDING",
+    note: null,
+    createdAt: new Date(DEMO_BASE_TIME - 130 * 1000).toISOString(),
+    acknowledgedAt: new Date(DEMO_BASE_TIME - 40 * 1000).toISOString(),
+    acknowledgedById: "other-waiter-uuid",
+    firstAttendedAt: null,
+    attendedAt: null,
+    reopenCount: 0,
+    serverNow: DEMO_SERVER_NOW,
+  },
+  {
+    id: "demo-call-5",
+    tableNumber: 15,
+    type: "BILL",
+    status: "PENDING",
+    note: null,
+    createdAt: new Date(DEMO_BASE_TIME - 65 * 1000).toISOString(),
+    acknowledgedAt: new Date(DEMO_BASE_TIME - 20 * 1000).toISOString(),
+    acknowledgedById: "my-user-uuid",
+    firstAttendedAt: null,
+    attendedAt: null,
+    reopenCount: 0,
+    serverNow: DEMO_SERVER_NOW,
+  },
+];
+
+const INITIAL_DEMO_RECENTS: RecentAttendedCallDto[] = [
+  {
+    id: "recent-1",
+    tableNumber: 5,
+    type: "WAITER",
+    status: "CONFIRMED",
+    rating: 3,
+    executionTimeSec: 120,
+    attendedAt: new Date(DEMO_BASE_TIME - 5 * 60 * 1000).toISOString(),
+    serverNow: DEMO_SERVER_NOW,
+  },
+  {
+    id: "recent-2",
+    tableNumber: 11,
+    type: "BILL",
+    status: "CLOSED_UNCONFIRMED",
+    rating: null,
+    executionTimeSec: 180,
+    attendedAt: new Date(DEMO_BASE_TIME - 12 * 60 * 1000).toISOString(),
+    serverNow: DEMO_SERVER_NOW,
+  },
+  {
+    id: "recent-3",
+    tableNumber: 3,
+    type: "WAITER",
+    status: "ATTENDED",
+    rating: null,
+    executionTimeSec: 90,
+    attendedAt: new Date(DEMO_BASE_TIME - 1 * 60 * 1000).toISOString(),
+    serverNow: DEMO_SERVER_NOW,
+  },
+];
+
+function PanelScreenDemo() {
+  const { toast } = useToast();
+  const [drawerOpen, setDrawerOpen] = React.useState(false);
+  const [submittingId, setSubmittingId] = React.useState<string | null>(null);
+
+  const [calls, setCalls] = React.useState<PanelCallDto[]>(INITIAL_DEMO_CALLS);
+  const [recentCalls, setRecentCalls] =
+    React.useState<RecentAttendedCallDto[]>(INITIAL_DEMO_RECENTS);
+
+  const thresholds = {
+    alertSec: 180,
+    urgentSec: 300,
+  };
+
+  const handleAssume = (id: string) => {
+    setSubmittingId(id);
+    setTimeout(() => {
+      setCalls((prev) =>
+        prev.map((c) =>
+          c.id === id
+            ? {
+                ...c,
+                acknowledgedAt: "2026-10-21T09:30:00.000Z",
+                acknowledgedById: "my-user-uuid",
+              }
+            : c,
+        ),
+      );
+      setSubmittingId(null);
+      toast({
+        title: "Chamado assumido!",
+        description: "Você assumiu o atendimento da mesa.",
+        type: "success",
+      });
+    }, 400);
+  };
+
+  const handleAttend = (id: string) => {
+    setSubmittingId(id);
+    const target = calls.find((c) => c.id === id);
+    setTimeout(() => {
+      setCalls((prev) => prev.filter((c) => c.id !== id));
+      if (target) {
+        setRecentCalls((prev) => [
+          {
+            id: `attended-${target.id}`,
+            tableNumber: target.tableNumber,
+            type: target.type,
+            status: "ATTENDED",
+            rating: null,
+            executionTimeSec: 110,
+            attendedAt: "2026-10-21T09:30:00.000Z",
+            serverNow: DEMO_SERVER_NOW,
+          },
+          ...prev,
+        ]);
+      }
+      setSubmittingId(null);
+      toast({
+        title: "Atendimento concluído!",
+        description: `Mesa ${target?.tableNumber || ""} atendida com sucesso.`,
+        type: "success",
+      });
+    }, 400);
+  };
+
+  const handleReset = () => {
+    setCalls(INITIAL_DEMO_CALLS);
+    setRecentCalls(INITIAL_DEMO_RECENTS);
+  };
+
+  return (
+    <div className="space-y-4">
+      <div className="flex flex-wrap items-center justify-between gap-3 bg-zinc-50 dark:bg-zinc-800/50 p-3 rounded-2xl border border-zinc-200 dark:border-zinc-800">
+        <div className="flex items-center gap-2">
+          <span className="text-xs font-semibold text-zinc-600 dark:text-zinc-300">
+            Fila ativa: {calls.length} chamados
+          </span>
+          <span className="text-xs text-zinc-400">•</span>
+          <span className="text-xs text-zinc-500">
+            Recentes: {recentCalls.length}
+          </span>
+        </div>
+
+        <div className="flex items-center gap-2">
+          <Button
+            size="sm"
+            variant="outline"
+            onClick={() => setDrawerOpen(true)}
+            className="text-xs font-semibold h-8"
+          >
+            Abrir Gaveta ({recentCalls.length})
+          </Button>
+
+          <Button
+            size="sm"
+            variant="ghost"
+            onClick={handleReset}
+            className="text-xs text-zinc-500 hover:text-zinc-900 dark:hover:text-zinc-100 h-8"
+          >
+            Resetar Cenário
+          </Button>
+        </div>
+      </div>
+
+      <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
+        {calls.map((call) => (
+          <PanelCallCard
+            key={call.id}
+            call={call}
+            thresholds={thresholds}
+            onAssume={handleAssume}
+            onAttend={handleAttend}
+            isSubmitting={submittingId === call.id}
+            currentUserId="my-user-uuid"
+          />
+        ))}
+      </div>
+
+      <RecentCallsDrawer
+        open={drawerOpen}
+        onOpenChange={setDrawerOpen}
+        recentCalls={recentCalls}
+        onRefresh={() => {
+          toast({
+            title: "Lista atualizada",
+            description: "Chamados recentes recarregados.",
+            type: "info",
+          });
+        }}
+      />
     </div>
   );
 }

@@ -1,361 +1,216 @@
 "use client";
 
 import * as React from "react";
-import {
-  Bell,
-  Receipt,
-  Clock,
-  UserCheck,
-  AlertTriangle,
-  Flame,
-  RefreshCw,
-  MessageSquare,
-  Sparkles,
-} from "lucide-react";
+import { Sparkles, RefreshCw, WifiOff, CheckCircle2 } from "lucide-react";
 import {
   usePanelStore,
   usePanelStream,
   usePanelActions,
+  PanelHeader,
+  PanelCallCard,
+  RecentCallsDrawer,
 } from "@/features/panel";
-import { Badge } from "@/shared/ui/badge";
+import { useAuth } from "@/features/auth";
+import { UserMenu } from "@/app/_components/user-menu";
 import { Button } from "@/shared/ui/button";
 import { Card } from "@/shared/ui/card";
-import { useNow, calculateElapsedSec, formatTimer } from "@/shared/lib/clock";
-import { cn } from "@/shared/lib/cn";
-
-function getAlertLevel(
-  elapsedSec: number,
-  alertSec: number,
-  urgentSec: number,
-): {
-  level: "normal" | "alert" | "urgent";
-  label: string;
-  badgeVariant: "success" | "alert" | "danger";
-  icon: React.ReactNode;
-} {
-  if (elapsedSec >= urgentSec) {
-    return {
-      level: "urgent",
-      label: "Urgente",
-      badgeVariant: "danger",
-      icon: <Flame className="h-3.5 w-3.5 animate-pulse" />,
-    };
-  }
-  if (elapsedSec >= alertSec) {
-    return {
-      level: "alert",
-      label: "Alerta",
-      badgeVariant: "alert",
-      icon: <AlertTriangle className="h-3.5 w-3.5" />,
-    };
-  }
-  return {
-    level: "normal",
-    label: "Normal",
-    badgeVariant: "success",
-    icon: <Clock className="h-3.5 w-3.5" />,
-  };
-}
+import { useNow } from "@/shared/lib/clock";
 
 export default function PanelOperationalPage() {
-  // Inicia conexão SSE do painel com ticket de uso único
+  const { user } = useAuth();
+  const currentUserId = user?.id || user?.sub;
+
+  // Conexão SSE em tempo real com ticket de uso único e fallback para polling
   const { isPollingFallback, reconnect } = usePanelStream();
 
-  const { calls, recent, counters, thresholds } = usePanelStore();
+  const { calls, recent, counters, thresholds, connectionStatus } =
+    usePanelStore();
   const { assumeCall, attendCall, loadRecent, isLoadingRecent, isSubmitting } =
     usePanelActions();
 
-  // Assina o tick do relógio compartilhado para atualização dos cronômetros
+  // Tick do relógio compartilhado (sincronizado com serverNow)
   useNow();
 
+  // Estado da gaveta de recentes
+  const [isDrawerOpen, setIsDrawerOpen] = React.useState(false);
+
+  // Acessibilidade: anúncio via aria-live para leitores de tela
+  const [announcement, setAnnouncement] = React.useState<string>("");
+  const prevCallsCountRef = React.useRef(calls.length);
+
+  React.useEffect(() => {
+    if (calls.length > prevCallsCountRef.current) {
+      const newestCall = calls[calls.length - 1];
+      if (newestCall) {
+        const typeLabel =
+          newestCall.type === "BILL" ? "Pedido de conta" : "Chamado de garçom";
+        const timer = setTimeout(() => {
+          setAnnouncement(
+            `Novo chamado: Mesa ${newestCall.tableNumber}, ${typeLabel}.`,
+          );
+        }, 0);
+        prevCallsCountRef.current = calls.length;
+        return () => clearTimeout(timer);
+      }
+    }
+    prevCallsCountRef.current = calls.length;
+  }, [calls]);
+
+  // Carrega lista inicial de chamados recentes para a gaveta
   React.useEffect(() => {
     void loadRecent(15);
   }, [loadRecent]);
 
   return (
-    <div className="space-y-6">
-      {/* Contingency Polling Warning Banner */}
-      {isPollingFallback && (
-        <div
-          role="alert"
-          className="flex items-center justify-between rounded-2xl border border-amber-300 bg-amber-50 px-4 py-3 text-amber-900 shadow-sm dark:border-amber-800 dark:bg-amber-950/60 dark:text-amber-200"
-        >
-          <div className="flex items-center gap-2">
-            <RefreshCw className="h-4 w-4 animate-spin text-amber-600 dark:text-amber-400" />
-            <span className="text-xs font-semibold">
-              Conexão SSE instável. Operando em modo de contingência com
-              atualização a cada 10s.
-            </span>
-          </div>
-          <Button
-            size="sm"
-            variant="outline"
-            onClick={reconnect}
-            className="h-7 text-xs border-amber-300 bg-white hover:bg-amber-100 dark:border-amber-700 dark:bg-zinc-900"
-          >
-            Tentar reconectar SSE
-          </Button>
-        </div>
-      )}
+    <div className="flex min-h-screen flex-col bg-zinc-100 text-zinc-900 dark:bg-zinc-950 dark:text-zinc-50">
+      {/* Header Operacional Integrado */}
+      <PanelHeader
+        connectionStatus={connectionStatus}
+        counters={counters}
+        recentCount={recent.length}
+        onOpenRecent={() => setIsDrawerOpen(true)}
+        userMenu={<UserMenu />}
+      />
 
-      {/* Counters Summary Bar */}
-      <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-        <div className="rounded-2xl border border-zinc-200 bg-white p-4 shadow-sm dark:border-zinc-800 dark:bg-zinc-900">
-          <p className="text-xs text-zinc-500 font-medium">Total Ativos</p>
-          <p className="mt-1 text-3xl font-extrabold font-mono text-zinc-900 dark:text-zinc-50">
-            {counters.activeCallsCount}
-          </p>
-        </div>
-
-        <div className="rounded-2xl border border-zinc-200 bg-white p-4 shadow-sm dark:border-zinc-800 dark:bg-zinc-900">
-          <div className="flex items-center gap-1.5 text-orange-600 dark:text-orange-400">
-            <Bell className="h-3.5 w-3.5" />
-            <p className="text-xs font-medium">Chamados Garçom</p>
-          </div>
-          <p className="mt-1 text-3xl font-extrabold font-mono text-zinc-900 dark:text-zinc-50">
-            {counters.waiterCallsCount}
-          </p>
-        </div>
-
-        <div className="rounded-2xl border border-zinc-200 bg-white p-4 shadow-sm dark:border-zinc-800 dark:bg-zinc-900">
-          <div className="flex items-center gap-1.5 text-emerald-600 dark:text-emerald-400">
-            <Receipt className="h-3.5 w-3.5" />
-            <p className="text-xs font-medium">Pedidos de Conta</p>
-          </div>
-          <p className="mt-1 text-3xl font-extrabold font-mono text-zinc-900 dark:text-zinc-50">
-            {counters.billCallsCount}
-          </p>
-        </div>
-
-        <div className="rounded-2xl border border-zinc-200 bg-white p-4 shadow-sm dark:border-zinc-800 dark:bg-zinc-900">
-          <div className="flex items-center justify-between">
-            <p className="text-xs text-zinc-500 font-medium">Recentes</p>
-            <button
-              type="button"
-              onClick={() => void loadRecent(15)}
-              className="text-zinc-400 hover:text-zinc-600 dark:hover:text-zinc-200"
-              aria-label="Recarregar recentes"
-            >
-              <RefreshCw
-                className={cn(
-                  "h-3.5 w-3.5",
-                  isLoadingRecent && "animate-spin text-orange-500",
-                )}
-              />
-            </button>
-          </div>
-          <p className="mt-1 text-3xl font-extrabold font-mono text-zinc-900 dark:text-zinc-50">
-            {recent.length}
-          </p>
-        </div>
+      {/* Região oculta para leitores de tela anunciarem novos chamados */}
+      <div
+        className="sr-only"
+        role="status"
+        aria-live="polite"
+        aria-atomic="true"
+      >
+        {announcement}
       </div>
 
-      {/* Active Calls Operational Queue */}
-      <section className="space-y-3">
-        <div className="flex items-center justify-between">
-          <h2 className="text-base font-bold text-zinc-900 dark:text-zinc-100 flex items-center gap-2">
-            <span>Fila Operacional</span>
-            <Badge variant="neutral" className="font-mono text-xs">
-              {calls.length}
-            </Badge>
-          </h2>
-          <span className="text-xs text-zinc-500 font-medium">
-            Ordenado do mais antigo para o mais recente
-          </span>
-        </div>
-
-        {calls.length === 0 ? (
-          <Card className="flex min-h-[300px] flex-col items-center justify-center p-8 text-center border-dashed">
-            <div className="flex h-14 w-14 items-center justify-center rounded-3xl bg-emerald-100 text-emerald-600 dark:bg-emerald-950/40 dark:text-emerald-400">
-              <Sparkles className="h-7 w-7" />
+      {/* Margem de segurança / overscan para TV e monitores (2% a 3% nas bordas) */}
+      <main className="flex-1 w-full max-w-[3840px] mx-auto px-4 sm:px-6 md:px-8 xl:px-12 2xl:px-16 py-4 sm:py-6 space-y-6">
+        {/* Banner de Contingência: Polling Fallback (SSE indisponível) */}
+        {isPollingFallback && (
+          <aside
+            role="alert"
+            className="flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-amber-300 bg-amber-50 px-4 sm:px-5 py-3 text-amber-900 shadow-sm dark:border-amber-800 dark:bg-amber-950/60 dark:text-amber-200"
+          >
+            <div className="flex items-center gap-2.5">
+              <RefreshCw className="h-4 w-4 shrink-0 animate-spin text-amber-600 dark:text-amber-400" />
+              <p className="text-xs sm:text-sm font-semibold">
+                Conexão em tempo real instável. Operando em modo de contingência
+                com atualização a cada 10s.
+              </p>
             </div>
-            <h3 className="mt-4 text-lg font-bold text-zinc-900 dark:text-zinc-50">
-              Tudo em dia no salão!
-            </h3>
-            <p className="mt-1 text-xs sm:text-sm text-zinc-500 max-w-sm">
-              Não há chamados de garçom ou pedidos de conta aguardando
-              atendimento.
-            </p>
-          </Card>
-        ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
-            {calls.map((call) => {
-              const elapsedSec = calculateElapsedSec(call.createdAt);
-              const timerStr = formatTimer(elapsedSec);
-              const alert = getAlertLevel(
-                elapsedSec,
-                thresholds.alertSec,
-                thresholds.urgentSec,
-              );
-              const isAssumed = Boolean(call.acknowledgedAt);
-              const submitting = isSubmitting(call.id);
-
-              return (
-                <div
-                  key={call.id}
-                  className={cn(
-                    "flex flex-col justify-between rounded-3xl border bg-white p-5 shadow-sm transition-all dark:bg-zinc-900",
-                    alert.level === "urgent"
-                      ? "border-red-400/80 ring-2 ring-red-400/30 dark:border-red-600"
-                      : alert.level === "alert"
-                        ? "border-amber-400/80 ring-2 ring-amber-400/30 dark:border-amber-600"
-                        : "border-zinc-200 dark:border-zinc-800",
-                  )}
-                >
-                  <div className="space-y-3">
-                    {/* Top Table & Alert badge */}
-                    <div className="flex items-center justify-between">
-                      <span className="text-2xl font-black tracking-tight text-zinc-950 dark:text-zinc-50">
-                        Mesa {call.tableNumber}
-                      </span>
-                      <Badge
-                        variant={alert.badgeVariant}
-                        className="flex items-center gap-1 font-semibold text-xs"
-                      >
-                        {alert.icon}
-                        <span>{alert.label}</span>
-                      </Badge>
-                    </div>
-
-                    {/* Type and Wait Time */}
-                    <div className="flex items-center justify-between border-b border-zinc-100 pb-3 dark:border-zinc-800">
-                      <div className="flex items-center gap-1.5 font-bold text-sm">
-                        {call.type === "WAITER" ? (
-                          <span className="flex items-center gap-1.5 text-orange-600 dark:text-orange-400">
-                            <Bell className="h-4 w-4" />
-                            Garçom
-                          </span>
-                        ) : (
-                          <span className="flex items-center gap-1.5 text-emerald-600 dark:text-emerald-400">
-                            <Receipt className="h-4 w-4" />
-                            Conta
-                          </span>
-                        )}
-                        {call.reopenCount > 0 && (
-                          <Badge
-                            variant="alert"
-                            className="text-[10px] px-1.5 py-0.2"
-                          >
-                            Reaberto ({call.reopenCount}x)
-                          </Badge>
-                        )}
-                      </div>
-
-                      <div className="font-mono text-base font-bold tabular-nums text-zinc-900 dark:text-zinc-100">
-                        {timerStr}
-                      </div>
-                    </div>
-
-                    {/* Note if provided */}
-                    {call.note && (
-                      <div className="flex items-start gap-2 rounded-xl bg-zinc-50 p-2.5 text-xs text-zinc-700 dark:bg-zinc-800/60 dark:text-zinc-300">
-                        <MessageSquare className="mt-0.5 h-3.5 w-3.5 shrink-0 text-zinc-400" />
-                        <span className="italic break-words">
-                          &ldquo;{call.note}&rdquo;
-                        </span>
-                      </div>
-                    )}
-
-                    {/* Assumed status */}
-                    {isAssumed && (
-                      <div className="flex items-center gap-1.5 text-xs font-medium text-emerald-700 dark:text-emerald-400">
-                        <UserCheck className="h-3.5 w-3.5" />
-                        <span>Assumido pela equipe</span>
-                      </div>
-                    )}
-                  </div>
-
-                  {/* Actions: Assumir e Atender */}
-                  <div className="mt-4 pt-3 border-t border-zinc-100 dark:border-zinc-800 grid grid-cols-2 gap-2">
-                    <Button
-                      size="sm"
-                      variant="outline"
-                      disabled={isAssumed || submitting}
-                      isLoading={submitting && !isAssumed}
-                      onClick={() => void assumeCall(call.id)}
-                      className="text-xs font-semibold"
-                    >
-                      {isAssumed ? "Assumido" : "Assumir"}
-                    </Button>
-
-                    <Button
-                      size="sm"
-                      variant="primary"
-                      disabled={submitting}
-                      isLoading={submitting}
-                      onClick={() => void attendCall(call.id)}
-                      className="text-xs font-bold"
-                    >
-                      Atendido
-                    </Button>
-                  </div>
-                </div>
-              );
-            })}
-          </div>
+            <Button
+              type="button"
+              size="sm"
+              variant="outline"
+              onClick={reconnect}
+              className="h-8 text-xs font-bold border-amber-300 bg-white hover:bg-amber-100 dark:border-amber-700 dark:bg-zinc-900 shadow-xs"
+            >
+              Reconectar SSE
+            </Button>
+          </aside>
         )}
-      </section>
 
-      {/* Recently Attended Drawer/Section */}
-      <section className="space-y-3 pt-4 border-t border-zinc-200 dark:border-zinc-800">
-        <div className="flex items-center justify-between">
-          <h2 className="text-base font-bold text-zinc-900 dark:text-zinc-100 flex items-center gap-2">
-            <span>Últimos Atendidos</span>
-            <Badge variant="neutral" className="font-mono text-xs">
-              {recent.length}
-            </Badge>
-          </h2>
-        </div>
+        {/* Banner de Desconexão Total (Rede ausente ou servidor inalcançável) */}
+        {!isPollingFallback && connectionStatus === "offline" && (
+          <aside
+            role="alert"
+            className="flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-red-300 bg-red-50 px-4 sm:px-5 py-3 text-red-900 shadow-sm dark:border-red-800 dark:bg-red-950/60 dark:text-red-200"
+          >
+            <div className="flex items-center gap-2.5">
+              <WifiOff className="h-4 w-4 shrink-0 text-red-600 dark:text-red-400" />
+              <p className="text-xs sm:text-sm font-semibold">
+                Sem conexão com o servidor. Verifique a rede da sua estação ou
+                TV.
+              </p>
+            </div>
+            <Button
+              type="button"
+              size="sm"
+              variant="outline"
+              onClick={reconnect}
+              className="h-8 text-xs font-bold border-red-300 bg-white hover:bg-red-100 dark:border-red-700 dark:bg-zinc-900 shadow-xs"
+            >
+              Tentar reconectar
+            </Button>
+          </aside>
+        )}
 
-        {recent.length === 0 ? (
-          <p className="text-xs text-zinc-500 italic">
-            Nenhum chamado atendido recentemente.
-          </p>
-        ) : (
-          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-3">
-            {recent.slice(0, 10).map((r) => (
-              <div
-                key={r.id}
-                className="flex flex-col justify-between rounded-2xl border border-zinc-200 bg-white p-3.5 shadow-sm text-xs dark:border-zinc-800 dark:bg-zinc-900"
-              >
-                <div className="flex items-center justify-between">
-                  <span className="font-bold text-sm text-zinc-900 dark:text-zinc-100">
-                    Mesa {r.tableNumber}
-                  </span>
-                  <span className="text-[11px] font-semibold text-zinc-500">
-                    {r.type === "WAITER" ? "Garçom" : "Conta"}
-                  </span>
-                </div>
-
-                <div className="mt-2 flex items-center justify-between">
-                  <Badge
-                    variant={
-                      r.status === "CONFIRMED"
-                        ? "success"
-                        : r.status === "CLOSED_UNCONFIRMED"
-                          ? "neutral"
-                          : "alert"
-                    }
-                    className="text-[10px]"
-                  >
-                    {r.status === "CONFIRMED"
-                      ? "Confirmado"
-                      : r.status === "CLOSED_UNCONFIRMED"
-                        ? "Encerrado"
-                        : "Aguardando"}
-                  </Badge>
-
-                  {r.rating && (
-                    <span className="font-bold text-emerald-600 dark:text-emerald-400">
-                      ★ {r.rating}
-                    </span>
-                  )}
-                </div>
+        {/* Fila Operacional de Chamados */}
+        <section
+          aria-label="Fila operacional de chamados ativos"
+          className="space-y-4"
+        >
+          {calls.length === 0 ? (
+            /* Estado Vazio Positivo (Tudo em dia!) */
+            <Card className="flex min-h-[420px] flex-col items-center justify-center p-8 sm:p-12 text-center border-dashed border-zinc-200 bg-white/70 dark:border-zinc-800 dark:bg-zinc-900/50 shadow-sm">
+              <div className="flex h-20 w-20 items-center justify-center rounded-3xl bg-emerald-100 text-emerald-600 shadow-inner dark:bg-emerald-950/50 dark:text-emerald-400 animate-in zoom-in-75 duration-300">
+                <Sparkles className="h-10 w-10 animate-pulse" />
               </div>
-            ))}
-          </div>
-        )}
-      </section>
+
+              <h2 className="mt-6 text-2xl sm:text-3xl font-black tracking-tight text-zinc-900 dark:text-zinc-50">
+                Tudo em dia no salão!
+              </h2>
+
+              <p className="mt-2 text-sm sm:text-base text-zinc-500 dark:text-zinc-400 max-w-md leading-relaxed">
+                Não há chamados de garçom ou pedidos de conta aguardando
+                atendimento neste momento.
+              </p>
+
+              <div className="mt-6 flex flex-wrap items-center justify-center gap-3">
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  onClick={() => setIsDrawerOpen(true)}
+                  className="text-xs font-bold gap-2"
+                >
+                  <CheckCircle2 className="h-4 w-4 text-emerald-600" />
+                  <span>Ver últimos atendimentos ({recent.length})</span>
+                </Button>
+
+                <Button
+                  type="button"
+                  variant="ghost"
+                  size="sm"
+                  onClick={reconnect}
+                  className="text-xs text-zinc-500 hover:text-zinc-900 dark:hover:text-zinc-100"
+                >
+                  <RefreshCw className="mr-1.5 h-3.5 w-3.5" />
+                  Atualizar status
+                </Button>
+              </div>
+            </Card>
+          ) : (
+            /* Grade de Cards Operacionais:
+               - Mobile (< 640px): 1 coluna
+               - Tablet Retrato (640px-1024px): 2 colunas
+               - Tablet Paisagem / Desktop (1024px-1440px): 3 colunas
+               - TV / Telas Grandes (>= 1440px / 1920px / 3840px): 4 a 5 colunas
+            */
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5 gap-4 sm:gap-6">
+              {calls.map((call) => (
+                <PanelCallCard
+                  key={call.id}
+                  call={call}
+                  thresholds={thresholds}
+                  onAssume={assumeCall}
+                  onAttend={attendCall}
+                  isSubmitting={isSubmitting(call.id)}
+                  currentUserId={currentUserId}
+                />
+              ))}
+            </div>
+          )}
+        </section>
+      </main>
+
+      {/* Gaveta de Chamados Recentes (Bottom sheet no mobile, lateral a partir de tablet) */}
+      <RecentCallsDrawer
+        open={isDrawerOpen}
+        onOpenChange={setIsDrawerOpen}
+        recentCalls={recent}
+        onRefresh={() => void loadRecent(15)}
+        isLoading={isLoadingRecent}
+      />
     </div>
   );
 }
