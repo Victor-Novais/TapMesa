@@ -59,3 +59,9 @@
 - **Documentação / Requisitos:** A documentação sugeria sincronização via header `X-Server-Now`.
 - **Back-end Real:** O middleware de CORS em `src/platform/bootstrap/configure-app.ts` não inclui `exposedHeaders: ['X-Server-Now']`.
 - **Decisão no Front-end:** Conforme previsto na Seção 9 do plano, o front-end utiliza primariamente a propriedade `serverNow` (string ISO 8601) presente no corpo JSON de todas as respostas críticas (`PublicTableDto`, `PanelStateDto`, `PanelCallDto`, etc.) para a sincronização do relógio global (`syncClock`).
+
+### 7. Formato das Claims de Usuário em `GET /api/v1/auth/me`
+
+- **Documentação / Requisitos:** `API_REFERENCE.md` sugeria que `GET /api/v1/auth/me` retornava `id`, `username`, `role`, `restaurantId`, etc.
+- **Back-end Real:** `AuthController.me` retorna o objeto extraído diretamente do JWT via `JwtAuthGuard` (`{ sub: string, role: Role, rid?: string, imp?: string, iat: number, exp: number }`). O campo de identificação único é `sub` (UUID) e `username` não está incluído no payload do token.
+- **Decisão no Front-end:** O modelo de usuário no front-end (`AuthUser`) normaliza `id = user.id || user.sub` e `restaurantId = user.restaurantId || user.rid`, preservando o `username` preenchido no momento da autenticação ou derivando de forma segura.

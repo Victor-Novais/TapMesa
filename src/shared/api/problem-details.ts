@@ -66,3 +66,5 @@ export function parseApiError(error: unknown): ProblemDetails {
     code: "UNKNOWN_ERROR",
   };
 }
+
+export const parseProblemDetails = parseApiError;

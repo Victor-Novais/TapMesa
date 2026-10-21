@@ -16,6 +16,20 @@ let failedQueue: Array<{
   reject: (error: unknown) => void;
 }> = [];
 
+type TokenRefreshedCallback = (token: string) => void;
+type AuthExpiredCallback = () => void;
+
+let onTokenRefreshed: TokenRefreshedCallback | null = null;
+let onAuthExpired: AuthExpiredCallback | null = null;
+
+export const setAuthTokenCallbacks = (callbacks: {
+  onRefreshed?: TokenRefreshedCallback;
+  onExpired?: AuthExpiredCallback;
+}) => {
+  if (callbacks.onRefreshed) onTokenRefreshed = callbacks.onRefreshed;
+  if (callbacks.onExpired) onAuthExpired = callbacks.onExpired;
+};
+
 export const setAccessToken = (token: string | null) => {
   accessToken = token;
 };
@@ -86,6 +100,9 @@ api.interceptors.response.use(
         const newAccessToken = response.data.accessToken;
 
         setAccessToken(newAccessToken);
+        if (onTokenRefreshed) {
+          onTokenRefreshed(newAccessToken);
+        }
         processQueue(null, newAccessToken);
 
         originalRequest.headers.Authorization = `Bearer ${newAccessToken}`;
@@ -93,8 +110,15 @@ api.interceptors.response.use(
       } catch (refreshError) {
         processQueue(refreshError, null);
         setAccessToken(null);
+        if (onAuthExpired) {
+          onAuthExpired();
+        }
 
-        if (typeof window !== "undefined") {
+        if (
+          typeof window !== "undefined" &&
+          !window.location.pathname.startsWith("/login") &&
+          !window.location.pathname.startsWith("/m/")
+        ) {
           // eslint-disable-next-line @next/next/no-location-assign-relative-destination
           window.location.href = "/login?expired=true";
         }

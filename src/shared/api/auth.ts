@@ -23,5 +23,10 @@ export async function logout(): Promise<void> {
 
 export async function getMe(): Promise<AuthUser> {
   const response = await api.get<AuthUser>("/auth/me");
-  return response.data;
+  const user = response.data;
+  return {
+    ...user,
+    id: user.id || user.sub,
+    restaurantId: user.restaurantId || user.rid,
+  };
 }

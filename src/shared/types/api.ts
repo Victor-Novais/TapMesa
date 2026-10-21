@@ -58,13 +58,15 @@ export interface LoginResponse {
 }
 
 export interface AuthUser {
-  id: string;
+  id?: string;
   sub: string;
-  username: string;
+  username?: string;
   role: Role;
   restaurantId?: string;
   rid?: string;
   imp?: string | null;
+  iat?: number;
+  exp?: number;
 }
 
 // ============================================================================
@@ -522,6 +524,9 @@ export interface ImpersonateResponse {
   accessToken: string;
   restaurantId: string;
   restaurantName: string;
+  ownerId?: string;
+  ownerUsername?: string;
+  impersonatedBy?: string;
 }
 
 export interface AdminAuditLogItem {
