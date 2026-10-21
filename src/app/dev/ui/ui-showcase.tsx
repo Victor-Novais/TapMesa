@@ -55,6 +55,12 @@ import {
   useToast,
 } from "@/shared/ui";
 import {
+  TableScreen,
+  TableThemeProvider,
+  TableScreenSkeleton,
+  TableScreenError,
+} from "@/features/table-screen";
+import {
   Moon,
   Sun,
   Laptop,
@@ -671,6 +677,21 @@ export function UiShowcase() {
                   />
                 </div>
               </section>
+
+              {/* Section: Tela da Mesa - Temas & Estados */}
+              <section className="space-y-4">
+                <div className="border-b border-zinc-200 dark:border-zinc-800 pb-3">
+                  <h2 className="text-lg font-bold text-zinc-900 dark:text-zinc-100">
+                    10. Tela da Mesa (/m/[token]) — Temas & Estados (F06)
+                  </h2>
+                  <p className="text-xs text-zinc-500">
+                    Validação dos temas claro, escuro, com imagem de fundo, e
+                    estados de erro/pausa com proteção de contraste WCAG 2.1 AA.
+                  </p>
+                </div>
+
+                <TableScreenDemo />
+              </section>
             </div>
           </main>
         </div>
@@ -694,5 +715,143 @@ function ToastTriggerButton() {
     >
       Disparar Notificação Toast
     </Button>
+  );
+}
+
+function TableScreenDemo() {
+  const [selectedTheme, setSelectedTheme] = React.useState<
+    "light" | "dark" | "image" | "skeleton" | "not_found" | "paused"
+  >("light");
+
+  const themes = {
+    light: {
+      restaurantName: "Trattoria Pasta & Vino",
+      description: "Cozinha italiana artesanal e vinhos selecionados",
+      logoUrl: null,
+      backgroundType: "COLOR",
+      backgroundValue: "#ffffff",
+      colors: {
+        primary: "#ea580c",
+        text: "#18181b",
+        primaryText: "#ffffff",
+      },
+      texts: {
+        welcomeTitle: "Bem-vindo à Mesa {tableNumber}",
+      },
+      socials: {
+        wifiSsid: "Trattoria_Clientes",
+        wifiPassword: "vinhoebomdemais",
+        instagram: "@trattoria_oficial",
+        whatsapp: "11999998888",
+      },
+    },
+    dark: {
+      restaurantName: "Nocturne Cocktail Bar",
+      description: "Mixologia autoral e jazz ambiente",
+      logoUrl: null,
+      backgroundType: "COLOR",
+      backgroundValue: "#121214",
+      colors: {
+        primary: "#f97316",
+        text: "#f4f4f5",
+        primaryText: "#18181b",
+      },
+      texts: {
+        welcomeTitle: "Mesa {tableNumber} • Lounge",
+      },
+      socials: {
+        wifiSsid: "Nocturne_5G",
+        wifiPassword: "cocktailjazz2026",
+        instagram: "@nocturnebar",
+      },
+    },
+    image: {
+      restaurantName: "Boi Bravo Steakhouse",
+      description: "Cortes nobres na brasa desde 1998",
+      logoUrl: null,
+      backgroundType: "IMAGE",
+      backgroundValue:
+        "https://images.unsplash.com/photo-1544025162-d76694265947?q=80&w=600&auto=format&fit=crop",
+      colors: {
+        primary: "#dc2626",
+        text: "#ffffff",
+        primaryText: "#ffffff",
+      },
+      texts: {
+        welcomeTitle: "Mesa {tableNumber} • Boi Bravo",
+      },
+      socials: {
+        wifiSsid: "BoiBravo_Guest",
+        wifiPassword: "picanhanabrasa",
+        instagram: "@boibravosteak",
+      },
+    },
+  };
+
+  return (
+    <div className="space-y-4">
+      <div className="flex flex-wrap items-center gap-2">
+        <Button
+          size="sm"
+          variant={selectedTheme === "light" ? "primary" : "outline"}
+          onClick={() => setSelectedTheme("light")}
+        >
+          1. Tema Claro
+        </Button>
+        <Button
+          size="sm"
+          variant={selectedTheme === "dark" ? "primary" : "outline"}
+          onClick={() => setSelectedTheme("dark")}
+        >
+          2. Tema Escuro
+        </Button>
+        <Button
+          size="sm"
+          variant={selectedTheme === "image" ? "primary" : "outline"}
+          onClick={() => setSelectedTheme("image")}
+        >
+          3. Tema Imagem
+        </Button>
+        <Button
+          size="sm"
+          variant={selectedTheme === "skeleton" ? "primary" : "outline"}
+          onClick={() => setSelectedTheme("skeleton")}
+        >
+          4. Esqueleto (Loading)
+        </Button>
+        <Button
+          size="sm"
+          variant={selectedTheme === "paused" ? "primary" : "outline"}
+          onClick={() => setSelectedTheme("paused")}
+        >
+          5. Mesa Pausada
+        </Button>
+        <Button
+          size="sm"
+          variant={selectedTheme === "not_found" ? "primary" : "outline"}
+          onClick={() => setSelectedTheme("not_found")}
+        >
+          6. QR Inválido (404)
+        </Button>
+      </div>
+
+      <div className="relative mx-auto max-w-sm overflow-hidden rounded-3xl border border-zinc-300 shadow-xl dark:border-zinc-700">
+        {selectedTheme === "skeleton" ? (
+          <TableScreenSkeleton />
+        ) : selectedTheme === "paused" ? (
+          <TableScreenError type="PAUSED" />
+        ) : selectedTheme === "not_found" ? (
+          <TableScreenError type="NOT_FOUND" />
+        ) : (
+          <TableThemeProvider appearance={themes[selectedTheme]}>
+            <TableScreen
+              tableNumber={7}
+              appearance={themes[selectedTheme]}
+              available={true}
+            />
+          </TableThemeProvider>
+        )}
+      </div>
+    </div>
   );
 }

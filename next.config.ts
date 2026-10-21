@@ -26,7 +26,7 @@ const securityHeaders = [
     value: [
       "default-src 'self'",
       `connect-src 'self' ${apiOrigin}`,
-      `img-src 'self' data: blob: ${apiOrigin}`,
+      `img-src 'self' data: blob: https: ${apiOrigin}`,
       "style-src 'self' 'unsafe-inline'",
       "script-src 'self' 'unsafe-eval' 'unsafe-inline'",
       "font-src 'self' data:",
@@ -39,6 +39,18 @@ const securityHeaders = [
 
 const nextConfig: NextConfig = {
   output: "standalone",
+  images: {
+    remotePatterns: [
+      {
+        protocol: "http",
+        hostname: "localhost",
+      },
+      {
+        protocol: "https",
+        hostname: "**",
+      },
+    ],
+  },
   async headers() {
     return [
       {

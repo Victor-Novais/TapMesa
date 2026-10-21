@@ -1,24 +1,36 @@
-import { notFound } from "next/navigation";
+import type { Metadata } from "next";
+import { TableScreenView } from "@/features/table-screen";
 
-interface TablePageProps {
+interface PublicTablePageProps {
   params: Promise<{
     token: string;
   }>;
 }
 
-export default async function PublicTablePage({ params }: TablePageProps) {
+export async function generateMetadata({
+  params,
+}: PublicTablePageProps): Promise<Metadata> {
   const { token } = await params;
 
-  if (!token) {
-    notFound();
-  }
+  return {
+    title: "Atendimento de Mesa",
+    description: `Acesso ao cardápio e chamado da mesa ${token}`,
+    robots: {
+      index: false,
+      follow: false,
+    },
+    referrer: "no-referrer",
+  };
+}
+
+export default async function PublicTablePage({
+  params,
+}: PublicTablePageProps) {
+  const { token } = await params;
 
   return (
-    <main className="flex min-h-screen flex-col items-center justify-center p-4 text-center">
-      <div className="max-w-md space-y-3">
-        <h1 className="text-xl font-bold">Mesa TapMesa</h1>
-        <p className="text-sm text-zinc-500">Token da mesa: {token}</p>
-      </div>
+    <main className="min-h-[100dvh] w-full">
+      <TableScreenView token={token} />
     </main>
   );
 }

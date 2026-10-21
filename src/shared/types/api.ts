@@ -257,7 +257,8 @@ export interface PublicTableDto {
   showWaitTimeToCustomer: boolean;
   serverNow: string;
   appearance: {
-    restaurantName: string;
+    restaurantName?: string;
+    name?: string;
     description: string | null;
     logoUrl: string | null;
     backgroundType: string;
