@@ -7,9 +7,13 @@ export { TableQrDialog } from "./ui/table-qr-dialog";
 export type { TableQrDialogProps } from "./ui/table-qr-dialog";
 export { BatchCreateTablesDialog } from "./ui/batch-create-tables-dialog";
 export type { BatchCreateTablesDialogProps } from "./ui/batch-create-tables-dialog";
+export { TablesPrintView } from "./ui/tables-print-view";
+export { TablePrintCard } from "./ui/table-print-card";
+export type { TablePrintCardProps } from "./ui/table-print-card";
 export {
   useTablesQuery,
   useNextTableNumberQuery,
+  useTablesPrintViewQuery,
   tablesQueryKeys,
 } from "./api/use-tables-query";
 export {
