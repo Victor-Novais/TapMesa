@@ -309,12 +309,18 @@ export interface PanelCallDto {
 }
 
 export interface PanelStateDto {
-  calls: PanelCallDto[];
-  alertSec: number;
-  urgentSec: number;
-  activeCallsCount: number;
-  waiterCallsCount: number;
-  billCallsCount: number;
+  calls?: PanelCallDto[];
+  activeCalls?: PanelCallDto[];
+  recentCalls?: RecentAttendedCallDto[];
+  thresholds?: {
+    alertSec: number;
+    urgentSec: number;
+  };
+  alertSec?: number;
+  urgentSec?: number;
+  activeCallsCount?: number;
+  waiterCallsCount?: number;
+  billCallsCount?: number;
   serverNow: string;
 }
 

@@ -10,6 +10,7 @@ import { Button } from "@/shared/ui/button";
 import { queryKeys } from "@/shared/api/query-client";
 import { getCurrentRestaurant } from "@/shared/api/settings";
 import { useNow } from "@/shared/lib/clock";
+import { usePanelStore } from "@/features/panel";
 
 export default function PanelLayout({
   children,
@@ -18,6 +19,7 @@ export default function PanelLayout({
 }) {
   const { user, role } = useAuth();
   const { impersonation } = useAuthStore();
+  const connectionStatus = usePanelStore((s) => s.connectionStatus);
   const now = useNow();
 
   const hasRestaurant = Boolean(user?.restaurantId || user?.rid);
@@ -65,7 +67,7 @@ export default function PanelLayout({
           </div>
 
           <div className="flex items-center gap-2 sm:gap-4">
-            <ConnectionIndicator status="connected" />
+            <ConnectionIndicator status={connectionStatus} />
 
             {canGoToDashboard && (
               <Button
