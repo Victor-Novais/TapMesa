@@ -1,10 +1,13 @@
 ## Descrição
+
 <!-- Descreva sucintamente as alterações deste PR e a tarefa associada (ex: feat/F01-setup) -->
 
 ## Tarefa Relacionada
-- ID: 
+
+- ID:
 
 ## Checklist — Definition of Done (DoD)
+
 - [ ] Critérios de aceite da tarefa atendidos e fluxo testado manualmente contra o back real.
 - [ ] Seis estados obrigatórios de tela (carregando, vazio, erro, offline, sem permissão, sucesso) implementados.
 - [ ] Validação nas larguras da matriz de responsividade (320px a 3840px), sem rolagem horizontal da página.

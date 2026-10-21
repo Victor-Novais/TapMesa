@@ -3,6 +3,7 @@
 ## Status das Skills de Design no Ambiente
 
 Verificação realizada em 21/10/2026:
+
 - `taste-skill`: **Ausente** (não instalada no ambiente Antigravity)
 - `web-design-guidelines`: **Ausente** (não instalada no ambiente Antigravity)
 - `awesome-design`: **Ausente** (não instalada no ambiente Antigravity)
@@ -16,6 +17,6 @@ Verificação realizada em 21/10/2026:
 
 ## Registro de Revisões por Tela / Tarefa
 
-| Data | Tarefa / Tela | Direção & Referências (Taste / Awesome) | Interações & Movimento (Emil Kowalski) | Acessibilidade & Boas Práticas (Web Guidelines) | Polimento Final (Impeccable) | Status |
-| --- | --- | --- | --- | --- | --- | --- |
-| 21/10/2026 | F00 Bootstrap | Configuração inicial e registro de skills | N/A | N/A | N/A | Concluído |
+| Data       | Tarefa / Tela | Direção & Referências (Taste / Awesome)   | Interações & Movimento (Emil Kowalski) | Acessibilidade & Boas Práticas (Web Guidelines) | Polimento Final (Impeccable) | Status    |
+| ---------- | ------------- | ----------------------------------------- | -------------------------------------- | ----------------------------------------------- | ---------------------------- | --------- |
+| 21/10/2026 | F00 Bootstrap | Configuração inicial e registro de skills | N/A                                    | N/A                                             | N/A                          | Concluído |

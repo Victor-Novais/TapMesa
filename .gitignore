@@ -11,6 +11,7 @@ build/
 dist/
 *.tsbuildinfo
 next-env.d.ts
+AGENTS.md
 
 # Ambiente e segredos
 .env
@@ -60,3 +61,4 @@ temp/
 .turbo/
 .husky/_/
 .vercel/
+
