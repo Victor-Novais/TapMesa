@@ -1,4 +1,5 @@
 import * as React from "react";
+import { Slot, Slottable } from "@radix-ui/react-slot";
 import { cn } from "@/shared/lib/cn";
 import { Loader2 } from "lucide-react";
 
@@ -7,6 +8,7 @@ export interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElemen
     "primary" | "secondary" | "outline" | "ghost" | "danger" | "success";
   size?: "sm" | "md" | "lg" | "table";
   isLoading?: boolean;
+  asChild?: boolean;
 }
 
 export const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
@@ -16,12 +18,14 @@ export const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
       variant = "primary",
       size = "md",
       isLoading = false,
+      asChild = false,
       disabled,
       children,
       ...props
     },
     ref,
   ) => {
+    const Component = asChild ? Slot : "button";
     const baseStyles =
       "inline-flex items-center justify-center font-medium transition-all active:scale-[0.98] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-orange-500 focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 select-none";
 
@@ -49,7 +53,7 @@ export const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
     };
 
     return (
-      <button
+      <Component
         ref={ref}
         disabled={disabled || isLoading}
         className={cn(
@@ -61,8 +65,8 @@ export const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
         {...props}
       >
         {isLoading && <Loader2 className="h-5 w-5 animate-spin" />}
-        {children}
-      </button>
+        <Slottable>{children}</Slottable>
+      </Component>
     );
   },
 );

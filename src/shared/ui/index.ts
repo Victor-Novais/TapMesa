@@ -19,4 +19,6 @@ export * from "./stat-card";
 export * from "./connection-indicator";
 export * from "./confirm-dialog";
 export * from "./one-time-secret-dialog";
+export * from "./dropdown-menu";
+export * from "./offline-banner";
 export * from "./theme/theme-provider";

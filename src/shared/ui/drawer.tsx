@@ -27,7 +27,7 @@ DrawerOverlay.displayName = "DrawerOverlay";
 export const DrawerContent = React.forwardRef<
   React.ElementRef<typeof DialogPrimitive.Content>,
   React.ComponentPropsWithoutRef<typeof DialogPrimitive.Content> & {
-    position?: "bottom" | "right";
+    position?: "bottom" | "right" | "left";
   }
 >(({ className, children, position = "right", ...props }, ref) => (
   <DialogPrimitive.Portal>
@@ -38,6 +38,8 @@ export const DrawerContent = React.forwardRef<
         "fixed z-50 bg-white p-6 shadow-2xl transition-all duration-300 dark:bg-zinc-900 border-zinc-200 dark:border-zinc-800",
         position === "right" &&
           "inset-y-0 right-0 h-full w-full max-w-md border-l animate-in slide-in-from-right duration-300",
+        position === "left" &&
+          "inset-y-0 left-0 h-full w-full max-w-xs border-r animate-in slide-in-from-left duration-300",
         position === "bottom" &&
           "inset-x-0 bottom-0 max-h-[85dvh] overflow-y-auto rounded-t-3xl border-t animate-in slide-in-from-bottom duration-300",
         className,
