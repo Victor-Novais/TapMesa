@@ -20,6 +20,8 @@ import {
   Copy,
   Check,
   ExternalLink,
+  CheckCircle2,
+  PauseCircle,
 } from "lucide-react";
 import { triggerHaptic } from "@/shared/lib/haptics";
 import { useToast } from "@/shared/ui/toast";
@@ -124,12 +126,12 @@ export function TablesTable({
                 <TableCell>
                   {table.paused ? (
                     <Badge variant="alert" size="sm" className="gap-1.5">
-                      <span className="h-1.5 w-1.5 rounded-full bg-amber-500 animate-pulse" />
+                      <PauseCircle className="h-3.5 w-3.5" />
                       Pausada
                     </Badge>
                   ) : (
                     <Badge variant="success" size="sm" className="gap-1.5">
-                      <span className="h-1.5 w-1.5 rounded-full bg-emerald-500" />
+                      <CheckCircle2 className="h-3.5 w-3.5" />
                       Ativa
                     </Badge>
                   )}
@@ -146,13 +148,13 @@ export function TablesTable({
                         <button
                           type="button"
                           onClick={(e) => handleCopyLink(table, e)}
-                          className="rounded-md p-1 text-zinc-400 hover:bg-zinc-100 hover:text-zinc-700 dark:hover:bg-zinc-800 dark:hover:text-zinc-200"
+                          className="rounded-lg p-1.5 min-h-[44px] min-w-[44px] inline-flex items-center justify-center text-zinc-400 hover:bg-zinc-100 hover:text-zinc-700 dark:hover:bg-zinc-800 dark:hover:text-zinc-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-orange-500"
                           aria-label={`Copiar link da Mesa ${table.number}`}
                         >
                           {isCopied ? (
-                            <Check className="h-3.5 w-3.5 text-emerald-600 dark:text-emerald-400" />
+                            <Check className="h-4 w-4 text-emerald-600 dark:text-emerald-400" />
                           ) : (
-                            <Copy className="h-3.5 w-3.5" />
+                            <Copy className="h-4 w-4" />
                           )}
                         </button>
                       </TooltipTrigger>

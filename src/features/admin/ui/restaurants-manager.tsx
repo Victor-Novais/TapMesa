@@ -50,6 +50,8 @@ import {
   Lock,
   Unlock,
   MoreVertical,
+  CheckCircle2,
+  AlertOctagon,
 } from "lucide-react";
 import type {
   AdminRestaurantItem,
@@ -416,7 +418,7 @@ export function RestaurantsManager() {
                       <TableCell>
                         {isSuspended ? (
                           <Badge variant="danger" size="sm" className="gap-1.5">
-                            <span className="h-1.5 w-1.5 rounded-full bg-red-500" />
+                            <AlertOctagon className="h-3 w-3" />
                             Suspenso
                           </Badge>
                         ) : (
@@ -425,7 +427,7 @@ export function RestaurantsManager() {
                             size="sm"
                             className="gap-1.5"
                           >
-                            <span className="h-1.5 w-1.5 rounded-full bg-emerald-500" />
+                            <CheckCircle2 className="h-3 w-3" />
                             Ativo
                           </Badge>
                         )}
@@ -578,11 +580,17 @@ export function RestaurantsManager() {
                         </h4>
                         <div className="mt-1 flex items-center gap-2">
                           {isSuspended ? (
-                            <Badge variant="danger" size="sm">
+                            <Badge variant="danger" size="sm" className="gap-1">
+                              <AlertOctagon className="h-3 w-3" />
                               Suspenso
                             </Badge>
                           ) : (
-                            <Badge variant="success" size="sm">
+                            <Badge
+                              variant="success"
+                              size="sm"
+                              className="gap-1"
+                            >
+                              <CheckCircle2 className="h-3 w-3" />
                               Ativo
                             </Badge>
                           )}

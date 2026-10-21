@@ -22,6 +22,11 @@ import {
   ChevronRight,
   Search,
   X,
+  UserCheck,
+  Clock,
+  XCircle,
+  AlertTriangle,
+  Check,
 } from "lucide-react";
 import { formatDurationSec } from "../lib/operational-date";
 import type { AnalyticsCallItem, CallStatus } from "@/shared/types/api";
@@ -95,39 +100,43 @@ export function CallsTable({
     switch (status) {
       case "CONFIRMED":
         return (
-          <Badge variant="success" size="sm" className="gap-1">
+          <Badge variant="success" size="sm" className="gap-1.5">
             <CheckCircle2 className="h-3 w-3" />
             Confirmado
           </Badge>
         );
       case "ATTENDED":
         return (
-          <Badge variant="primary" size="sm">
+          <Badge variant="primary" size="sm" className="gap-1.5">
+            <UserCheck className="h-3 w-3" />
             Atendido
           </Badge>
         );
       case "PENDING":
         return (
-          <Badge variant="alert" size="sm" className="gap-1">
-            <span className="h-1.5 w-1.5 rounded-full bg-amber-500 animate-pulse" />
+          <Badge variant="alert" size="sm" className="gap-1.5">
+            <Clock className="h-3 w-3 animate-pulse" />
             Pendente
           </Badge>
         );
       case "CANCELLED":
         return (
-          <Badge variant="neutral" size="sm">
+          <Badge variant="neutral" size="sm" className="gap-1.5">
+            <XCircle className="h-3 w-3" />
             Cancelado
           </Badge>
         );
       case "EXPIRED":
         return (
-          <Badge variant="danger" size="sm">
+          <Badge variant="danger" size="sm" className="gap-1.5">
+            <AlertTriangle className="h-3 w-3" />
             Expirado
           </Badge>
         );
       case "CLOSED_UNCONFIRMED":
         return (
-          <Badge variant="neutral" size="sm">
+          <Badge variant="neutral" size="sm" className="gap-1.5">
+            <Check className="h-3 w-3" />
             Encerrado
           </Badge>
         );

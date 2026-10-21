@@ -74,6 +74,8 @@ export const Input = React.forwardRef<HTMLInputElement, InputProps>(
         {error ? (
           <p
             id={errorId}
+            role="alert"
+            aria-live="polite"
             className="text-xs font-medium text-red-600 dark:text-red-400"
           >
             {error}

@@ -108,7 +108,7 @@ export function DashboardSidebar({
         </div>
 
         {/* Main Navigation */}
-        <nav className="flex-1 space-y-1 p-3">
+        <nav className="flex-1 space-y-1 p-3" aria-label="Navegação do sistema">
           {DASHBOARD_NAV_ITEMS.map((item) => {
             const isActive = item.exact
               ? pathname === item.href
@@ -120,10 +120,11 @@ export function DashboardSidebar({
               <Link
                 key={item.href}
                 href={item.href}
+                aria-current={isActive ? "page" : undefined}
                 className={cn(
-                  "group flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium transition-colors",
+                  "group flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-orange-500",
                   isActive
-                    ? "bg-orange-50 text-orange-600 dark:bg-orange-950/30 dark:text-orange-400"
+                    ? "bg-orange-50 text-orange-600 dark:bg-orange-950/30 dark:text-orange-400 font-semibold"
                     : "text-zinc-600 hover:bg-zinc-100 hover:text-zinc-900 dark:text-zinc-400 dark:hover:bg-zinc-800/60 dark:hover:text-zinc-100",
                   isCollapsed && "justify-center px-0",
                 )}

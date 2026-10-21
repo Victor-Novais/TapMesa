@@ -145,7 +145,7 @@ export function CallActions({
           <button
             type="button"
             onClick={() => setErrorMessage(null)}
-            className="text-red-600 hover:text-red-800 dark:text-red-400"
+            className="text-red-600 hover:text-red-800 dark:text-red-400 min-h-[44px] min-w-[44px] -mr-2 -mt-2 inline-flex items-center justify-center rounded-lg"
             aria-label="Fechar aviso de erro"
           >
             <X className="h-4 w-4" />
@@ -168,10 +168,10 @@ export function CallActions({
           <button
             type="button"
             onClick={() => setDismissedExpired(true)}
-            className="text-amber-700 hover:text-amber-900 dark:text-amber-300"
+            className="text-amber-700 hover:text-amber-900 dark:text-amber-300 min-h-[44px] min-w-[44px] -mr-2 -mt-2 inline-flex items-center justify-center rounded-lg"
             aria-label="Fechar aviso"
           >
-            <X className="h-3.5 w-3.5" />
+            <X className="h-4 w-4" />
           </button>
         </div>
       )}
@@ -225,9 +225,9 @@ export function CallActions({
             <button
               type="button"
               onClick={() => setShowNoteField(true)}
-              className="inline-flex items-center gap-1.5 text-xs font-medium text-zinc-600 hover:text-zinc-900 dark:text-zinc-400 dark:hover:text-zinc-200 py-1 px-2 rounded-lg transition-colors"
+              className="inline-flex min-h-[44px] items-center gap-1.5 text-xs font-semibold text-zinc-600 hover:text-zinc-900 dark:text-zinc-400 dark:hover:text-zinc-200 py-2 px-3 rounded-xl transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-orange-500"
             >
-              <MessageSquare className="h-3.5 w-3.5" />
+              <MessageSquare className="h-4 w-4" />
               <span>Adicionar observação opcional</span>
             </button>
           ) : (
@@ -246,10 +246,10 @@ export function CallActions({
                     setShowNoteField(false);
                     setNote("");
                   }}
-                  className="text-zinc-400 hover:text-zinc-600 dark:hover:text-zinc-200"
+                  className="text-zinc-400 hover:text-zinc-600 dark:hover:text-zinc-200 min-h-[44px] min-w-[44px] -mr-2 -mt-2 inline-flex items-center justify-center rounded-lg"
                   aria-label="Cancelar observação"
                 >
-                  <X className="h-3.5 w-3.5" />
+                  <X className="h-4 w-4" />
                 </button>
               </div>
               <Textarea

@@ -90,16 +90,34 @@ export function ColorPickerInput({
           onBlur={handleBlur}
           placeholder="#ea580c"
           maxLength={7}
+          aria-invalid={Boolean(error)}
+          aria-describedby={
+            error
+              ? `${inputId}-error`
+              : helperText
+                ? `${inputId}-helper`
+                : undefined
+          }
           className="flex h-11 w-full rounded-xl border border-zinc-200 bg-white px-3.5 py-2 font-mono text-sm text-zinc-900 shadow-sm transition-colors uppercase placeholder:text-zinc-400 focus:outline-none focus:ring-2 focus:ring-orange-500 dark:border-zinc-800 dark:bg-zinc-900 dark:text-zinc-50"
         />
       </div>
 
       {error ? (
-        <p className="text-xs font-medium text-red-600 dark:text-red-400">
+        <p
+          id={`${inputId}-error`}
+          role="alert"
+          aria-live="polite"
+          className="text-xs font-medium text-red-600 dark:text-red-400"
+        >
           {error}
         </p>
       ) : helperText ? (
-        <p className="text-xs text-zinc-500 dark:text-zinc-400">{helperText}</p>
+        <p
+          id={`${inputId}-helper`}
+          className="text-xs text-zinc-500 dark:text-zinc-400"
+        >
+          {helperText}
+        </p>
       ) : null}
     </div>
   );

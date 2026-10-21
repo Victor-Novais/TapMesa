@@ -228,10 +228,9 @@ export function LoginForm() {
           endAdornment={
             <button
               type="button"
-              tabIndex={-1}
               onClick={() => setShowPassword((prev) => !prev)}
               aria-label={showPassword ? "Ocultar senha" : "Exibir senha"}
-              className="flex h-8 w-8 items-center justify-center rounded-lg text-zinc-400 hover:text-zinc-600 focus:outline-none dark:hover:text-zinc-200"
+              className="flex h-9 w-9 min-h-[44px] min-w-[44px] items-center justify-center rounded-xl text-zinc-400 hover:text-zinc-600 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-orange-500 dark:hover:text-zinc-200"
             >
               {showPassword ? (
                 <EyeOff className="h-4 w-4" />

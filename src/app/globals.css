@@ -115,7 +115,7 @@ body {
   padding-right: env(safe-area-inset-right, 0px);
 }
 
-/* Respeito a Reduced Motion */
+/* Respeito a Reduced Motion (WCAG 2.1 AA 2.3.3 & Emil Kowalski) */
 @media (prefers-reduced-motion: reduce) {
   *,
   ::before,
@@ -124,6 +124,14 @@ body {
     animation-iteration-count: 1 !important;
     transition-duration: 0.01ms !important;
     scroll-behavior: auto !important;
+  }
+
+  /* Previne desorientação vestibular por movimentos de translação e zoom */
+  .animate-pulse,
+  .animate-ping,
+  .animate-bounce,
+  .animate-spin-slow {
+    animation: none !important;
   }
 }
 

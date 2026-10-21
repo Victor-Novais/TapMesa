@@ -186,7 +186,7 @@ export function PanelHeader({
             variant="ghost"
             size="sm"
             onClick={handleToggleMute}
-            className="h-9 w-9 p-0 text-zinc-600 hover:text-zinc-900 dark:text-zinc-400 dark:hover:text-zinc-100"
+            className="h-10 w-10 min-h-[44px] min-w-[44px] p-0 text-zinc-600 hover:text-zinc-900 dark:text-zinc-400 dark:hover:text-zinc-100"
             aria-label={isMuted ? "Ativar som" : "Silenciar som"}
             title={isMuted ? "Ativar som" : "Silenciar som"}
           >
@@ -203,7 +203,7 @@ export function PanelHeader({
             variant="ghost"
             size="sm"
             onClick={() => void handleToggleFullscreen()}
-            className="hidden sm:inline-flex h-9 w-9 p-0 text-zinc-600 hover:text-zinc-900 dark:text-zinc-400 dark:hover:text-zinc-100"
+            className="hidden sm:inline-flex h-10 w-10 min-h-[44px] min-w-[44px] p-0 text-zinc-600 hover:text-zinc-900 dark:text-zinc-400 dark:hover:text-zinc-100"
             aria-label={isFullscreen ? "Sair da tela cheia" : "Tela cheia"}
             title={isFullscreen ? "Sair da tela cheia" : "Tela cheia"}
           >
@@ -221,7 +221,7 @@ export function PanelHeader({
               variant="ghost"
               size="sm"
               onClick={onOpenSettings}
-              className="h-9 w-9 p-0 text-zinc-600 hover:text-zinc-900 dark:text-zinc-400 dark:hover:text-zinc-100"
+              className="h-10 w-10 min-h-[44px] min-w-[44px] p-0 text-zinc-600 hover:text-zinc-900 dark:text-zinc-400 dark:hover:text-zinc-100"
               aria-label="Abrir configurações de som e tela do painel"
               title="Configurações do Painel"
             >
@@ -235,7 +235,7 @@ export function PanelHeader({
             variant="outline"
             size="sm"
             onClick={onOpenRecent}
-            className="h-9 text-xs font-bold gap-1.5 border-zinc-200 bg-white shadow-sm hover:bg-zinc-50 dark:border-zinc-800 dark:bg-zinc-900 dark:hover:bg-zinc-800"
+            className="h-10 min-h-[44px] px-3 text-xs font-bold gap-1.5 border-zinc-200 bg-white shadow-sm hover:bg-zinc-50 dark:border-zinc-800 dark:bg-zinc-900 dark:hover:bg-zinc-800"
             aria-label="Abrir gaveta de chamados recentes"
           >
             <History className="h-4 w-4 text-zinc-500" />

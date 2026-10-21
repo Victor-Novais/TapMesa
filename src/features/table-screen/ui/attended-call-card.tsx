@@ -114,7 +114,7 @@ export function AttendedCallCard({
             disabled={confirmMutation.isPending}
             onClick={() => handleSelectRating(1)}
             className={cn(
-              "flex flex-col items-center justify-center gap-1.5 rounded-2xl border p-3 transition-all duration-150 active:scale-95 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-500",
+              "flex min-h-[64px] flex-col items-center justify-center gap-1.5 rounded-2xl border p-3 transition-all duration-150 active:scale-95 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-500",
               selectedRating === 1
                 ? "border-red-500 bg-red-50 text-red-700 dark:bg-red-950/50 dark:text-red-300 shadow-sm"
                 : "border-zinc-200 bg-zinc-50/80 text-zinc-700 hover:border-red-300 hover:bg-red-50/50 dark:border-zinc-800 dark:bg-zinc-800/60 dark:text-zinc-300 dark:hover:border-red-900",
@@ -133,7 +133,7 @@ export function AttendedCallCard({
             disabled={confirmMutation.isPending}
             onClick={() => handleSelectRating(2)}
             className={cn(
-              "flex flex-col items-center justify-center gap-1.5 rounded-2xl border p-3 transition-all duration-150 active:scale-95 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-500",
+              "flex min-h-[64px] flex-col items-center justify-center gap-1.5 rounded-2xl border p-3 transition-all duration-150 active:scale-95 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-500",
               selectedRating === 2
                 ? "border-amber-500 bg-amber-50 text-amber-700 dark:bg-amber-950/50 dark:text-amber-300 shadow-sm"
                 : "border-zinc-200 bg-zinc-50/80 text-zinc-700 hover:border-amber-300 hover:bg-amber-50/50 dark:border-zinc-800 dark:bg-zinc-800/60 dark:text-zinc-300 dark:hover:border-amber-900",
@@ -152,7 +152,7 @@ export function AttendedCallCard({
             disabled={confirmMutation.isPending}
             onClick={() => handleSelectRating(3)}
             className={cn(
-              "flex flex-col items-center justify-center gap-1.5 rounded-2xl border p-3 transition-all duration-150 active:scale-95 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500",
+              "flex min-h-[64px] flex-col items-center justify-center gap-1.5 rounded-2xl border p-3 transition-all duration-150 active:scale-95 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500",
               selectedRating === 3
                 ? "border-emerald-500 bg-emerald-50 text-emerald-700 dark:bg-emerald-950/50 dark:text-emerald-300 shadow-sm"
                 : "border-zinc-200 bg-zinc-50/80 text-zinc-700 hover:border-emerald-300 hover:bg-emerald-50/50 dark:border-zinc-800 dark:bg-zinc-800/60 dark:text-zinc-300 dark:hover:border-emerald-900",
@@ -201,7 +201,7 @@ export function AttendedCallCard({
               type="button"
               onClick={() => setShowContestDialog(true)}
               disabled={contestMutation.isPending || confirmMutation.isPending}
-              className="text-xs font-medium text-red-600 hover:text-red-700 dark:text-red-400 dark:hover:text-red-300 underline underline-offset-2 transition-colors py-1"
+              className="min-h-[44px] inline-flex items-center text-xs font-semibold text-red-600 hover:text-red-700 dark:text-red-400 dark:hover:text-red-300 underline underline-offset-4 transition-colors px-2 py-1 rounded-lg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-500"
             >
               {contestButtonLabel}
             </button>

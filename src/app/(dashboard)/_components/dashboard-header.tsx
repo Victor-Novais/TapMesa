@@ -38,7 +38,7 @@ export function DashboardHeader({ onOpenMobileMenu }: DashboardHeaderProps) {
           variant="ghost"
           size="sm"
           onClick={onOpenMobileMenu}
-          className="h-9 w-9 p-0 lg:hidden text-zinc-600 dark:text-zinc-400"
+          className="h-10 w-10 min-h-[44px] min-w-[44px] p-0 lg:hidden text-zinc-600 dark:text-zinc-400"
           aria-label="Abrir menu de navegação"
         >
           <Menu className="h-5 w-5" />

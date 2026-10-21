@@ -148,7 +148,11 @@ export function TableScreen({
       </header>
 
       {/* Main Interactive Actions Slot (F07/F08) */}
-      <main className="my-6 w-full space-y-4">
+      <main
+        id="main-content"
+        tabIndex={-1}
+        className="my-6 w-full space-y-4 focus:outline-none"
+      >
         {children ? (
           children
         ) : (
@@ -186,7 +190,7 @@ export function TableScreen({
                 size="sm"
                 variant="outline"
                 onClick={handleCopyWifi}
-                className="h-8 border-zinc-200 bg-white/80 px-2.5 text-xs text-zinc-800 shadow-none hover:bg-white dark:border-zinc-700 dark:bg-zinc-800 dark:text-zinc-200"
+                className="h-10 min-h-[44px] border-zinc-200 bg-white/80 px-3 text-xs font-semibold text-zinc-800 shadow-none hover:bg-white dark:border-zinc-700 dark:bg-zinc-800 dark:text-zinc-200"
                 aria-label={
                   copiedWifi ? "Senha copiada" : "Copiar senha do Wi-Fi"
                 }
@@ -231,15 +235,15 @@ export function TableScreen({
                 href={href}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="flex h-9 w-9 items-center justify-center rounded-xl bg-white/70 text-zinc-700 shadow-sm transition-transform hover:scale-105 backdrop-blur dark:bg-zinc-900/70 dark:text-zinc-300 border border-black/5 dark:border-white/10"
+                className="flex h-11 w-11 min-h-[44px] min-w-[44px] items-center justify-center rounded-2xl bg-white/70 text-zinc-700 shadow-sm transition-transform hover:scale-105 active:scale-95 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-orange-500 backdrop-blur dark:bg-zinc-900/70 dark:text-zinc-300 border border-black/5 dark:border-white/10"
                 aria-label={`Acessar ${key}`}
               >
                 {isInsta ? (
-                  <InstagramIcon className="h-4 w-4" />
+                  <InstagramIcon className="h-5 w-5" />
                 ) : isWhats ? (
-                  <Phone className="h-4 w-4" />
+                  <Phone className="h-5 w-5" />
                 ) : (
-                  <Globe className="h-4 w-4" />
+                  <Globe className="h-5 w-5" />
                 )}
               </a>
             );

@@ -21,4 +21,5 @@ export * from "./confirm-dialog";
 export * from "./one-time-secret-dialog";
 export * from "./dropdown-menu";
 export * from "./offline-banner";
+export * from "./skip-link";
 export * from "./theme/theme-provider";

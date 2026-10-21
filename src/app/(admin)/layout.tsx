@@ -5,6 +5,7 @@ import { usePathname } from "next/navigation";
 import { ShieldAlert, Building2, ScrollText } from "lucide-react";
 import { AuthGate } from "@/features/auth";
 import { UserMenu } from "@/app/_components/user-menu";
+import { SkipLink } from "@/shared/ui/skip-link";
 import { cn } from "@/shared/lib/cn";
 import { UI_MESSAGES } from "@/shared/messages/ui";
 
@@ -32,6 +33,7 @@ export default function AdminLayout({
 
   return (
     <AuthGate allowedRoles={["ADMIN"]}>
+      <SkipLink targetId="main-content" />
       <div className="flex min-h-screen flex-col bg-zinc-50 dark:bg-zinc-950">
         <header className="sticky top-0 z-30 flex h-16 w-full items-center justify-between border-b border-zinc-200 bg-white/95 px-4 sm:px-8 backdrop-blur dark:border-zinc-800 dark:bg-zinc-900/95">
           <div className="flex items-center gap-6">
@@ -49,7 +51,10 @@ export default function AdminLayout({
               </div>
             </Link>
 
-            <nav className="hidden sm:flex items-center gap-1">
+            <nav
+              className="hidden sm:flex items-center gap-1"
+              aria-label="Navegação administrativa"
+            >
               {ADMIN_NAV_ITEMS.map((item) => {
                 const isActive = item.exact
                   ? pathname === item.href
@@ -61,6 +66,7 @@ export default function AdminLayout({
                   <Link
                     key={item.href}
                     href={item.href}
+                    aria-current={isActive ? "page" : undefined}
                     className={cn(
                       "flex items-center gap-2 rounded-xl px-3 py-2 text-sm font-medium transition-colors",
                       isActive
@@ -82,7 +88,10 @@ export default function AdminLayout({
         </header>
 
         {/* Mobile secondary nav for admin */}
-        <div className="sm:hidden border-b border-zinc-200 bg-white px-4 py-2 flex items-center justify-around dark:border-zinc-800 dark:bg-zinc-900">
+        <nav
+          aria-label="Navegação administrativa móvel"
+          className="sm:hidden border-b border-zinc-200 bg-white px-4 py-2 flex items-center justify-around dark:border-zinc-800 dark:bg-zinc-900"
+        >
           {ADMIN_NAV_ITEMS.map((item) => {
             const isActive = item.exact
               ? pathname === item.href
@@ -94,8 +103,9 @@ export default function AdminLayout({
               <Link
                 key={item.href}
                 href={item.href}
+                aria-current={isActive ? "page" : undefined}
                 className={cn(
-                  "flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium",
+                  "flex items-center gap-1.5 px-3 py-2 min-h-[44px] rounded-lg text-xs font-medium",
                   isActive
                     ? "bg-zinc-100 text-zinc-900 dark:bg-zinc-800 dark:text-zinc-100 font-semibold"
                     : "text-zinc-600 dark:text-zinc-400",
@@ -106,9 +116,13 @@ export default function AdminLayout({
               </Link>
             );
           })}
-        </div>
+        </nav>
 
-        <main className="flex-1 px-4 py-6 sm:px-8 max-w-7xl w-full mx-auto">
+        <main
+          id="main-content"
+          tabIndex={-1}
+          className="flex-1 px-4 py-6 sm:px-8 max-w-7xl w-full mx-auto focus:outline-none"
+        >
           {children}
         </main>
       </div>

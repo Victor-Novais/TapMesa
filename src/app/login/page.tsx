@@ -17,7 +17,11 @@ export const metadata: Metadata = {
 
 export default function LoginPage() {
   return (
-    <main className="flex min-h-screen flex-col items-center justify-center bg-zinc-50/50 p-4 sm:p-6 dark:bg-zinc-950">
+    <main
+      id="main-content"
+      tabIndex={-1}
+      className="flex min-h-screen flex-col items-center justify-center bg-zinc-50/50 p-4 sm:p-6 dark:bg-zinc-950 focus:outline-none"
+    >
       <div className="w-full max-w-[420px] space-y-6">
         {/* Brand Header */}
         <div className="flex flex-col items-center text-center">

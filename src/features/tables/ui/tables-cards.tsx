@@ -20,6 +20,8 @@ import {
   Copy,
   Check,
   ExternalLink,
+  CheckCircle2,
+  PauseCircle,
 } from "lucide-react";
 import { triggerHaptic } from "@/shared/lib/haptics";
 import { useToast } from "@/shared/ui/toast";
@@ -111,13 +113,13 @@ export function TablesCards({
                   </h3>
                   <div className="mt-0.5">
                     {table.paused ? (
-                      <Badge variant="alert" size="sm" className="gap-1">
-                        <span className="h-1.5 w-1.5 rounded-full bg-amber-500 animate-pulse" />
+                      <Badge variant="alert" size="sm" className="gap-1.5">
+                        <PauseCircle className="h-3.5 w-3.5" />
                         Pausada
                       </Badge>
                     ) : (
-                      <Badge variant="success" size="sm" className="gap-1">
-                        <span className="h-1.5 w-1.5 rounded-full bg-emerald-500" />
+                      <Badge variant="success" size="sm" className="gap-1.5">
+                        <CheckCircle2 className="h-3.5 w-3.5" />
                         Ativa
                       </Badge>
                     )}

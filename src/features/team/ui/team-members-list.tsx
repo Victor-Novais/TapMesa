@@ -29,6 +29,7 @@ import {
   Lock,
   Unlock,
   MoreVertical,
+  CheckCircle2,
 } from "lucide-react";
 import type { TeamUser } from "@/shared/types/api";
 
@@ -136,12 +137,12 @@ export function TeamMembersList({
                   <TableCell>
                     {member.active ? (
                       <Badge variant="success" size="sm" className="gap-1.5">
-                        <span className="h-1.5 w-1.5 rounded-full bg-emerald-500" />
+                        <CheckCircle2 className="h-3 w-3" />
                         Ativo
                       </Badge>
                     ) : (
                       <Badge variant="danger" size="sm" className="gap-1.5">
-                        <span className="h-1.5 w-1.5 rounded-full bg-red-500" />
+                        <Lock className="h-3 w-3" />
                         Bloqueado
                       </Badge>
                     )}
@@ -304,11 +305,13 @@ export function TeamMembersList({
                         </Badge>
                       )}
                       {member.active ? (
-                        <Badge variant="success" size="sm">
+                        <Badge variant="success" size="sm" className="gap-1">
+                          <CheckCircle2 className="h-3 w-3" />
                           Ativo
                         </Badge>
                       ) : (
-                        <Badge variant="danger" size="sm">
+                        <Badge variant="danger" size="sm" className="gap-1">
+                          <Lock className="h-3 w-3" />
                           Bloqueado
                         </Badge>
                       )}

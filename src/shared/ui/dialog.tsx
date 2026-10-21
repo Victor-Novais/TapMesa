@@ -49,7 +49,7 @@ export const DialogContent = React.forwardRef<
       <div className="mx-auto mb-4 h-1.5 w-12 rounded-full bg-zinc-300 dark:bg-zinc-700 sm:hidden" />
       {children}
       {!hideCloseButton && (
-        <DialogPrimitive.Close className="absolute right-4 top-4 rounded-xl p-2 text-zinc-400 hover:text-zinc-600 focus:outline-none focus:ring-2 focus:ring-orange-500 dark:text-zinc-500 dark:hover:text-zinc-300">
+        <DialogPrimitive.Close className="absolute right-3 top-3 sm:right-4 sm:top-4 min-h-[44px] min-w-[44px] inline-flex items-center justify-center rounded-xl p-2 text-zinc-400 hover:text-zinc-600 focus:outline-none focus:ring-2 focus:ring-orange-500 dark:text-zinc-500 dark:hover:text-zinc-300">
           <X className="h-5 w-5" />
           <span className="sr-only">Fechar</span>
         </DialogPrimitive.Close>

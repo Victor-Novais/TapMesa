@@ -78,10 +78,12 @@ export function ConfirmDialog({
               :
             </p>
             <input
+              id="confirm-match-input"
               type="text"
               value={typedMatch}
               onChange={(e) => setTypedMatch(e.target.value)}
               placeholder={confirmMatchText}
+              aria-label={`Digite ${confirmMatchText} para confirmar`}
               className="flex h-11 w-full rounded-xl border border-zinc-200 bg-white px-3.5 py-2 text-sm text-zinc-900 shadow-sm focus:outline-none focus:ring-2 focus:ring-orange-500 dark:border-zinc-800 dark:bg-zinc-900 dark:text-zinc-50"
             />
           </div>

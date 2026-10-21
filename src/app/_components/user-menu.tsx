@@ -42,7 +42,7 @@ export function UserMenu() {
         <Button
           variant="ghost"
           size="sm"
-          className="relative h-9 w-9 rounded-full border border-zinc-200 bg-zinc-100 p-0 hover:bg-zinc-200 dark:border-zinc-800 dark:bg-zinc-800 dark:hover:bg-zinc-700"
+          className="relative h-10 w-10 min-h-[44px] min-w-[44px] rounded-full border border-zinc-200 bg-zinc-100 p-0 hover:bg-zinc-200 dark:border-zinc-800 dark:bg-zinc-800 dark:hover:bg-zinc-700"
           aria-label={`Menu do usuário ${displayName}`}
         >
           <span className="font-semibold text-xs text-zinc-800 dark:text-zinc-200">

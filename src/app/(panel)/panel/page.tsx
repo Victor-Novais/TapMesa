@@ -21,6 +21,7 @@ import { useAuth } from "@/features/auth";
 import { UserMenu } from "@/app/_components/user-menu";
 import { Button } from "@/shared/ui/button";
 import { Card } from "@/shared/ui/card";
+import { SkipLink } from "@/shared/ui/skip-link";
 import { useNow } from "@/shared/lib/clock";
 
 const emptySubscribe = () => () => {};
@@ -160,6 +161,8 @@ export default function PanelOperationalPage() {
 
   return (
     <div className="flex min-h-screen flex-col bg-zinc-100 text-zinc-900 dark:bg-zinc-950 dark:text-zinc-50">
+      <SkipLink targetId="main-content" />
+
       {/* Header Operacional Integrado com atalhos de som, tela cheia, gaveta e configurações */}
       <PanelHeader
         connectionStatus={connectionStatus}
@@ -185,7 +188,11 @@ export default function PanelOperationalPage() {
       </div>
 
       {/* Margem de segurança / overscan para TV e monitores (2% a 3% nas bordas) */}
-      <main className="flex-1 w-full max-w-[3840px] mx-auto px-4 sm:px-6 md:px-8 xl:px-12 2xl:px-16 py-4 sm:py-6 space-y-4">
+      <main
+        id="main-content"
+        tabIndex={-1}
+        className="flex-1 w-full max-w-[3840px] mx-auto px-4 sm:px-6 md:px-8 xl:px-12 2xl:px-16 py-4 sm:py-6 space-y-4 focus:outline-none"
+      >
         {/* Banner de Instalação do PWA (aparece se suportado e ainda não instalado) */}
         <PwaInstallPrompt
           isInstallable={isInstallable}

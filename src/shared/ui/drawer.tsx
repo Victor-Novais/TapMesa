@@ -51,7 +51,7 @@ export const DrawerContent = React.forwardRef<
       )}
       <div className="flex items-center justify-between pb-4 border-b border-zinc-100 dark:border-zinc-800">
         <div className="flex-1" />
-        <DialogPrimitive.Close className="rounded-xl p-2 text-zinc-400 hover:text-zinc-600 focus:outline-none focus:ring-2 focus:ring-orange-500 dark:text-zinc-500 dark:hover:text-zinc-300">
+        <DialogPrimitive.Close className="min-h-[44px] min-w-[44px] inline-flex items-center justify-center rounded-xl p-2 text-zinc-400 hover:text-zinc-600 focus:outline-none focus:ring-2 focus:ring-orange-500 dark:text-zinc-500 dark:hover:text-zinc-300">
           <X className="h-5 w-5" />
           <span className="sr-only">Fechar</span>
         </DialogPrimitive.Close>
