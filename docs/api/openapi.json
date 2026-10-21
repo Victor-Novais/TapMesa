@@ -1,0 +1,1773 @@
+{
+  "openapi": "3.1.0",
+  "info": {
+    "title": "TapMesa API",
+    "version": "1.0.0",
+    "description": "SaaS multi-tenant de chamada de garçom e pedido de conta via QR Code com tempo real via SSE e painel operacional.",
+    "contact": {
+      "name": "Suporte TapMesa",
+      "email": "suporte@tapmesa.com.br"
+    },
+    "license": {
+      "name": "Proprietary"
+    }
+  },
+  "servers": [
+    {
+      "url": "/api/v1",
+      "description": "API v1 (Padrão)"
+    },
+    {
+      "url": "/",
+      "description": "Servidor Raiz"
+    }
+  ],
+  "tags": [
+    {
+      "name": "Auth",
+      "description": "Autenticação, sessões e rotação de tokens"
+    },
+    {
+      "name": "Admin Restaurants",
+      "description": "Gestão de restaurantes pelo Administrador Geral"
+    },
+    {
+      "name": "Tenancy",
+      "description": "Configurações do restaurante atual, atendimento e aparência"
+    },
+    {
+      "name": "Dining Room",
+      "description": "Gestão de mesas, tokens seguros e QR Codes"
+    },
+    {
+      "name": "Public Tables",
+      "description": "API pública do cliente via QR Code da mesa"
+    },
+    {
+      "name": "Panel",
+      "description": "Painel da equipe em tempo real (SSE) e atendimento de chamados"
+    },
+    {
+      "name": "Analytics",
+      "description": "Resumo do Dia, relatórios, ranking e exportação CSV"
+    },
+    {
+      "name": "Team",
+      "description": "Gestão de membros da equipe e métricas por atendente"
+    },
+    {
+      "name": "Notifications",
+      "description": "Preferências de notificação, resumo diário por e-mail e alertas de urgência"
+    },
+    {
+      "name": "Observability",
+      "description": "Healthchecks e métricas Prometheus"
+    }
+  ],
+  "components": {
+    "securitySchemes": {
+      "BearerAuth": {
+        "type": "http",
+        "scheme": "bearer",
+        "bearerFormat": "JWT",
+        "description": "Token JWT de curta duração (15 min) contendo claims sub, role e rid."
+      },
+      "CookieAuth": {
+        "type": "apiKey",
+        "in": "cookie",
+        "name": "refresh_token",
+        "description": "Cookie HttpOnly com token rotativo de refresh (30 dias)."
+      }
+    },
+    "schemas": {
+      "ProblemDetails": {
+        "type": "object",
+        "description": "RFC 7807 Problem Details representation",
+        "properties": {
+          "type": {
+            "type": "string",
+            "example": "about:blank"
+          },
+          "title": {
+            "type": "string",
+            "example": "Bad Request"
+          },
+          "status": {
+            "type": "integer",
+            "example": 400
+          },
+          "detail": {
+            "type": "string",
+            "example": "Descrição detalhada do erro"
+          },
+          "instance": {
+            "type": "string",
+            "example": "/api/v1/auth/login"
+          },
+          "requestId": {
+            "type": "string",
+            "example": "b5a2f5b8-5001-4475-b6d3-9fcbb0f886f6"
+          },
+          "code": {
+            "type": "string",
+            "example": "INVALID_CREDENTIALS"
+          }
+        },
+        "required": [
+          "type",
+          "title",
+          "status",
+          "detail",
+          "instance",
+          "requestId"
+        ]
+      },
+      "LoginDto": {
+        "type": "object",
+        "properties": {
+          "username": {
+            "type": "string",
+            "example": "dono_restaurante"
+          },
+          "password": {
+            "type": "string",
+            "example": "SenhaForte!123"
+          }
+        },
+        "required": ["username", "password"]
+      },
+      "LoginResponseDto": {
+        "type": "object",
+        "properties": {
+          "accessToken": {
+            "type": "string",
+            "description": "JWT Access Token"
+          }
+        },
+        "required": ["accessToken"]
+      },
+      "UserProfileDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "username": {
+            "type": "string"
+          },
+          "role": {
+            "type": "string",
+            "enum": ["ADMIN", "OWNER", "WAITER"]
+          },
+          "restaurantId": {
+            "type": "string",
+            "format": "uuid",
+            "nullable": true
+          }
+        },
+        "required": ["id", "username", "role"]
+      },
+      "CreateRestaurantDto": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "example": "Restaurante do Chef"
+          },
+          "ownerUsername": {
+            "type": "string",
+            "example": "chef_owner"
+          }
+        },
+        "required": ["name", "ownerUsername"]
+      },
+      "RestaurantCreatedResponseDto": {
+        "type": "object",
+        "properties": {
+          "restaurantId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "ownerUsername": {
+            "type": "string"
+          },
+          "ownerPasswordPlain": {
+            "type": "string"
+          }
+        },
+        "required": ["restaurantId", "ownerUsername", "ownerPasswordPlain"]
+      },
+      "RestaurantResponseDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "name": {
+            "type": "string"
+          },
+          "status": {
+            "type": "string",
+            "enum": ["ACTIVE", "SUSPENDED"]
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "impersonatedBy": {
+            "type": "string",
+            "format": "uuid",
+            "nullable": true
+          }
+        },
+        "required": ["id", "name", "status", "createdAt"]
+      },
+      "ServiceSettingsDto": {
+        "type": "object",
+        "properties": {
+          "alertSec": {
+            "type": "integer",
+            "default": 180
+          },
+          "urgentSec": {
+            "type": "integer",
+            "default": 300
+          },
+          "responseGoalSec": {
+            "type": "integer",
+            "default": 180
+          },
+          "confirmationWindowSec": {
+            "type": "integer",
+            "default": 180
+          },
+          "dayCutoffHour": {
+            "type": "integer",
+            "default": 5
+          },
+          "timezone": {
+            "type": "string",
+            "default": "America/Sao_Paulo"
+          },
+          "showWaitTimeToCustomer": {
+            "type": "boolean",
+            "default": false
+          }
+        }
+      },
+      "AppearanceDto": {
+        "type": "object",
+        "properties": {
+          "logoUrl": {
+            "type": "string",
+            "nullable": true
+          },
+          "coverUrl": {
+            "type": "string",
+            "nullable": true
+          },
+          "primaryColor": {
+            "type": "string",
+            "example": "#E11D48"
+          }
+        }
+      },
+      "TableDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "number": {
+            "type": "integer",
+            "example": 12
+          },
+          "token": {
+            "type": "string",
+            "example": "m-x8A_1qB9"
+          },
+          "paused": {
+            "type": "boolean",
+            "example": false
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time"
+          }
+        },
+        "required": ["id", "number", "token", "paused", "createdAt"]
+      },
+      "BatchCreateTableDto": {
+        "type": "object",
+        "properties": {
+          "from": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 50
+          },
+          "to": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 50
+          }
+        },
+        "required": ["from", "to"]
+      },
+      "PublicTableDto": {
+        "type": "object",
+        "properties": {
+          "tableNumber": {
+            "type": "integer",
+            "example": 5
+          },
+          "available": {
+            "type": "boolean",
+            "example": true
+          },
+          "unavailableReason": {
+            "type": "string",
+            "nullable": true
+          },
+          "message": {
+            "type": "string",
+            "nullable": true
+          },
+          "showWaitTimeToCustomer": {
+            "type": "boolean",
+            "example": false
+          },
+          "appearance": {
+            "$ref": "#/components/schemas/AppearanceDto"
+          },
+          "calls": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/PublicCallDto"
+            }
+          },
+          "serverNow": {
+            "type": "string",
+            "format": "date-time"
+          }
+        },
+        "required": ["tableNumber", "available", "serverNow"]
+      },
+      "CreatePublicCallDto": {
+        "type": "object",
+        "properties": {
+          "type": {
+            "type": "string",
+            "enum": ["WAITER", "BILL"]
+          },
+          "note": {
+            "type": "string",
+            "maxLength": 140,
+            "nullable": true
+          }
+        },
+        "required": ["type"]
+      },
+      "PublicCallDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "type": {
+            "type": "string",
+            "enum": ["WAITER", "BILL"]
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "PENDING",
+              "ATTENDED",
+              "CONFIRMED",
+              "CLOSED_UNCONFIRMED",
+              "CANCELLED",
+              "EXPIRED"
+            ]
+          },
+          "note": {
+            "type": "string",
+            "nullable": true
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "attendedAt": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
+          },
+          "reopenCount": {
+            "type": "integer",
+            "default": 0
+          },
+          "serverNow": {
+            "type": "string",
+            "format": "date-time"
+          }
+        },
+        "required": ["id", "type", "status", "createdAt", "serverNow"]
+      },
+      "StreamTicketDto": {
+        "type": "object",
+        "properties": {
+          "ticket": {
+            "type": "string",
+            "description": "Token de uso único válido por 60s"
+          },
+          "expiresInSec": {
+            "type": "integer",
+            "default": 60
+          }
+        },
+        "required": ["ticket", "expiresInSec"]
+      },
+      "PanelStateDto": {
+        "type": "object",
+        "properties": {
+          "restaurantId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "calls": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/PublicCallDto"
+            }
+          },
+          "serverNow": {
+            "type": "string",
+            "format": "date-time"
+          }
+        },
+        "required": ["restaurantId", "calls", "serverNow"]
+      },
+      "DailySummaryDto": {
+        "type": "object",
+        "properties": {
+          "restaurantId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "day": {
+            "type": "string",
+            "format": "date",
+            "example": "2026-04-20"
+          },
+          "totalCalls": {
+            "type": "integer",
+            "example": 142
+          },
+          "avgWaitSec": {
+            "type": "number",
+            "example": 124.5
+          },
+          "p50WaitSec": {
+            "type": "number",
+            "example": 98
+          },
+          "p90WaitSec": {
+            "type": "number",
+            "example": 210
+          },
+          "callsByType": {
+            "type": "object"
+          },
+          "callsByStatus": {
+            "type": "object"
+          },
+          "topTables": {
+            "type": "array",
+            "items": {
+              "type": "object"
+            }
+          },
+          "byHour": {
+            "type": "array",
+            "items": {
+              "type": "object"
+            }
+          }
+        },
+        "required": ["restaurantId", "day", "totalCalls"]
+      },
+      "HealthCheckResult": {
+        "type": "object",
+        "properties": {
+          "status": {
+            "type": "string",
+            "example": "ok"
+          },
+          "checks": {
+            "type": "object",
+            "properties": {
+              "database": {
+                "type": "string",
+                "enum": ["up", "down"]
+              },
+              "redis": {
+                "type": "string",
+                "enum": ["up", "down", "disabled"]
+              },
+              "memory": {
+                "type": "object",
+                "properties": {
+                  "heapUsedMb": {
+                    "type": "integer"
+                  },
+                  "rssMb": {
+                    "type": "integer"
+                  }
+                }
+              }
+            }
+          },
+          "timestamp": {
+            "type": "string",
+            "format": "date-time"
+          }
+        },
+        "required": ["status"]
+      },
+      "CreateTeamUserDto": {
+        "type": "object",
+        "properties": {
+          "username": {
+            "type": "string",
+            "example": "garcom_joao"
+          },
+          "role": {
+            "type": "string",
+            "enum": ["WAITER", "OWNER"],
+            "default": "WAITER"
+          },
+          "password": {
+            "type": "string",
+            "description": "Senha opcional; se omitida, uma forte é gerada automaticamente"
+          }
+        },
+        "required": ["username"]
+      },
+      "UpdateTeamUserStatusDto": {
+        "type": "object",
+        "properties": {
+          "active": {
+            "type": "boolean"
+          }
+        },
+        "required": ["active"]
+      },
+      "TeamUserDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "username": {
+            "type": "string"
+          },
+          "role": {
+            "type": "string",
+            "enum": ["WAITER", "OWNER"]
+          },
+          "active": {
+            "type": "boolean"
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "isLocked": {
+            "type": "boolean"
+          }
+        },
+        "required": ["id", "username", "role", "active"]
+      },
+      "TeamMetricsDto": {
+        "type": "object",
+        "properties": {
+          "restaurantId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "totalCallsAttended": {
+            "type": "integer"
+          },
+          "waiters": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "userId": {
+                  "type": "string",
+                  "format": "uuid"
+                },
+                "username": {
+                  "type": "string"
+                },
+                "totalCallsAttended": {
+                  "type": "integer"
+                },
+                "avgResponseTimeSec": {
+                  "type": "number"
+                },
+                "fastestResponseSec": {
+                  "type": "number"
+                },
+                "slowestResponseSec": {
+                  "type": "number"
+                }
+              }
+            }
+          }
+        },
+        "required": ["restaurantId", "totalCallsAttended", "waiters"]
+      }
+    }
+  },
+  "paths": {
+    "/auth/login": {
+      "post": {
+        "tags": ["Auth"],
+        "summary": "Autenticação de usuário com username e senha",
+        "description": "Emite um Access Token JWT e define um cookie HttpOnly rotativo com refresh token.",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/LoginDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Login realizado com sucesso",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LoginResponseDto"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Credenciais inválidas",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Conta bloqueada ou restaurante suspenso",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/auth/refresh": {
+      "post": {
+        "tags": ["Auth"],
+        "summary": "Rotação do refresh token e renovação do access token",
+        "security": [
+          {
+            "CookieAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Tokens renovados com sucesso",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LoginResponseDto"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Refresh token ausente, expirado ou reutilizado",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/auth/logout": {
+      "post": {
+        "tags": ["Auth"],
+        "summary": "Encerramento de sessão e revogação de tokens",
+        "responses": {
+          "204": {
+            "description": "Sessão encerrada com sucesso"
+          }
+        }
+      }
+    },
+    "/auth/me": {
+      "get": {
+        "tags": ["Auth"],
+        "summary": "Dados do usuário autenticado no token atual",
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Perfil do usuário",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UserProfileDto"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Não autorizado"
+          }
+        }
+      }
+    },
+    "/admin/restaurants": {
+      "get": {
+        "tags": ["Admin Restaurants"],
+        "summary": "Listagem paginada de restaurantes cadastrados",
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "cursor",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "default": 20
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Lista de restaurantes"
+          },
+          "403": {
+            "description": "Acesso restrito ao Administrador"
+          }
+        }
+      },
+      "post": {
+        "tags": ["Admin Restaurants"],
+        "summary": "Criação de novo restaurante e credenciais do proprietário",
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateRestaurantDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Restaurante criado com sucesso",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RestaurantCreatedResponseDto"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Username já cadastrado no sistema"
+          }
+        }
+      }
+    },
+    "/admin/restaurants/{id}/suspend": {
+      "patch": {
+        "tags": ["Admin Restaurants"],
+        "summary": "Suspende um restaurante e revoga sessões ativas",
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Restaurante suspenso"
+          }
+        }
+      }
+    },
+    "/admin/restaurants/{id}/reactivate": {
+      "patch": {
+        "tags": ["Admin Restaurants"],
+        "summary": "Reativa um restaurante suspenso",
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Restaurante reativado"
+          }
+        }
+      }
+    },
+    "/admin/restaurants/{id}/impersonate": {
+      "post": {
+        "tags": ["Admin Restaurants"],
+        "summary": "Emite token de impersonação para suporte administrativo",
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Token de impersonação emitido com claim imp"
+          }
+        }
+      }
+    },
+    "/restaurant/current": {
+      "get": {
+        "tags": ["Tenancy"],
+        "summary": "Obtém dados do restaurante associado ao tenant atual",
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Dados do restaurante",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RestaurantResponseDto"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/restaurant/settings": {
+      "get": {
+        "tags": ["Tenancy"],
+        "summary": "Consulta configurações de atendimento e horários",
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Configurações de atendimento",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ServiceSettingsDto"
+                }
+              }
+            }
+          }
+        }
+      },
+      "patch": {
+        "tags": ["Tenancy"],
+        "summary": "Atualiza configurações de atendimento e metas de SLA",
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ServiceSettingsDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Configurações atualizadas"
+          }
+        }
+      }
+    },
+    "/restaurant/appearance": {
+      "get": {
+        "tags": ["Tenancy"],
+        "summary": "Consulta dados de aparência (logo, capa, cor primária)",
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Aparência do restaurante",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AppearanceDto"
+                }
+              }
+            }
+          }
+        }
+      },
+      "patch": {
+        "tags": ["Tenancy"],
+        "summary": "Atualiza cores e dados de aparência",
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Aparência atualizada"
+          }
+        }
+      }
+    },
+    "/restaurant/users": {
+      "get": {
+        "tags": ["Team"],
+        "summary": "Lista os membros da equipe do restaurante atual",
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Lista de membros da equipe",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/TeamUserDto"
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": ["Team"],
+        "summary": "Cadastra um novo membro da equipe (garçom ou staff)",
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateTeamUserDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Membro criado com sucesso",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TeamUserDto"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Nome de usuário já cadastrado"
+          }
+        }
+      }
+    },
+    "/restaurant/users/metrics": {
+      "get": {
+        "tags": ["Team"],
+        "summary": "Métricas de desempenho e ranking dos atendentes / garçons",
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "userId",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Estatísticas de atendimento",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TeamMetricsDto"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/restaurant/users/{id}": {
+      "get": {
+        "tags": ["Team"],
+        "summary": "Consulta detalhes de um membro da equipe",
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Dados do membro",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TeamUserDto"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Membro não encontrado"
+          }
+        }
+      },
+      "delete": {
+        "tags": ["Team"],
+        "summary": "Remove um membro da equipe e revoga suas sessões",
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Membro removido com sucesso"
+          }
+        }
+      }
+    },
+    "/restaurant/users/{id}/status": {
+      "patch": {
+        "tags": ["Team"],
+        "summary": "Ativa ou desativa o acesso de um membro da equipe",
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateTeamUserStatusDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Status atualizado com sucesso"
+          }
+        }
+      }
+    },
+    "/restaurant/users/{id}/reset-password": {
+      "post": {
+        "tags": ["Team"],
+        "summary": "Redefine a senha de um membro da equipe e revoga sessões ativas",
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Nova senha temporária gerada"
+          }
+        }
+      }
+    },
+    "/restaurant/notifications/settings": {
+      "get": {
+        "tags": ["Notifications"],
+        "summary": "Obtém preferências de notificações e alertas do restaurante",
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Configurações de notificações"
+          },
+          "401": {
+            "description": "Não autenticado"
+          },
+          "403": {
+            "description": "Acesso restrito ao OWNER"
+          }
+        }
+      },
+      "patch": {
+        "tags": ["Notifications"],
+        "summary": "Atualiza preferências de notificações por e-mail e alertas",
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Configurações atualizadas com sucesso"
+          },
+          "400": {
+            "description": "Parâmetros inválidos"
+          }
+        }
+      }
+    },
+    "/restaurant/notifications/send-daily-summary": {
+      "post": {
+        "tags": ["Notifications"],
+        "summary": "Envia o resumo operacional do dia por e-mail",
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "Resumo por e-mail enviado com sucesso"
+          },
+          "400": {
+            "description": "Envio desativado ou parâmetros inválidos"
+          }
+        }
+      }
+    },
+    "/restaurant/notifications/send-urgent-alert": {
+      "post": {
+        "tags": ["Notifications"],
+        "summary": "Envia alerta de urgência por e-mail e emite evento SSE",
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "Alerta enviado com sucesso"
+          },
+          "409": {
+            "description": "Período de cooldown ativo"
+          }
+        }
+      }
+    },
+    "/tables": {
+      "get": {
+        "tags": ["Dining Room"],
+        "summary": "Lista mesas cadastradas no restaurante",
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Mesas do restaurante",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/TableDto"
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": ["Dining Room"],
+        "summary": "Cadastra uma nova mesa individual",
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "Mesa cadastrada"
+          }
+        }
+      }
+    },
+    "/tables/batch": {
+      "post": {
+        "tags": ["Dining Room"],
+        "summary": "Cadastra lote sequencial de mesas (ex: 1 a 20)",
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/BatchCreateTableDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Lote de mesas cadastrado"
+          }
+        }
+      }
+    },
+    "/public/tables/{token}": {
+      "get": {
+        "tags": ["Public Tables"],
+        "summary": "Consulta dados públicos da mesa pelo token do QR Code",
+        "parameters": [
+          {
+            "name": "token",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Estado da mesa e chamados pendentes",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PublicTableDto"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Mesa não encontrada ou token inválido"
+          }
+        }
+      }
+    },
+    "/public/tables/{token}/stream": {
+      "get": {
+        "tags": ["Public Tables"],
+        "summary": "Canal SSE em tempo real para a mesa do cliente",
+        "parameters": [
+          {
+            "name": "token",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Fluxo SSE de eventos (snapshot, call.attended, table.removed)",
+            "content": {
+              "text/event-stream": {}
+            }
+          }
+        }
+      }
+    },
+    "/public/tables/{token}/calls": {
+      "post": {
+        "tags": ["Public Tables"],
+        "summary": "Abre um chamado para garçom ou pedido de conta",
+        "parameters": [
+          {
+            "name": "token",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreatePublicCallDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Chamado já existente retornado com idempotência"
+          },
+          "201": {
+            "description": "Chamado aberto com sucesso"
+          }
+        }
+      }
+    },
+    "/public/tables/{token}/calls/{callId}/confirm": {
+      "post": {
+        "tags": ["Public Tables"],
+        "summary": "Cliente confirma o atendimento do chamado com avaliação rápida opcional (RF-C18)",
+        "parameters": [
+          {
+            "name": "token",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "callId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": false,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "rating": {
+                    "type": "integer",
+                    "minimum": 1,
+                    "maximum": 3,
+                    "description": "Avaliação rápida de 1 a 3 estrelas",
+                    "example": 3
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Atendimento confirmado com sucesso"
+          },
+          "400": {
+            "description": "Avaliação inválida ou transição ilegal"
+          },
+          "404": {
+            "description": "Mesa ou chamado não encontrado"
+          }
+        }
+      }
+    },
+    "/panel/stream-ticket": {
+      "post": {
+        "tags": ["Panel"],
+        "summary": "Gera ticket de uso único para conexão SSE ao painel",
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Ticket emitido",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StreamTicketDto"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/panel/stream": {
+      "get": {
+        "tags": ["Panel"],
+        "summary": "Conexão SSE em tempo real para o painel de atendimento",
+        "parameters": [
+          {
+            "name": "ticket",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Fluxo SSE de eventos do restaurante",
+            "content": {
+              "text/event-stream": {}
+            }
+          }
+        }
+      }
+    },
+    "/panel/calls/{id}/acknowledge": {
+      "post": {
+        "tags": ["Panel"],
+        "summary": "Garçom assume o chamado (RF-R13); status permanece PENDING e registra tempo de reação",
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Chamado assumido com sucesso"
+          },
+          "404": {
+            "description": "Chamado não encontrado"
+          },
+          "409": {
+            "description": "Transição ilegal de estado"
+          }
+        }
+      }
+    },
+    "/panel/calls/{id}/assume": {
+      "post": {
+        "tags": ["Panel"],
+        "summary": "Alias para a ação de assumir o chamado (RF-R13)",
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Chamado assumido com sucesso"
+          }
+        }
+      }
+    },
+    "/panel/calls/{id}/attend": {
+      "post": {
+        "tags": ["Panel"],
+        "summary": "Marca um chamado como atendido pelo garçom",
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Chamado marcado como atendido"
+          }
+        }
+      }
+    },
+    "/analytics/daily-summary": {
+      "get": {
+        "tags": ["Analytics"],
+        "summary": "Consulta métricas consolidadas do Resumo do Dia",
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "day",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "format": "date"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Resumo do dia",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DailySummaryDto"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/analytics/export.csv": {
+      "get": {
+        "tags": ["Analytics"],
+        "summary": "Exporta chamados em formato CSV seguro (UTF-8 BOM)",
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "from",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "date"
+            }
+          },
+          {
+            "name": "to",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "date"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Arquivo CSV com sanitização de fórmulas",
+            "content": {
+              "text/csv": {}
+            }
+          }
+        }
+      }
+    },
+    "/health/live": {
+      "get": {
+        "tags": ["Observability"],
+        "summary": "Liveness probe (processo rodando)",
+        "responses": {
+          "200": {
+            "description": "Serviço ativo"
+          }
+        }
+      }
+    },
+    "/health/ready": {
+      "get": {
+        "tags": ["Observability"],
+        "summary": "Readiness probe (PostgreSQL e Redis conectados)",
+        "responses": {
+          "200": {
+            "description": "Todos os componentes prontos",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HealthCheckResult"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Algum componente essencial indisponível"
+          }
+        }
+      }
+    },
+    "/metrics": {
+      "get": {
+        "tags": ["Observability"],
+        "summary": "Métricas da aplicação no formato Prometheus",
+        "responses": {
+          "200": {
+            "description": "Métricas em formato texto",
+            "content": {
+              "text/plain; version=0.0.4": {}
+            }
+          }
+        }
+      }
+    }
+  }
+}

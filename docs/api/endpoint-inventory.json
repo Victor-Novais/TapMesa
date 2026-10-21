@@ -1,0 +1,3892 @@
+{
+  "version": "1.0.0",
+  "generatedAt": "2026-10-21T04:09:08.516Z",
+  "environment": "production-ready",
+  "totalEndpoints": 69,
+  "globalPrefix": "/api/v1",
+  "endpoints": [
+    {
+      "method": "POST",
+      "path": "/api/v1/auth/login",
+      "module": "IdentityAccess",
+      "description": "Autentica o usuário com username e password. Retorna accessToken no body e define refresh_token em cookie HttpOnly rotativo.",
+      "authentication": false,
+      "roles": ["ANONYMOUS"],
+      "rateLimit": "5 req / 60s (Throttle)",
+      "pathParams": [],
+      "queryParams": [],
+      "requestBody": {
+        "type": "application/json",
+        "schema": {
+          "username": {
+            "type": "string",
+            "required": true,
+            "example": "admin"
+          },
+          "password": {
+            "type": "string",
+            "required": true,
+            "example": "Senha@123"
+          }
+        }
+      },
+      "successResponse": {
+        "status": 200,
+        "type": "application/json",
+        "cookies": [
+          "refresh_token (HttpOnly, Secure, SameSite=Strict, Path=/api/v1/auth)"
+        ],
+        "schema": {
+          "accessToken": {
+            "type": "string",
+            "description": "JWT de acesso (15 min) com claims sub, rid, role"
+          }
+        }
+      },
+      "errors": [
+        {
+          "status": 400,
+          "code": "VALIDATION_ERROR",
+          "detail": "Username ou senha ausente/inválido"
+        },
+        {
+          "status": 401,
+          "code": "INVALID_CREDENTIALS",
+          "detail": "Credenciais inválidas"
+        },
+        {
+          "status": 403,
+          "code": "ACCOUNT_LOCKED",
+          "detail": "Conta temporariamente bloqueada após tentativas falhas"
+        },
+        {
+          "status": 403,
+          "code": "RESTAURANT_SUSPENDED",
+          "detail": "Restaurante vinculado está suspenso"
+        },
+        {
+          "status": 429,
+          "code": "TOO_MANY_REQUESTS",
+          "detail": "Limite de tentativas excedido"
+        }
+      ],
+      "status": "VERIFIED_IMPLEMENTED",
+      "evidence": {
+        "file": "src/modules/identity-access/presentation/AuthController.ts",
+        "symbol": "AuthController.login"
+      }
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/auth/refresh",
+      "module": "IdentityAccess",
+      "description": "Rotaciona o refresh token contido no cookie HttpOnly e emite novo accessToken e novo cookie de refresh.",
+      "authentication": false,
+      "roles": ["ANONYMOUS"],
+      "rateLimit": "Padrão da API",
+      "pathParams": [],
+      "queryParams": [],
+      "requestBody": null,
+      "headers": {
+        "Cookie": "refresh_token=<token>"
+      },
+      "successResponse": {
+        "status": 200,
+        "type": "application/json",
+        "cookies": ["refresh_token (Novo token rotativo da família)"],
+        "schema": {
+          "accessToken": {
+            "type": "string",
+            "description": "Novo JWT de acesso de 15 minutos"
+          }
+        }
+      },
+      "errors": [
+        {
+          "status": 401,
+          "code": "INVALID_REFRESH_TOKEN",
+          "detail": "Refresh token ausente, expirado ou revogado"
+        },
+        {
+          "status": 401,
+          "code": "TOKEN_REUSE_DETECTED",
+          "detail": "Reutilização de token detectada; família revogada integralmente"
+        }
+      ],
+      "status": "VERIFIED_IMPLEMENTED",
+      "evidence": {
+        "file": "src/modules/identity-access/presentation/AuthController.ts",
+        "symbol": "AuthController.refresh"
+      }
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/auth/logout",
+      "module": "IdentityAccess",
+      "description": "Encerra a sessão, revoga a família de refresh tokens no banco e limpa o cookie refresh_token.",
+      "authentication": false,
+      "roles": ["ANONYMOUS"],
+      "rateLimit": "Padrão da API",
+      "pathParams": [],
+      "queryParams": [],
+      "requestBody": null,
+      "headers": {
+        "Cookie": "refresh_token=<token>"
+      },
+      "successResponse": {
+        "status": 200,
+        "type": "application/json",
+        "schema": {
+          "message": {
+            "type": "string",
+            "example": "Logged out successfully"
+          }
+        }
+      },
+      "errors": [],
+      "status": "VERIFIED_IMPLEMENTED",
+      "evidence": {
+        "file": "src/modules/identity-access/presentation/AuthController.ts",
+        "symbol": "AuthController.logout"
+      }
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/auth/me",
+      "module": "IdentityAccess",
+      "description": "Retorna os dados do usuário autenticado a partir das claims do JWT de acesso.",
+      "authentication": true,
+      "roles": ["ADMIN", "OWNER", "WAITER"],
+      "rateLimit": "Padrão da API",
+      "pathParams": [],
+      "queryParams": [],
+      "requestBody": null,
+      "headers": {
+        "Authorization": "Bearer <accessToken>"
+      },
+      "successResponse": {
+        "status": 200,
+        "type": "application/json",
+        "schema": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "sub": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "username": {
+            "type": "string"
+          },
+          "role": {
+            "type": "string",
+            "enum": ["ADMIN", "OWNER", "WAITER"]
+          },
+          "restaurantId": {
+            "type": "string",
+            "format": "uuid",
+            "nullable": true
+          },
+          "rid": {
+            "type": "string",
+            "format": "uuid",
+            "nullable": true
+          },
+          "imp": {
+            "type": "string",
+            "format": "uuid",
+            "nullable": true
+          }
+        }
+      },
+      "errors": [
+        {
+          "status": 401,
+          "code": "UNAUTHORIZED",
+          "detail": "Token de acesso ausente ou inválido"
+        }
+      ],
+      "status": "VERIFIED_IMPLEMENTED",
+      "evidence": {
+        "file": "src/modules/identity-access/presentation/AuthController.ts",
+        "symbol": "AuthController.me"
+      }
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/restaurant/users",
+      "module": "IdentityAccess",
+      "description": "Cria um novo membro da equipe vinculado ao restaurante atual (OWNER ou WAITER).",
+      "authentication": true,
+      "roles": ["OWNER", "ADMIN"],
+      "requireTenant": true,
+      "pathParams": [],
+      "queryParams": [],
+      "requestBody": {
+        "type": "application/json",
+        "schema": {
+          "username": {
+            "type": "string",
+            "required": true
+          },
+          "role": {
+            "type": "string",
+            "enum": ["OWNER", "WAITER"],
+            "required": true
+          },
+          "password": {
+            "type": "string",
+            "required": false,
+            "description": "Se omitida, uma senha temporária é gerada"
+          }
+        }
+      },
+      "successResponse": {
+        "status": 201,
+        "type": "application/json",
+        "schema": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "username": {
+            "type": "string"
+          },
+          "role": {
+            "type": "string",
+            "enum": ["OWNER", "WAITER"]
+          },
+          "active": {
+            "type": "boolean"
+          },
+          "temporaryPassword": {
+            "type": "string",
+            "nullable": true
+          }
+        }
+      },
+      "errors": [
+        {
+          "status": 400,
+          "code": "VALIDATION_ERROR",
+          "detail": "Dados inválidos"
+        },
+        {
+          "status": 401,
+          "code": "UNAUTHORIZED",
+          "detail": "Token inválido"
+        },
+        {
+          "status": 403,
+          "code": "FORBIDDEN",
+          "detail": "Apenas OWNER ou ADMIN"
+        },
+        {
+          "status": 409,
+          "code": "USERNAME_ALREADY_EXISTS",
+          "detail": "Nome de usuário já cadastrado"
+        }
+      ],
+      "status": "VERIFIED_IMPLEMENTED",
+      "evidence": {
+        "file": "src/modules/identity-access/presentation/RestaurantUsersController.ts",
+        "symbol": "RestaurantUsersController.createUser"
+      }
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/restaurant/users",
+      "module": "IdentityAccess",
+      "description": "Lista todos os usuários da equipe pertencentes ao restaurante.",
+      "authentication": true,
+      "roles": ["OWNER", "ADMIN"],
+      "requireTenant": true,
+      "pathParams": [],
+      "queryParams": [],
+      "requestBody": null,
+      "successResponse": {
+        "status": 200,
+        "type": "application/json",
+        "schema": {
+          "items": {
+            "type": "array",
+            "items": {
+              "id": {
+                "type": "string",
+                "format": "uuid"
+              },
+              "username": {
+                "type": "string"
+              },
+              "role": {
+                "type": "string"
+              },
+              "active": {
+                "type": "boolean"
+              },
+              "createdAt": {
+                "type": "string",
+                "format": "date-time"
+              }
+            }
+          }
+        }
+      },
+      "errors": [
+        {
+          "status": 401,
+          "code": "UNAUTHORIZED"
+        },
+        {
+          "status": 403,
+          "code": "FORBIDDEN"
+        }
+      ],
+      "status": "VERIFIED_IMPLEMENTED",
+      "evidence": {
+        "file": "src/modules/identity-access/presentation/RestaurantUsersController.ts",
+        "symbol": "RestaurantUsersController.listUsers"
+      }
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/restaurant/users/metrics",
+      "module": "IdentityAccess",
+      "description": "Obtém indicadores de desempenho de atendimento por garçom/atendente.",
+      "authentication": true,
+      "roles": ["OWNER", "ADMIN"],
+      "requireTenant": true,
+      "pathParams": [],
+      "queryParams": [
+        {
+          "name": "userId",
+          "type": "string",
+          "required": false,
+          "description": "Filtra métricas por um atendente específico"
+        }
+      ],
+      "requestBody": null,
+      "successResponse": {
+        "status": 200,
+        "type": "application/json",
+        "schema": {
+          "attendants": {
+            "type": "array",
+            "items": {
+              "userId": {
+                "type": "string",
+                "format": "uuid"
+              },
+              "username": {
+                "type": "string"
+              },
+              "totalAttended": {
+                "type": "integer"
+              },
+              "averageReactionTimeSec": {
+                "type": "number"
+              },
+              "averageExecutionTimeSec": {
+                "type": "number"
+              },
+              "averageRating": {
+                "type": "number",
+                "nullable": true
+              }
+            }
+          }
+        }
+      },
+      "errors": [
+        {
+          "status": 401,
+          "code": "UNAUTHORIZED"
+        },
+        {
+          "status": 403,
+          "code": "FORBIDDEN"
+        }
+      ],
+      "status": "VERIFIED_IMPLEMENTED",
+      "evidence": {
+        "file": "src/modules/identity-access/presentation/RestaurantUsersController.ts",
+        "symbol": "RestaurantUsersController.getMetrics"
+      }
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/restaurant/users/:id",
+      "module": "IdentityAccess",
+      "description": "Detalha um usuário específico da equipe.",
+      "authentication": true,
+      "roles": ["OWNER", "ADMIN"],
+      "requireTenant": true,
+      "pathParams": [
+        {
+          "name": "id",
+          "type": "string",
+          "format": "uuid",
+          "required": true
+        }
+      ],
+      "queryParams": [],
+      "requestBody": null,
+      "successResponse": {
+        "status": 200,
+        "type": "application/json",
+        "schema": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "username": {
+            "type": "string"
+          },
+          "role": {
+            "type": "string"
+          },
+          "active": {
+            "type": "boolean"
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time"
+          }
+        }
+      },
+      "errors": [
+        {
+          "status": 401,
+          "code": "UNAUTHORIZED"
+        },
+        {
+          "status": 403,
+          "code": "FORBIDDEN"
+        },
+        {
+          "status": 404,
+          "code": "USER_NOT_FOUND",
+          "detail": "Usuário não encontrado no restaurante"
+        }
+      ],
+      "status": "VERIFIED_IMPLEMENTED",
+      "evidence": {
+        "file": "src/modules/identity-access/presentation/RestaurantUsersController.ts",
+        "symbol": "RestaurantUsersController.getUser"
+      }
+    },
+    {
+      "method": "PATCH",
+      "path": "/api/v1/restaurant/users/:id/status",
+      "module": "IdentityAccess",
+      "description": "Ativa ou desativa um usuário da equipe. Não é permitido desativar a própria conta.",
+      "authentication": true,
+      "roles": ["OWNER", "ADMIN"],
+      "requireTenant": true,
+      "pathParams": [
+        {
+          "name": "id",
+          "type": "string",
+          "format": "uuid",
+          "required": true
+        }
+      ],
+      "queryParams": [],
+      "requestBody": {
+        "type": "application/json",
+        "schema": {
+          "active": {
+            "type": "boolean",
+            "required": true
+          }
+        }
+      },
+      "successResponse": {
+        "status": 200,
+        "type": "application/json",
+        "schema": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "active": {
+            "type": "boolean"
+          }
+        }
+      },
+      "errors": [
+        {
+          "status": 400,
+          "code": "CANNOT_DEACTIVATE_SELF",
+          "detail": "Usuário não pode desativar o próprio acesso"
+        },
+        {
+          "status": 404,
+          "code": "USER_NOT_FOUND"
+        }
+      ],
+      "status": "VERIFIED_IMPLEMENTED",
+      "evidence": {
+        "file": "src/modules/identity-access/presentation/RestaurantUsersController.ts",
+        "symbol": "RestaurantUsersController.updateStatus"
+      }
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/restaurant/users/:id/reset-password",
+      "module": "IdentityAccess",
+      "description": "Reseta a senha de um atendente/garçom gerando uma nova senha temporária.",
+      "authentication": true,
+      "roles": ["OWNER", "ADMIN"],
+      "requireTenant": true,
+      "pathParams": [
+        {
+          "name": "id",
+          "type": "string",
+          "format": "uuid",
+          "required": true
+        }
+      ],
+      "queryParams": [],
+      "requestBody": null,
+      "successResponse": {
+        "status": 200,
+        "type": "application/json",
+        "schema": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "username": {
+            "type": "string"
+          },
+          "temporaryPassword": {
+            "type": "string"
+          }
+        }
+      },
+      "errors": [
+        {
+          "status": 404,
+          "code": "USER_NOT_FOUND"
+        }
+      ],
+      "status": "VERIFIED_IMPLEMENTED",
+      "evidence": {
+        "file": "src/modules/identity-access/presentation/RestaurantUsersController.ts",
+        "symbol": "RestaurantUsersController.resetPassword"
+      }
+    },
+    {
+      "method": "DELETE",
+      "path": "/api/v1/restaurant/users/:id",
+      "module": "IdentityAccess",
+      "description": "Remove um membro da equipe. Não é permitido remover a própria conta.",
+      "authentication": true,
+      "roles": ["OWNER", "ADMIN"],
+      "requireTenant": true,
+      "pathParams": [
+        {
+          "name": "id",
+          "type": "string",
+          "format": "uuid",
+          "required": true
+        }
+      ],
+      "queryParams": [],
+      "requestBody": null,
+      "successResponse": {
+        "status": 204,
+        "type": null,
+        "description": "Usuário removido com sucesso"
+      },
+      "errors": [
+        {
+          "status": 400,
+          "code": "CANNOT_DELETE_SELF"
+        },
+        {
+          "status": 404,
+          "code": "USER_NOT_FOUND"
+        }
+      ],
+      "status": "VERIFIED_IMPLEMENTED",
+      "evidence": {
+        "file": "src/modules/identity-access/presentation/RestaurantUsersController.ts",
+        "symbol": "RestaurantUsersController.deleteUser"
+      }
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/admin/restaurants",
+      "module": "Tenancy",
+      "description": "Criação de um novo restaurante e seu usuário administrador (proprietário/OWNER).",
+      "authentication": true,
+      "roles": ["ADMIN"],
+      "pathParams": [],
+      "queryParams": [],
+      "requestBody": {
+        "type": "application/json",
+        "schema": {
+          "name": {
+            "type": "string",
+            "required": true,
+            "example": "Bistrô Paris"
+          },
+          "ownerUsername": {
+            "type": "string",
+            "required": true,
+            "pattern": "^[a-z0-9._-]{3,30}$",
+            "example": "owner_bistro"
+          }
+        }
+      },
+      "successResponse": {
+        "status": 201,
+        "type": "application/json",
+        "schema": {
+          "restaurantId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "restaurantName": {
+            "type": "string"
+          },
+          "ownerId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "ownerUsername": {
+            "type": "string"
+          },
+          "temporaryPassword": {
+            "type": "string"
+          }
+        }
+      },
+      "errors": [
+        {
+          "status": 400,
+          "code": "VALIDATION_ERROR"
+        },
+        {
+          "status": 409,
+          "code": "USERNAME_ALREADY_EXISTS"
+        }
+      ],
+      "status": "VERIFIED_IMPLEMENTED",
+      "evidence": {
+        "file": "src/modules/tenancy/presentation/AdminRestaurantsController.ts",
+        "symbol": "AdminRestaurantsController.create"
+      }
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/admin/restaurants",
+      "module": "Tenancy",
+      "description": "Lista restaurantes com paginação baseada em cursor.",
+      "authentication": true,
+      "roles": ["ADMIN"],
+      "pathParams": [],
+      "queryParams": [
+        {
+          "name": "cursor",
+          "type": "string",
+          "required": false
+        },
+        {
+          "name": "limit",
+          "type": "integer",
+          "required": false,
+          "default": 20
+        }
+      ],
+      "requestBody": null,
+      "successResponse": {
+        "status": 200,
+        "type": "application/json",
+        "schema": {
+          "items": {
+            "type": "array",
+            "items": {
+              "id": {
+                "type": "string",
+                "format": "uuid"
+              },
+              "name": {
+                "type": "string"
+              },
+              "status": {
+                "type": "string",
+                "enum": ["ACTIVE", "SUSPENDED"]
+              },
+              "createdAt": {
+                "type": "string",
+                "format": "date-time"
+              },
+              "tableCount": {
+                "type": "integer"
+              },
+              "userCount": {
+                "type": "integer"
+              }
+            }
+          },
+          "nextCursor": {
+            "type": "string",
+            "nullable": true
+          },
+          "hasMore": {
+            "type": "boolean"
+          }
+        }
+      },
+      "errors": [
+        {
+          "status": 401,
+          "code": "UNAUTHORIZED"
+        },
+        {
+          "status": 403,
+          "code": "FORBIDDEN"
+        }
+      ],
+      "status": "VERIFIED_IMPLEMENTED",
+      "evidence": {
+        "file": "src/modules/tenancy/presentation/AdminRestaurantsController.ts",
+        "symbol": "AdminRestaurantsController.list"
+      }
+    },
+    {
+      "method": "DELETE",
+      "path": "/api/v1/admin/restaurants/:id",
+      "module": "Tenancy",
+      "description": "Exclui restaurante e todos os dados associados em cascata. Requer confirmação digitando o nome exato do restaurante no body.",
+      "authentication": true,
+      "roles": ["ADMIN"],
+      "pathParams": [
+        {
+          "name": "id",
+          "type": "string",
+          "format": "uuid",
+          "required": true
+        }
+      ],
+      "queryParams": [],
+      "requestBody": {
+        "type": "application/json",
+        "schema": {
+          "confirmName": {
+            "type": "string",
+            "required": true,
+            "description": "Deve ser exatamente igual ao nome do restaurante"
+          }
+        }
+      },
+      "successResponse": {
+        "status": 204,
+        "type": null
+      },
+      "errors": [
+        {
+          "status": 400,
+          "code": "CONFIRMATION_NAME_MISMATCH",
+          "detail": "O nome de confirmação não confere"
+        },
+        {
+          "status": 404,
+          "code": "RESTAURANT_NOT_FOUND"
+        }
+      ],
+      "status": "VERIFIED_IMPLEMENTED",
+      "evidence": {
+        "file": "src/modules/tenancy/presentation/AdminRestaurantsController.ts",
+        "symbol": "AdminRestaurantsController.delete"
+      }
+    },
+    {
+      "method": "PATCH",
+      "path": "/api/v1/admin/restaurants/:id/suspend",
+      "module": "Tenancy",
+      "description": "Suspende um restaurante. Impede logins e encerra conexões ativas.",
+      "authentication": true,
+      "roles": ["ADMIN"],
+      "pathParams": [
+        {
+          "name": "id",
+          "type": "string",
+          "format": "uuid",
+          "required": true
+        }
+      ],
+      "queryParams": [],
+      "requestBody": null,
+      "successResponse": {
+        "status": 204,
+        "type": null
+      },
+      "errors": [
+        {
+          "status": 404,
+          "code": "RESTAURANT_NOT_FOUND"
+        }
+      ],
+      "status": "VERIFIED_IMPLEMENTED",
+      "evidence": {
+        "file": "src/modules/tenancy/presentation/AdminRestaurantsController.ts",
+        "symbol": "AdminRestaurantsController.suspend"
+      }
+    },
+    {
+      "method": "PATCH",
+      "path": "/api/v1/admin/restaurants/:id/reactivate",
+      "module": "Tenancy",
+      "description": "Reativa um restaurante previamente suspenso.",
+      "authentication": true,
+      "roles": ["ADMIN"],
+      "pathParams": [
+        {
+          "name": "id",
+          "type": "string",
+          "format": "uuid",
+          "required": true
+        }
+      ],
+      "queryParams": [],
+      "requestBody": null,
+      "successResponse": {
+        "status": 204,
+        "type": null
+      },
+      "errors": [
+        {
+          "status": 404,
+          "code": "RESTAURANT_NOT_FOUND"
+        }
+      ],
+      "status": "VERIFIED_IMPLEMENTED",
+      "evidence": {
+        "file": "src/modules/tenancy/presentation/AdminRestaurantsController.ts",
+        "symbol": "AdminRestaurantsController.reactivate"
+      }
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/admin/restaurants/:id/reset-owner-password",
+      "module": "Tenancy",
+      "description": "Gera uma nova senha temporária para o usuário OWNER do restaurante.",
+      "authentication": true,
+      "roles": ["ADMIN"],
+      "pathParams": [
+        {
+          "name": "id",
+          "type": "string",
+          "format": "uuid",
+          "required": true
+        }
+      ],
+      "queryParams": [],
+      "requestBody": null,
+      "successResponse": {
+        "status": 200,
+        "type": "application/json",
+        "schema": {
+          "restaurantId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "ownerId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "ownerUsername": {
+            "type": "string"
+          },
+          "temporaryPassword": {
+            "type": "string"
+          }
+        }
+      },
+      "errors": [
+        {
+          "status": 404,
+          "code": "RESTAURANT_NOT_FOUND"
+        }
+      ],
+      "status": "VERIFIED_IMPLEMENTED",
+      "evidence": {
+        "file": "src/modules/tenancy/presentation/AdminRestaurantsController.ts",
+        "symbol": "AdminRestaurantsController.resetPassword"
+      }
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/admin/restaurants/:id/impersonate",
+      "module": "Tenancy",
+      "description": "Emite token de acesso para o administrador atuar como o OWNER do restaurante selecionado (com claim imp auditável).",
+      "authentication": true,
+      "roles": ["ADMIN"],
+      "pathParams": [
+        {
+          "name": "id",
+          "type": "string",
+          "format": "uuid",
+          "required": true
+        }
+      ],
+      "queryParams": [],
+      "requestBody": null,
+      "successResponse": {
+        "status": 200,
+        "type": "application/json",
+        "schema": {
+          "accessToken": {
+            "type": "string"
+          },
+          "restaurantId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "restaurantName": {
+            "type": "string"
+          },
+          "ownerId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "ownerUsername": {
+            "type": "string"
+          },
+          "impersonatedBy": {
+            "type": "string",
+            "format": "uuid"
+          }
+        }
+      },
+      "errors": [
+        {
+          "status": 400,
+          "code": "CANNOT_IMPERSONATE_SUSPENDED_RESTAURANT",
+          "detail": "Não é permitido impersonar restaurante suspenso"
+        },
+        {
+          "status": 404,
+          "code": "RESTAURANT_NOT_FOUND"
+        }
+      ],
+      "status": "VERIFIED_IMPLEMENTED",
+      "evidence": {
+        "file": "src/modules/tenancy/presentation/AdminRestaurantsController.ts",
+        "symbol": "AdminRestaurantsController.impersonate"
+      }
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/admin/audit",
+      "module": "Tenancy",
+      "description": "Consulta logs de auditoria imutáveis com paginação por cursor e filtros opcionais.",
+      "authentication": true,
+      "roles": ["ADMIN"],
+      "pathParams": [],
+      "queryParams": [
+        {
+          "name": "cursor",
+          "type": "string",
+          "required": false
+        },
+        {
+          "name": "limit",
+          "type": "integer",
+          "required": false,
+          "default": 50
+        },
+        {
+          "name": "restaurantId",
+          "type": "string",
+          "format": "uuid",
+          "required": false
+        },
+        {
+          "name": "action",
+          "type": "string",
+          "required": false
+        },
+        {
+          "name": "actorUserId",
+          "type": "string",
+          "format": "uuid",
+          "required": false
+        }
+      ],
+      "requestBody": null,
+      "successResponse": {
+        "status": 200,
+        "type": "application/json",
+        "schema": {
+          "items": {
+            "type": "array",
+            "items": {
+              "id": {
+                "type": "string",
+                "format": "uuid"
+              },
+              "at": {
+                "type": "string",
+                "format": "date-time"
+              },
+              "action": {
+                "type": "string"
+              },
+              "actorUserId": {
+                "type": "string",
+                "format": "uuid",
+                "nullable": true
+              },
+              "restaurantId": {
+                "type": "string",
+                "format": "uuid",
+                "nullable": true
+              },
+              "target": {
+                "type": "string",
+                "nullable": true
+              },
+              "ip": {
+                "type": "string",
+                "nullable": true
+              },
+              "meta": {
+                "type": "object",
+                "nullable": true
+              }
+            }
+          },
+          "nextCursor": {
+            "type": "string",
+            "nullable": true
+          },
+          "totalCount": {
+            "type": "integer"
+          }
+        }
+      },
+      "errors": [
+        {
+          "status": 401,
+          "code": "UNAUTHORIZED"
+        },
+        {
+          "status": 403,
+          "code": "FORBIDDEN"
+        }
+      ],
+      "status": "VERIFIED_IMPLEMENTED",
+      "evidence": {
+        "file": "src/modules/tenancy/presentation/AdminAuditController.ts",
+        "symbol": "AdminAuditController.list"
+      }
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/restaurant/current",
+      "module": "Tenancy",
+      "description": "Obtém dados completos do restaurante do usuário logado.",
+      "authentication": true,
+      "roles": ["OWNER", "WAITER"],
+      "requireTenant": true,
+      "pathParams": [],
+      "queryParams": [],
+      "requestBody": null,
+      "successResponse": {
+        "status": 200,
+        "type": "application/json",
+        "schema": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "name": {
+            "type": "string"
+          },
+          "status": {
+            "type": "string",
+            "enum": ["ACTIVE", "SUSPENDED"]
+          },
+          "timezone": {
+            "type": "string"
+          },
+          "dayCutoffHour": {
+            "type": "integer"
+          },
+          "alertSec": {
+            "type": "integer"
+          },
+          "urgentSec": {
+            "type": "integer"
+          },
+          "responseGoalSec": {
+            "type": "integer"
+          },
+          "confirmationWindowSec": {
+            "type": "integer"
+          },
+          "showWaitTimeToCustomer": {
+            "type": "boolean"
+          },
+          "impersonatedBy": {
+            "type": "string",
+            "format": "uuid",
+            "nullable": true
+          }
+        }
+      },
+      "errors": [
+        {
+          "status": 401,
+          "code": "UNAUTHORIZED"
+        },
+        {
+          "status": 403,
+          "code": "FORBIDDEN"
+        }
+      ],
+      "status": "VERIFIED_IMPLEMENTED",
+      "evidence": {
+        "file": "src/modules/tenancy/presentation/TenantRestaurantController.ts",
+        "symbol": "TenantRestaurantController.getCurrent"
+      }
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/restaurant/:restaurantId",
+      "module": "Tenancy",
+      "description": "Obtém dados do restaurante pelo ID na rota (validado contra tenantId do token).",
+      "authentication": true,
+      "roles": ["OWNER", "WAITER"],
+      "requireTenant": true,
+      "pathParams": [
+        {
+          "name": "restaurantId",
+          "type": "string",
+          "format": "uuid",
+          "required": true
+        }
+      ],
+      "queryParams": [],
+      "requestBody": null,
+      "successResponse": {
+        "status": 200,
+        "type": "application/json",
+        "schema": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "name": {
+            "type": "string"
+          },
+          "status": {
+            "type": "string"
+          },
+          "impersonatedBy": {
+            "type": "string",
+            "format": "uuid",
+            "nullable": true
+          }
+        }
+      },
+      "errors": [
+        {
+          "status": 403,
+          "code": "FORBIDDEN",
+          "detail": "Acesso negado a recursos de outro restaurante"
+        }
+      ],
+      "status": "VERIFIED_IMPLEMENTED",
+      "evidence": {
+        "file": "src/modules/tenancy/presentation/TenantRestaurantController.ts",
+        "symbol": "TenantRestaurantController.getByRestaurantId"
+      }
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/restaurant/context-check",
+      "module": "Tenancy",
+      "description": "Validação explícita de contexto de multi-tenancy e impersonação.",
+      "authentication": true,
+      "roles": ["OWNER", "WAITER"],
+      "requireTenant": true,
+      "pathParams": [],
+      "queryParams": [],
+      "requestBody": null,
+      "successResponse": {
+        "status": 200,
+        "type": "application/json",
+        "schema": {
+          "tenantId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "userId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "role": {
+            "type": "string"
+          },
+          "impersonatedBy": {
+            "type": "string",
+            "format": "uuid",
+            "nullable": true
+          }
+        }
+      },
+      "errors": [],
+      "status": "VERIFIED_IMPLEMENTED",
+      "evidence": {
+        "file": "src/modules/tenancy/presentation/TenantRestaurantController.ts",
+        "symbol": "TenantRestaurantController.contextCheck"
+      }
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/settings/service",
+      "module": "Tenancy",
+      "description": "Obtém configurações operacionais de atendimento do restaurante.",
+      "authentication": true,
+      "roles": ["OWNER", "ADMIN"],
+      "requireTenant": true,
+      "pathParams": [],
+      "queryParams": [],
+      "requestBody": null,
+      "successResponse": {
+        "status": 200,
+        "type": "application/json",
+        "schema": {
+          "restaurantId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "responseGoalSec": {
+            "type": "integer"
+          },
+          "alertSec": {
+            "type": "integer"
+          },
+          "urgentSec": {
+            "type": "integer"
+          },
+          "confirmationWindowSec": {
+            "type": "integer"
+          },
+          "timezone": {
+            "type": "string"
+          },
+          "dayCutoffHour": {
+            "type": "integer"
+          },
+          "showWaitTimeToCustomer": {
+            "type": "boolean"
+          }
+        }
+      },
+      "errors": [
+        {
+          "status": 401,
+          "code": "UNAUTHORIZED"
+        },
+        {
+          "status": 403,
+          "code": "FORBIDDEN"
+        }
+      ],
+      "status": "VERIFIED_IMPLEMENTED",
+      "evidence": {
+        "file": "src/modules/tenancy/presentation/SettingsController.ts",
+        "symbol": "SettingsController.getServiceSettings"
+      }
+    },
+    {
+      "method": "PUT",
+      "path": "/api/v1/settings/service",
+      "module": "Tenancy",
+      "description": "Atualiza configurações operacionais de atendimento do restaurante.",
+      "authentication": true,
+      "roles": ["OWNER", "ADMIN"],
+      "requireTenant": true,
+      "pathParams": [],
+      "queryParams": [],
+      "requestBody": {
+        "type": "application/json",
+        "schema": {
+          "responseGoalSec": {
+            "type": "integer",
+            "required": false,
+            "min": 30,
+            "max": 1800
+          },
+          "alertSec": {
+            "type": "integer",
+            "required": false,
+            "min": 30,
+            "max": 1800
+          },
+          "urgentSec": {
+            "type": "integer",
+            "required": false,
+            "min": 60,
+            "max": 3600
+          },
+          "confirmationWindowSec": {
+            "type": "integer",
+            "required": false,
+            "min": 30,
+            "max": 600
+          },
+          "timezone": {
+            "type": "string",
+            "required": false
+          },
+          "dayCutoffHour": {
+            "type": "integer",
+            "required": false,
+            "min": 0,
+            "max": 23
+          },
+          "showWaitTimeToCustomer": {
+            "type": "boolean",
+            "required": false
+          }
+        }
+      },
+      "successResponse": {
+        "status": 200,
+        "type": "application/json",
+        "schema": {
+          "restaurantId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "responseGoalSec": {
+            "type": "integer"
+          },
+          "alertSec": {
+            "type": "integer"
+          },
+          "urgentSec": {
+            "type": "integer"
+          },
+          "confirmationWindowSec": {
+            "type": "integer"
+          },
+          "timezone": {
+            "type": "string"
+          },
+          "dayCutoffHour": {
+            "type": "integer"
+          },
+          "showWaitTimeToCustomer": {
+            "type": "boolean"
+          }
+        }
+      },
+      "errors": [
+        {
+          "status": 400,
+          "code": "INVALID_SETTINGS_RANGE",
+          "detail": "alertSec deve ser menor que urgentSec"
+        }
+      ],
+      "status": "VERIFIED_IMPLEMENTED",
+      "evidence": {
+        "file": "src/modules/tenancy/presentation/SettingsController.ts",
+        "symbol": "SettingsController.updateServiceSettings"
+      }
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/settings/appearance",
+      "module": "Tenancy",
+      "description": "Obtém customização visual e identidade da marca do restaurante (cores, logo, fundo, textos e redes).",
+      "authentication": true,
+      "roles": ["OWNER", "ADMIN"],
+      "requireTenant": true,
+      "pathParams": [],
+      "queryParams": [],
+      "requestBody": null,
+      "successResponse": {
+        "status": 200,
+        "type": "application/json",
+        "schema": {
+          "restaurantId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "name": {
+            "type": "string"
+          },
+          "description": {
+            "type": "string",
+            "nullable": true
+          },
+          "logoUrl": {
+            "type": "string",
+            "nullable": true
+          },
+          "backgroundType": {
+            "type": "string",
+            "enum": ["color", "image", "preset"]
+          },
+          "backgroundValue": {
+            "type": "string",
+            "nullable": true
+          },
+          "colors": {
+            "type": "object"
+          },
+          "texts": {
+            "type": "object"
+          },
+          "socials": {
+            "type": "object"
+          }
+        }
+      },
+      "errors": [],
+      "status": "VERIFIED_IMPLEMENTED",
+      "evidence": {
+        "file": "src/modules/tenancy/presentation/SettingsController.ts",
+        "symbol": "SettingsController.getAppearance"
+      }
+    },
+    {
+      "method": "PUT",
+      "path": "/api/v1/settings/appearance",
+      "module": "Tenancy",
+      "description": "Atualiza customização visual do restaurante.",
+      "authentication": true,
+      "roles": ["OWNER", "ADMIN"],
+      "requireTenant": true,
+      "pathParams": [],
+      "queryParams": [],
+      "requestBody": {
+        "type": "application/json",
+        "schema": {
+          "name": {
+            "type": "string",
+            "required": false
+          },
+          "description": {
+            "type": "string",
+            "required": false,
+            "nullable": true
+          },
+          "backgroundType": {
+            "type": "string",
+            "enum": ["color", "image", "preset"],
+            "required": false
+          },
+          "backgroundValue": {
+            "type": "string",
+            "required": false,
+            "nullable": true
+          },
+          "colors": {
+            "type": "object",
+            "required": false
+          },
+          "texts": {
+            "type": "object",
+            "required": false
+          },
+          "socials": {
+            "type": "object",
+            "required": false
+          }
+        }
+      },
+      "successResponse": {
+        "status": 200,
+        "type": "application/json",
+        "schema": {
+          "restaurantId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "name": {
+            "type": "string"
+          },
+          "description": {
+            "type": "string",
+            "nullable": true
+          },
+          "logoUrl": {
+            "type": "string",
+            "nullable": true
+          },
+          "backgroundType": {
+            "type": "string"
+          },
+          "backgroundValue": {
+            "type": "string",
+            "nullable": true
+          },
+          "colors": {
+            "type": "object"
+          },
+          "texts": {
+            "type": "object"
+          },
+          "socials": {
+            "type": "object"
+          }
+        }
+      },
+      "errors": [
+        {
+          "status": 400,
+          "code": "VALIDATION_ERROR"
+        }
+      ],
+      "status": "VERIFIED_IMPLEMENTED",
+      "evidence": {
+        "file": "src/modules/tenancy/presentation/SettingsController.ts",
+        "symbol": "SettingsController.updateAppearance"
+      }
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/settings/appearance/reset",
+      "module": "Tenancy",
+      "description": "Restaura a aparência visual do restaurante para o tema padrão.",
+      "authentication": true,
+      "roles": ["OWNER", "ADMIN"],
+      "requireTenant": true,
+      "pathParams": [],
+      "queryParams": [],
+      "requestBody": null,
+      "successResponse": {
+        "status": 200,
+        "type": "application/json",
+        "schema": {
+          "restaurantId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "name": {
+            "type": "string"
+          },
+          "backgroundType": {
+            "type": "string",
+            "example": "color"
+          }
+        }
+      },
+      "errors": [],
+      "status": "VERIFIED_IMPLEMENTED",
+      "evidence": {
+        "file": "src/modules/tenancy/presentation/SettingsController.ts",
+        "symbol": "SettingsController.resetAppearance"
+      }
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/settings/appearance/logo",
+      "module": "Tenancy",
+      "description": "Upload de logo do restaurante (multipart/form-data, imagem max 10MB).",
+      "authentication": true,
+      "roles": ["OWNER", "ADMIN"],
+      "requireTenant": true,
+      "pathParams": [],
+      "queryParams": [],
+      "requestBody": {
+        "type": "multipart/form-data",
+        "schema": {
+          "file": {
+            "type": "string",
+            "format": "binary",
+            "required": true
+          }
+        }
+      },
+      "successResponse": {
+        "status": 200,
+        "type": "application/json",
+        "schema": {
+          "logoUrl": {
+            "type": "string",
+            "format": "uri"
+          }
+        }
+      },
+      "errors": [
+        {
+          "status": 400,
+          "code": "INVALID_FILE_TYPE",
+          "detail": "Apenas PNG, JPG, WEBP e SVG são permitidos"
+        },
+        {
+          "status": 413,
+          "code": "PAYLOAD_TOO_LARGE",
+          "detail": "Tamanho excede 10 MB"
+        }
+      ],
+      "status": "VERIFIED_IMPLEMENTED",
+      "evidence": {
+        "file": "src/modules/tenancy/presentation/SettingsController.ts",
+        "symbol": "SettingsController.uploadLogo"
+      }
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/settings/appearance/background",
+      "module": "Tenancy",
+      "description": "Upload de imagem de fundo para a tela pública de mesas (multipart/form-data, max 10MB).",
+      "authentication": true,
+      "roles": ["OWNER", "ADMIN"],
+      "requireTenant": true,
+      "pathParams": [],
+      "queryParams": [],
+      "requestBody": {
+        "type": "multipart/form-data",
+        "schema": {
+          "file": {
+            "type": "string",
+            "format": "binary",
+            "required": true
+          }
+        }
+      },
+      "successResponse": {
+        "status": 200,
+        "type": "application/json",
+        "schema": {
+          "backgroundValue": {
+            "type": "string",
+            "format": "uri"
+          }
+        }
+      },
+      "errors": [
+        {
+          "status": 400,
+          "code": "INVALID_FILE_TYPE"
+        },
+        {
+          "status": 413,
+          "code": "PAYLOAD_TOO_LARGE"
+        }
+      ],
+      "status": "VERIFIED_IMPLEMENTED",
+      "evidence": {
+        "file": "src/modules/tenancy/presentation/SettingsController.ts",
+        "symbol": "SettingsController.uploadBackground"
+      }
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/restaurant/notifications/settings",
+      "module": "Notifications",
+      "description": "Obtém preferências de notificação por e-mail e alertas de urgência.",
+      "authentication": true,
+      "roles": ["OWNER", "ADMIN"],
+      "requireTenant": true,
+      "pathParams": [],
+      "queryParams": [],
+      "requestBody": null,
+      "successResponse": {
+        "status": 200,
+        "type": "application/json",
+        "schema": {
+          "restaurantId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "emailSummaryEnabled": {
+            "type": "boolean"
+          },
+          "summaryEmailRecipient": {
+            "type": "string",
+            "format": "email",
+            "nullable": true
+          },
+          "urgentAlertEnabled": {
+            "type": "boolean"
+          },
+          "urgentAlertRecipient": {
+            "type": "string",
+            "format": "email",
+            "nullable": true
+          },
+          "alertCooldownMinutes": {
+            "type": "integer"
+          }
+        }
+      },
+      "errors": [],
+      "status": "VERIFIED_IMPLEMENTED",
+      "evidence": {
+        "file": "src/modules/notifications/presentation/NotificationsController.ts",
+        "symbol": "NotificationsController.getSettings"
+      }
+    },
+    {
+      "method": "PATCH",
+      "path": "/api/v1/restaurant/notifications/settings",
+      "module": "Notifications",
+      "description": "Atualiza preferências de notificação e alertas por e-mail.",
+      "authentication": true,
+      "roles": ["OWNER", "ADMIN"],
+      "requireTenant": true,
+      "pathParams": [],
+      "queryParams": [],
+      "requestBody": {
+        "type": "application/json",
+        "schema": {
+          "emailSummaryEnabled": {
+            "type": "boolean",
+            "required": false
+          },
+          "summaryEmailRecipient": {
+            "type": "string",
+            "format": "email",
+            "required": false
+          },
+          "urgentAlertEnabled": {
+            "type": "boolean",
+            "required": false
+          },
+          "urgentAlertRecipient": {
+            "type": "string",
+            "format": "email",
+            "required": false
+          },
+          "alertCooldownMinutes": {
+            "type": "integer",
+            "min": 1,
+            "max": 120,
+            "required": false
+          }
+        }
+      },
+      "successResponse": {
+        "status": 200,
+        "type": "application/json",
+        "schema": {
+          "restaurantId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "emailSummaryEnabled": {
+            "type": "boolean"
+          },
+          "summaryEmailRecipient": {
+            "type": "string",
+            "format": "email",
+            "nullable": true
+          },
+          "urgentAlertEnabled": {
+            "type": "boolean"
+          },
+          "urgentAlertRecipient": {
+            "type": "string",
+            "format": "email",
+            "nullable": true
+          },
+          "alertCooldownMinutes": {
+            "type": "integer"
+          }
+        }
+      },
+      "errors": [
+        {
+          "status": 400,
+          "code": "VALIDATION_ERROR"
+        }
+      ],
+      "status": "VERIFIED_IMPLEMENTED",
+      "evidence": {
+        "file": "src/modules/notifications/presentation/NotificationsController.ts",
+        "symbol": "NotificationsController.updateSettings"
+      }
+    },
+    {
+      "method": "PUT",
+      "path": "/api/v1/restaurant/notifications/settings",
+      "module": "Notifications",
+      "description": "Alias idempotente (PUT) para atualização de preferências de notificação.",
+      "authentication": true,
+      "roles": ["OWNER", "ADMIN"],
+      "requireTenant": true,
+      "pathParams": [],
+      "queryParams": [],
+      "requestBody": {
+        "type": "application/json",
+        "schema": {
+          "emailSummaryEnabled": {
+            "type": "boolean",
+            "required": false
+          },
+          "summaryEmailRecipient": {
+            "type": "string",
+            "format": "email",
+            "required": false
+          },
+          "urgentAlertEnabled": {
+            "type": "boolean",
+            "required": false
+          },
+          "urgentAlertRecipient": {
+            "type": "string",
+            "format": "email",
+            "required": false
+          },
+          "alertCooldownMinutes": {
+            "type": "integer",
+            "required": false
+          }
+        }
+      },
+      "successResponse": {
+        "status": 200,
+        "type": "application/json"
+      },
+      "errors": [],
+      "status": "VERIFIED_IMPLEMENTED",
+      "evidence": {
+        "file": "src/modules/notifications/presentation/NotificationsController.ts",
+        "symbol": "NotificationsController.putSettings"
+      }
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/restaurant/notifications/send-daily-summary",
+      "module": "Notifications",
+      "description": "Disparo manual ou sob demanda do e-mail com Resumo Diário.",
+      "authentication": true,
+      "roles": ["OWNER", "ADMIN"],
+      "requireTenant": true,
+      "pathParams": [],
+      "queryParams": [],
+      "requestBody": {
+        "type": "application/json",
+        "schema": {
+          "operationalDay": {
+            "type": "string",
+            "format": "date",
+            "required": false
+          },
+          "recipientEmail": {
+            "type": "string",
+            "format": "email",
+            "required": false
+          },
+          "summaryData": {
+            "type": "object",
+            "required": false
+          }
+        }
+      },
+      "successResponse": {
+        "status": 200,
+        "type": "application/json",
+        "schema": {
+          "sent": {
+            "type": "boolean"
+          },
+          "recipient": {
+            "type": "string"
+          },
+          "operationalDay": {
+            "type": "string"
+          }
+        }
+      },
+      "errors": [
+        {
+          "status": 400,
+          "code": "RECIPIENT_REQUIRED"
+        }
+      ],
+      "status": "VERIFIED_IMPLEMENTED",
+      "evidence": {
+        "file": "src/modules/notifications/presentation/NotificationsController.ts",
+        "symbol": "NotificationsController.sendDailySummary"
+      }
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/restaurant/notifications/send-urgent-alert",
+      "module": "Notifications",
+      "description": "Dispara e-mail de alerta de urgência para chamado pendente que ultrapassou tempo limite.",
+      "authentication": true,
+      "roles": ["OWNER", "ADMIN"],
+      "requireTenant": true,
+      "pathParams": [],
+      "queryParams": [],
+      "requestBody": {
+        "type": "application/json",
+        "schema": {
+          "tableNumber": {
+            "type": "integer",
+            "required": true
+          },
+          "callType": {
+            "type": "string",
+            "enum": ["WAITER", "BILL"],
+            "required": true
+          },
+          "waitDurationSec": {
+            "type": "integer",
+            "required": true
+          },
+          "urgentThresholdSec": {
+            "type": "integer",
+            "required": true
+          },
+          "note": {
+            "type": "string",
+            "required": false
+          },
+          "force": {
+            "type": "boolean",
+            "required": false
+          }
+        }
+      },
+      "successResponse": {
+        "status": 200,
+        "type": "application/json",
+        "schema": {
+          "sent": {
+            "type": "boolean"
+          },
+          "recipient": {
+            "type": "string"
+          }
+        }
+      },
+      "errors": [
+        {
+          "status": 409,
+          "code": "ALERT_COOLDOWN_ACTIVE",
+          "detail": "Alerta recente já enviado; cooldown em vigor"
+        }
+      ],
+      "status": "VERIFIED_IMPLEMENTED",
+      "evidence": {
+        "file": "src/modules/notifications/presentation/NotificationsController.ts",
+        "symbol": "NotificationsController.sendUrgentAlert"
+      }
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/tables",
+      "module": "DiningRoom",
+      "description": "Cria uma ou múltiplas mesas sequenciais no restaurante com tokens criptograficamente seguros (HMAC SHA-256).",
+      "authentication": true,
+      "roles": ["OWNER", "ADMIN"],
+      "requireTenant": true,
+      "pathParams": [],
+      "queryParams": [],
+      "requestBody": {
+        "type": "application/json",
+        "schema": {
+          "startNumber": {
+            "type": "integer",
+            "required": true,
+            "example": 1
+          },
+          "count": {
+            "type": "integer",
+            "required": false,
+            "default": 1,
+            "example": 10
+          },
+          "quantity": {
+            "type": "integer",
+            "required": false,
+            "description": "Alias para count"
+          }
+        }
+      },
+      "successResponse": {
+        "status": 201,
+        "type": "application/json",
+        "schema": {
+          "type": "array",
+          "items": {
+            "id": {
+              "type": "string",
+              "format": "uuid"
+            },
+            "restaurantId": {
+              "type": "string",
+              "format": "uuid"
+            },
+            "number": {
+              "type": "integer"
+            },
+            "token": {
+              "type": "string"
+            },
+            "paused": {
+              "type": "boolean"
+            },
+            "createdAt": {
+              "type": "string",
+              "format": "date-time"
+            }
+          }
+        }
+      },
+      "errors": [
+        {
+          "status": 400,
+          "code": "VALIDATION_ERROR"
+        },
+        {
+          "status": 409,
+          "code": "DUPLICATE_TABLE_NUMBER",
+          "detail": "Mesa com este número já existe",
+          "duplicates": [1, 2]
+        }
+      ],
+      "status": "VERIFIED_IMPLEMENTED",
+      "evidence": {
+        "file": "src/modules/dining-room/presentation/TablesController.ts",
+        "symbol": "TablesController.createTables"
+      }
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/tables",
+      "module": "DiningRoom",
+      "description": "Lista todas as mesas do restaurante em ordem crescente de número.",
+      "authentication": true,
+      "roles": ["OWNER", "ADMIN"],
+      "requireTenant": true,
+      "pathParams": [],
+      "queryParams": [],
+      "requestBody": null,
+      "successResponse": {
+        "status": 200,
+        "type": "application/json",
+        "schema": {
+          "type": "array",
+          "items": {
+            "id": {
+              "type": "string",
+              "format": "uuid"
+            },
+            "restaurantId": {
+              "type": "string",
+              "format": "uuid"
+            },
+            "number": {
+              "type": "integer"
+            },
+            "token": {
+              "type": "string"
+            },
+            "paused": {
+              "type": "boolean"
+            },
+            "createdAt": {
+              "type": "string",
+              "format": "date-time"
+            }
+          }
+        }
+      },
+      "errors": [],
+      "status": "VERIFIED_IMPLEMENTED",
+      "evidence": {
+        "file": "src/modules/dining-room/presentation/TablesController.ts",
+        "symbol": "TablesController.listTables"
+      }
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/tables/next-number",
+      "module": "DiningRoom",
+      "description": "Calcula e sugere o próximo número sequencial de mesa disponível para cadastro.",
+      "authentication": true,
+      "roles": ["OWNER", "ADMIN"],
+      "requireTenant": true,
+      "pathParams": [],
+      "queryParams": [],
+      "requestBody": null,
+      "successResponse": {
+        "status": 200,
+        "type": "application/json",
+        "schema": {
+          "nextNumber": {
+            "type": "integer",
+            "example": 11
+          }
+        }
+      },
+      "errors": [],
+      "status": "VERIFIED_IMPLEMENTED",
+      "evidence": {
+        "file": "src/modules/dining-room/presentation/TablesController.ts",
+        "symbol": "TablesController.getNextNumber"
+      }
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/tables/print",
+      "module": "DiningRoom",
+      "description": "Retorna payload completo estruturado para visualização e impressão em lote de display de mesas com QR codes.",
+      "authentication": true,
+      "roles": ["OWNER", "ADMIN"],
+      "requireTenant": true,
+      "pathParams": [],
+      "queryParams": [],
+      "requestBody": null,
+      "successResponse": {
+        "status": 200,
+        "type": "application/json",
+        "schema": {
+          "restaurantName": {
+            "type": "string"
+          },
+          "logoUrl": {
+            "type": "string",
+            "nullable": true
+          },
+          "primaryColor": {
+            "type": "string"
+          },
+          "tables": {
+            "type": "array",
+            "items": {
+              "id": {
+                "type": "string",
+                "format": "uuid"
+              },
+              "number": {
+                "type": "integer"
+              },
+              "token": {
+                "type": "string"
+              },
+              "qrCodeSvg": {
+                "type": "string"
+              },
+              "url": {
+                "type": "string",
+                "format": "uri"
+              }
+            }
+          }
+        }
+      },
+      "errors": [],
+      "status": "VERIFIED_IMPLEMENTED",
+      "evidence": {
+        "file": "src/modules/dining-room/presentation/TablesController.ts",
+        "symbol": "TablesController.getPrintView"
+      }
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/tables/:id/qr",
+      "module": "DiningRoom",
+      "description": "Gera e faz download da imagem de QR Code de uma mesa específica em formato SVG ou PNG.",
+      "authentication": true,
+      "roles": ["OWNER", "ADMIN"],
+      "requireTenant": true,
+      "pathParams": [
+        {
+          "name": "id",
+          "type": "string",
+          "format": "uuid",
+          "required": true
+        }
+      ],
+      "queryParams": [
+        {
+          "name": "format",
+          "type": "string",
+          "enum": ["svg", "png"],
+          "default": "svg",
+          "required": false
+        }
+      ],
+      "requestBody": null,
+      "successResponse": {
+        "status": 200,
+        "type": "image/svg+xml ou image/png",
+        "headers": {
+          "Content-Type": "image/svg+xml | image/png",
+          "Content-Disposition": "inline; filename=\"mesa-X-qr.svg\""
+        }
+      },
+      "errors": [
+        {
+          "status": 404,
+          "code": "TABLE_NOT_FOUND"
+        }
+      ],
+      "status": "VERIFIED_IMPLEMENTED",
+      "evidence": {
+        "file": "src/modules/dining-room/presentation/TablesController.ts",
+        "symbol": "TablesController.getTableQr"
+      }
+    },
+    {
+      "method": "PATCH",
+      "path": "/api/v1/tables/:id/pause",
+      "module": "DiningRoom",
+      "description": "Pausa uma mesa temporariamente. Clientes não conseguirão abrir chamados na mesa.",
+      "authentication": true,
+      "roles": ["OWNER", "ADMIN"],
+      "requireTenant": true,
+      "pathParams": [
+        {
+          "name": "id",
+          "type": "string",
+          "format": "uuid",
+          "required": true
+        }
+      ],
+      "queryParams": [],
+      "requestBody": null,
+      "successResponse": {
+        "status": 200,
+        "type": "application/json",
+        "schema": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "paused": {
+            "type": "boolean",
+            "example": true
+          }
+        }
+      },
+      "errors": [
+        {
+          "status": 404,
+          "code": "TABLE_NOT_FOUND"
+        }
+      ],
+      "status": "VERIFIED_IMPLEMENTED",
+      "evidence": {
+        "file": "src/modules/dining-room/presentation/TablesController.ts",
+        "symbol": "TablesController.pauseTable"
+      }
+    },
+    {
+      "method": "PATCH",
+      "path": "/api/v1/tables/:id/resume",
+      "module": "DiningRoom",
+      "description": "Reativa uma mesa pausada.",
+      "authentication": true,
+      "roles": ["OWNER", "ADMIN"],
+      "requireTenant": true,
+      "pathParams": [
+        {
+          "name": "id",
+          "type": "string",
+          "format": "uuid",
+          "required": true
+        }
+      ],
+      "queryParams": [],
+      "requestBody": null,
+      "successResponse": {
+        "status": 200,
+        "type": "application/json",
+        "schema": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "paused": {
+            "type": "boolean",
+            "example": false
+          }
+        }
+      },
+      "errors": [
+        {
+          "status": 404,
+          "code": "TABLE_NOT_FOUND"
+        }
+      ],
+      "status": "VERIFIED_IMPLEMENTED",
+      "evidence": {
+        "file": "src/modules/dining-room/presentation/TablesController.ts",
+        "symbol": "TablesController.resumeTable"
+      }
+    },
+    {
+      "method": "DELETE",
+      "path": "/api/v1/tables/:id",
+      "module": "DiningRoom",
+      "description": "Exclui permanentemente uma mesa. Desconecta streams SSE abertos e notifica painel e clientes.",
+      "authentication": true,
+      "roles": ["OWNER", "ADMIN"],
+      "requireTenant": true,
+      "pathParams": [
+        {
+          "name": "id",
+          "type": "string",
+          "format": "uuid",
+          "required": true
+        }
+      ],
+      "queryParams": [],
+      "requestBody": null,
+      "successResponse": {
+        "status": 204,
+        "type": null
+      },
+      "errors": [
+        {
+          "status": 404,
+          "code": "TABLE_NOT_FOUND"
+        }
+      ],
+      "status": "VERIFIED_IMPLEMENTED",
+      "evidence": {
+        "file": "src/modules/dining-room/presentation/TablesController.ts",
+        "symbol": "TablesController.deleteTable"
+      }
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/public/tables/:token/stream",
+      "module": "ServiceCalls",
+      "description": "Canal SSE em tempo real para a tela do cliente na mesa. Rate limited por IP (max 5) e por mesa (max 10). Emite eventos de chamados e status da mesa.",
+      "authentication": false,
+      "roles": ["ANONYMOUS"],
+      "rateLimit": "Max 5 conexões simultâneas por IP; 10 por mesa",
+      "pathParams": [
+        {
+          "name": "token",
+          "type": "string",
+          "required": true,
+          "description": "Token seguro de mesa (HMAC)"
+        }
+      ],
+      "queryParams": [],
+      "requestBody": null,
+      "successResponse": {
+        "status": 200,
+        "type": "text/event-stream",
+        "headers": {
+          "Content-Type": "text/event-stream",
+          "Cache-Control": "no-cache, no-transform",
+          "Connection": "keep-alive",
+          "X-Accel-Buffering": "no"
+        },
+        "events": [
+          "CALL_CREATED",
+          "CALL_ACKNOWLEDGED",
+          "CALL_ASSUMED",
+          "CALL_ATTENDED",
+          "CALL_CONFIRMED",
+          "CALL_CANCELLED",
+          "CALL_EXPIRED",
+          "CALL_CLOSED_UNCONFIRMED",
+          "TABLE_PAUSED",
+          "TABLE_RESUMED",
+          "TABLE_DELETED",
+          "ping"
+        ]
+      },
+      "errors": [
+        {
+          "status": 404,
+          "code": "TABLE_NOT_FOUND"
+        },
+        {
+          "status": 429,
+          "code": "TOO_MANY_REQUESTS",
+          "detail": "Limite de conexões simultâneas atingido"
+        }
+      ],
+      "status": "VERIFIED_IMPLEMENTED",
+      "evidence": {
+        "file": "src/modules/service-calls/presentation/PublicTablesController.ts",
+        "symbol": "PublicTablesController.stream"
+      }
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/public/tables/:token",
+      "module": "ServiceCalls",
+      "description": "Estado inicial consumido pelo cliente ao abrir o QR Code da mesa. Retorna número, disponibilidade, aparência e chamados ativos.",
+      "authentication": false,
+      "roles": ["ANONYMOUS"],
+      "pathParams": [
+        {
+          "name": "token",
+          "type": "string",
+          "required": true
+        }
+      ],
+      "queryParams": [],
+      "requestBody": null,
+      "successResponse": {
+        "status": 200,
+        "type": "application/json",
+        "schema": {
+          "tableNumber": {
+            "type": "integer"
+          },
+          "available": {
+            "type": "boolean"
+          },
+          "unavailableReason": {
+            "type": "string",
+            "nullable": true,
+            "enum": ["TABLE_PAUSED", "RESTAURANT_SUSPENDED"]
+          },
+          "message": {
+            "type": "string",
+            "nullable": true
+          },
+          "showWaitTimeToCustomer": {
+            "type": "boolean"
+          },
+          "serverNow": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "appearance": {
+            "restaurantName": {
+              "type": "string"
+            },
+            "description": {
+              "type": "string",
+              "nullable": true
+            },
+            "logoUrl": {
+              "type": "string",
+              "nullable": true
+            },
+            "backgroundType": {
+              "type": "string"
+            },
+            "backgroundValue": {
+              "type": "string",
+              "nullable": true
+            },
+            "colors": {
+              "type": "object"
+            },
+            "texts": {
+              "type": "object"
+            },
+            "socials": {
+              "type": "object"
+            }
+          },
+          "calls": {
+            "type": "array",
+            "items": {
+              "id": {
+                "type": "string",
+                "format": "uuid"
+              },
+              "type": {
+                "type": "string",
+                "enum": ["WAITER", "BILL"]
+              },
+              "status": {
+                "type": "string"
+              },
+              "note": {
+                "type": "string",
+                "nullable": true
+              },
+              "createdAt": {
+                "type": "string",
+                "format": "date-time"
+              },
+              "attendedAt": {
+                "type": "string",
+                "format": "date-time",
+                "nullable": true
+              },
+              "rating": {
+                "type": "integer",
+                "nullable": true
+              },
+              "reopenCount": {
+                "type": "integer"
+              }
+            }
+          }
+        }
+      },
+      "errors": [
+        {
+          "status": 404,
+          "code": "TABLE_NOT_FOUND"
+        },
+        {
+          "status": 429,
+          "code": "TOO_MANY_REQUESTS"
+        }
+      ],
+      "status": "VERIFIED_IMPLEMENTED",
+      "evidence": {
+        "file": "src/modules/service-calls/presentation/PublicTablesController.ts",
+        "symbol": "PublicTablesController.getTable"
+      }
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/public/tables/:token/calls",
+      "module": "ServiceCalls",
+      "description": "Lista chamados ativos/recentes da mesa pelo token público.",
+      "authentication": false,
+      "roles": ["ANONYMOUS"],
+      "pathParams": [
+        {
+          "name": "token",
+          "type": "string",
+          "required": true
+        }
+      ],
+      "queryParams": [],
+      "requestBody": null,
+      "successResponse": {
+        "status": 200,
+        "type": "application/json",
+        "schema": {
+          "type": "array",
+          "items": {
+            "id": {
+              "type": "string",
+              "format": "uuid"
+            },
+            "type": {
+              "type": "string",
+              "enum": ["WAITER", "BILL"]
+            },
+            "status": {
+              "type": "string"
+            },
+            "note": {
+              "type": "string",
+              "nullable": true
+            },
+            "createdAt": {
+              "type": "string",
+              "format": "date-time"
+            },
+            "attendedAt": {
+              "type": "string",
+              "format": "date-time",
+              "nullable": true
+            },
+            "confirmationDeadline": {
+              "type": "string",
+              "format": "date-time",
+              "nullable": true
+            },
+            "reopenCount": {
+              "type": "integer"
+            },
+            "serverNow": {
+              "type": "string",
+              "format": "date-time"
+            }
+          }
+        }
+      },
+      "errors": [
+        {
+          "status": 404,
+          "code": "TABLE_NOT_FOUND"
+        }
+      ],
+      "status": "VERIFIED_IMPLEMENTED",
+      "evidence": {
+        "file": "src/modules/service-calls/presentation/PublicTablesController.ts",
+        "symbol": "PublicTablesController.getCalls"
+      }
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/public/tables/:token/calls",
+      "module": "ServiceCalls",
+      "description": "Abre um novo chamado (Chamar Garçom ou Pedir Conta). Se já houver chamado pendente do mesmo tipo, responde de forma idempotente com 200 OK e alreadyPending: true.",
+      "authentication": false,
+      "roles": ["ANONYMOUS"],
+      "pathParams": [
+        {
+          "name": "token",
+          "type": "string",
+          "required": true
+        }
+      ],
+      "queryParams": [],
+      "requestBody": {
+        "type": "application/json",
+        "schema": {
+          "type": {
+            "type": "string",
+            "enum": ["WAITER", "BILL"],
+            "required": true
+          },
+          "note": {
+            "type": "string",
+            "maxLength": 140,
+            "required": false
+          }
+        }
+      },
+      "successResponse": {
+        "status": "201 Created (ou 200 OK se alreadyPending)",
+        "type": "application/json",
+        "schema": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "type": {
+            "type": "string",
+            "enum": ["WAITER", "BILL"]
+          },
+          "status": {
+            "type": "string",
+            "example": "PENDING"
+          },
+          "note": {
+            "type": "string",
+            "nullable": true
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "alreadyPending": {
+            "type": "boolean",
+            "required": false
+          },
+          "serverNow": {
+            "type": "string",
+            "format": "date-time"
+          }
+        }
+      },
+      "errors": [
+        {
+          "status": 400,
+          "code": "TABLE_PAUSED",
+          "detail": "A mesa está temporariamente pausada"
+        },
+        {
+          "status": 404,
+          "code": "TABLE_NOT_FOUND"
+        }
+      ],
+      "status": "VERIFIED_IMPLEMENTED",
+      "evidence": {
+        "file": "src/modules/service-calls/presentation/PublicTablesController.ts",
+        "symbol": "PublicTablesController.openCall"
+      }
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/public/tables/:token/calls/:callId/cancel",
+      "module": "ServiceCalls",
+      "description": "Cancela um chamado enquanto ainda estiver em estado PENDING.",
+      "authentication": false,
+      "roles": ["ANONYMOUS"],
+      "pathParams": [
+        {
+          "name": "token",
+          "type": "string",
+          "required": true
+        },
+        {
+          "name": "callId",
+          "type": "string",
+          "format": "uuid",
+          "required": true
+        }
+      ],
+      "queryParams": [],
+      "requestBody": null,
+      "successResponse": {
+        "status": 200,
+        "type": "application/json",
+        "schema": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "status": {
+            "type": "string",
+            "example": "CANCELLED"
+          },
+          "serverNow": {
+            "type": "string",
+            "format": "date-time"
+          }
+        }
+      },
+      "errors": [
+        {
+          "status": 400,
+          "code": "INVALID_CALL_TRANSITION",
+          "detail": "Não é possível cancelar chamado já atendido"
+        },
+        {
+          "status": 404,
+          "code": "CALL_NOT_FOUND"
+        }
+      ],
+      "status": "VERIFIED_IMPLEMENTED",
+      "evidence": {
+        "file": "src/modules/service-calls/presentation/PublicTablesController.ts",
+        "symbol": "PublicTablesController.cancelCall"
+      }
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/public/tables/:token/calls/:callId/confirm",
+      "module": "ServiceCalls",
+      "description": "Cliente confirma o atendimento recebido e opcionalmente submete uma avaliação rápida (rating: 1=Ruim, 2=Regular, 3=Bom - T26).",
+      "authentication": false,
+      "roles": ["ANONYMOUS"],
+      "pathParams": [
+        {
+          "name": "token",
+          "type": "string",
+          "required": true
+        },
+        {
+          "name": "callId",
+          "type": "string",
+          "format": "uuid",
+          "required": true
+        }
+      ],
+      "queryParams": [],
+      "requestBody": {
+        "type": "application/json",
+        "required": false,
+        "schema": {
+          "rating": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 3,
+            "required": false,
+            "description": "Avaliação rápida de 1 a 3"
+          }
+        }
+      },
+      "successResponse": {
+        "status": 200,
+        "type": "application/json",
+        "schema": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "status": {
+            "type": "string",
+            "example": "CONFIRMED"
+          },
+          "rating": {
+            "type": "integer",
+            "nullable": true
+          },
+          "serverNow": {
+            "type": "string",
+            "format": "date-time"
+          }
+        }
+      },
+      "errors": [
+        {
+          "status": 400,
+          "code": "INVALID_RATING",
+          "detail": "A avaliação deve ser um número inteiro entre 1 e 3"
+        },
+        {
+          "status": 400,
+          "code": "INVALID_CALL_TRANSITION"
+        },
+        {
+          "status": 404,
+          "code": "CALL_NOT_FOUND"
+        }
+      ],
+      "status": "VERIFIED_IMPLEMENTED",
+      "evidence": {
+        "file": "src/modules/service-calls/presentation/PublicTablesController.ts",
+        "symbol": "PublicTablesController.confirmCall"
+      }
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/public/tables/:token/calls/:callId/contest",
+      "module": "ServiceCalls",
+      "description": "Cliente contesta o atendimento (\"Garçom ainda não veio\"). Reabre o chamado para PENDING (máximo 2 reaberturas).",
+      "authentication": false,
+      "roles": ["ANONYMOUS"],
+      "pathParams": [
+        {
+          "name": "token",
+          "type": "string",
+          "required": true
+        },
+        {
+          "name": "callId",
+          "type": "string",
+          "format": "uuid",
+          "required": true
+        }
+      ],
+      "queryParams": [],
+      "requestBody": null,
+      "successResponse": {
+        "status": 200,
+        "type": "application/json",
+        "schema": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "status": {
+            "type": "string",
+            "example": "PENDING"
+          },
+          "reopenCount": {
+            "type": "integer"
+          },
+          "serverNow": {
+            "type": "string",
+            "format": "date-time"
+          }
+        }
+      },
+      "errors": [
+        {
+          "status": 400,
+          "code": "INVALID_CALL_TRANSITION"
+        },
+        {
+          "status": 404,
+          "code": "CALL_NOT_FOUND"
+        }
+      ],
+      "status": "VERIFIED_IMPLEMENTED",
+      "evidence": {
+        "file": "src/modules/service-calls/presentation/PublicTablesController.ts",
+        "symbol": "PublicTablesController.contestCall"
+      }
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/panel/stream-ticket",
+      "module": "ServiceCalls",
+      "description": "Gera um ticket de curta duração (60 segundos) e uso único para autenticação na conexão SSE do painel.",
+      "authentication": true,
+      "roles": ["OWNER", "WAITER", "ADMIN"],
+      "requireTenant": true,
+      "pathParams": [],
+      "queryParams": [],
+      "requestBody": null,
+      "successResponse": {
+        "status": 200,
+        "type": "application/json",
+        "schema": {
+          "ticket": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "expiresInSec": {
+            "type": "integer",
+            "example": 60
+          }
+        }
+      },
+      "errors": [
+        {
+          "status": 401,
+          "code": "UNAUTHORIZED"
+        },
+        {
+          "status": 403,
+          "code": "FORBIDDEN"
+        }
+      ],
+      "status": "VERIFIED_IMPLEMENTED",
+      "evidence": {
+        "file": "src/modules/service-calls/presentation/PanelController.ts",
+        "symbol": "PanelController.createStreamTicket"
+      }
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/panel/stream",
+      "module": "ServiceCalls",
+      "description": "Canal SSE do painel em tempo real da equipe. Autenticado pelo ticket gerado. Envia snapshot inicial e atualizações de chamados.",
+      "authentication": false,
+      "roles": ["OWNER", "WAITER", "ADMIN (via ticket)"],
+      "pathParams": [],
+      "queryParams": [
+        {
+          "name": "ticket",
+          "type": "string",
+          "required": true,
+          "description": "Ticket de uso único obtido via /panel/stream-ticket"
+        }
+      ],
+      "requestBody": null,
+      "successResponse": {
+        "status": 200,
+        "type": "text/event-stream",
+        "headers": {
+          "Content-Type": "text/event-stream",
+          "Cache-Control": "no-cache, no-transform",
+          "Connection": "keep-alive",
+          "X-Accel-Buffering": "no"
+        },
+        "events": [
+          "snapshot",
+          "CALL_CREATED",
+          "CALL_ACKNOWLEDGED",
+          "CALL_ASSUMED",
+          "CALL_ATTENDED",
+          "CALL_CONFIRMED",
+          "CALL_CANCELLED",
+          "CALL_EXPIRED",
+          "CALL_CLOSED_UNCONFIRMED",
+          "heartbeat"
+        ]
+      },
+      "errors": [
+        {
+          "status": 401,
+          "code": "UNAUTHORIZED",
+          "detail": "Ticket de stream ausente, expirado ou inválido"
+        }
+      ],
+      "status": "VERIFIED_IMPLEMENTED",
+      "evidence": {
+        "file": "src/modules/service-calls/presentation/PanelController.ts",
+        "symbol": "PanelController.stream"
+      }
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/panel/state",
+      "module": "ServiceCalls",
+      "description": "Retorna o estado completo atual do painel da equipe (chamados ativos, métricas de tempo e parâmetros de alerta).",
+      "authentication": true,
+      "roles": ["OWNER", "WAITER", "ADMIN"],
+      "requireTenant": true,
+      "pathParams": [],
+      "queryParams": [],
+      "requestBody": null,
+      "successResponse": {
+        "status": 200,
+        "type": "application/json",
+        "schema": {
+          "calls": {
+            "type": "array"
+          },
+          "alertSec": {
+            "type": "integer"
+          },
+          "urgentSec": {
+            "type": "integer"
+          },
+          "activeCallsCount": {
+            "type": "integer"
+          },
+          "waiterCallsCount": {
+            "type": "integer"
+          },
+          "billCallsCount": {
+            "type": "integer"
+          },
+          "serverNow": {
+            "type": "string",
+            "format": "date-time"
+          }
+        }
+      },
+      "errors": [],
+      "status": "VERIFIED_IMPLEMENTED",
+      "evidence": {
+        "file": "src/modules/service-calls/presentation/PanelController.ts",
+        "symbol": "PanelController.getState"
+      }
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/panel/calls",
+      "module": "ServiceCalls",
+      "description": "Lista todos os chamados ativos pendentes ou em atendimento no momento com header X-Server-Now.",
+      "authentication": true,
+      "roles": ["OWNER", "WAITER", "ADMIN"],
+      "requireTenant": true,
+      "pathParams": [],
+      "queryParams": [],
+      "requestBody": null,
+      "successResponse": {
+        "status": 200,
+        "type": "application/json",
+        "headers": {
+          "X-Server-Now": "2026-10-21T01:00:00.000Z"
+        },
+        "schema": {
+          "type": "array",
+          "items": {
+            "id": {
+              "type": "string",
+              "format": "uuid"
+            },
+            "tableNumber": {
+              "type": "integer"
+            },
+            "type": {
+              "type": "string",
+              "enum": ["WAITER", "BILL"]
+            },
+            "status": {
+              "type": "string"
+            },
+            "createdAt": {
+              "type": "string",
+              "format": "date-time"
+            },
+            "acknowledgedAt": {
+              "type": "string",
+              "format": "date-time",
+              "nullable": true
+            },
+            "acknowledgedById": {
+              "type": "string",
+              "format": "uuid",
+              "nullable": true
+            },
+            "firstAttendedAt": {
+              "type": "string",
+              "format": "date-time",
+              "nullable": true
+            },
+            "attendedAt": {
+              "type": "string",
+              "format": "date-time",
+              "nullable": true
+            },
+            "reopenCount": {
+              "type": "integer"
+            },
+            "reactionTimeSec": {
+              "type": "integer",
+              "nullable": true
+            },
+            "serverNow": {
+              "type": "string",
+              "format": "date-time"
+            }
+          }
+        }
+      },
+      "errors": [],
+      "status": "VERIFIED_IMPLEMENTED",
+      "evidence": {
+        "file": "src/modules/service-calls/presentation/PanelController.ts",
+        "symbol": "PanelController.getCalls"
+      }
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/panel/calls/:id/acknowledge",
+      "module": "ServiceCalls",
+      "description": "Atendente sinaliza que visualizou o chamado e está se deslocando para a mesa. Registra tempo de reação.",
+      "authentication": true,
+      "roles": ["OWNER", "WAITER", "ADMIN"],
+      "requireTenant": true,
+      "pathParams": [
+        {
+          "name": "id",
+          "type": "string",
+          "format": "uuid",
+          "required": true
+        }
+      ],
+      "queryParams": [],
+      "requestBody": null,
+      "successResponse": {
+        "status": 200,
+        "type": "application/json",
+        "schema": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "status": {
+            "type": "string"
+          },
+          "acknowledgedAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "acknowledgedById": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "reactionTimeSec": {
+            "type": "integer"
+          },
+          "alreadyAcknowledged": {
+            "type": "boolean"
+          },
+          "serverNow": {
+            "type": "string",
+            "format": "date-time"
+          }
+        }
+      },
+      "errors": [
+        {
+          "status": 404,
+          "code": "CALL_NOT_FOUND"
+        }
+      ],
+      "status": "VERIFIED_IMPLEMENTED",
+      "evidence": {
+        "file": "src/modules/service-calls/presentation/PanelController.ts",
+        "symbol": "PanelController.acknowledgeCall"
+      }
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/panel/calls/:id/assume",
+      "module": "ServiceCalls",
+      "description": "Etapa \"Assumir\" (T26). Garçom assume a responsabilidade pelo chamado. Funcionalmente equivalente a acknowledgeCall.",
+      "authentication": true,
+      "roles": ["OWNER", "WAITER", "ADMIN"],
+      "requireTenant": true,
+      "pathParams": [
+        {
+          "name": "id",
+          "type": "string",
+          "format": "uuid",
+          "required": true
+        }
+      ],
+      "queryParams": [],
+      "requestBody": null,
+      "successResponse": {
+        "status": 200,
+        "type": "application/json",
+        "schema": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "status": {
+            "type": "string"
+          },
+          "acknowledgedAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "acknowledgedById": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "reactionTimeSec": {
+            "type": "integer"
+          },
+          "alreadyAcknowledged": {
+            "type": "boolean"
+          },
+          "serverNow": {
+            "type": "string",
+            "format": "date-time"
+          }
+        }
+      },
+      "errors": [
+        {
+          "status": 404,
+          "code": "CALL_NOT_FOUND"
+        }
+      ],
+      "status": "VERIFIED_IMPLEMENTED",
+      "evidence": {
+        "file": "src/modules/service-calls/presentation/PanelController.ts",
+        "symbol": "PanelController.assumeCall"
+      }
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/panel/calls/:id/attend",
+      "module": "ServiceCalls",
+      "description": "Marca o chamado como atendido pelo garçom. Transiciona status para ATTENDED e abre a janela de confirmação do cliente.",
+      "authentication": true,
+      "roles": ["OWNER", "WAITER", "ADMIN"],
+      "requireTenant": true,
+      "pathParams": [
+        {
+          "name": "id",
+          "type": "string",
+          "format": "uuid",
+          "required": true
+        }
+      ],
+      "queryParams": [],
+      "requestBody": null,
+      "successResponse": {
+        "status": 200,
+        "type": "application/json",
+        "schema": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "status": {
+            "type": "string",
+            "example": "ATTENDED"
+          },
+          "attendedAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "attendedById": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "executionTimeSec": {
+            "type": "integer"
+          },
+          "alreadyAttended": {
+            "type": "boolean"
+          },
+          "serverNow": {
+            "type": "string",
+            "format": "date-time"
+          }
+        }
+      },
+      "errors": [
+        {
+          "status": 400,
+          "code": "INVALID_CALL_TRANSITION"
+        },
+        {
+          "status": 404,
+          "code": "CALL_NOT_FOUND"
+        }
+      ],
+      "status": "VERIFIED_IMPLEMENTED",
+      "evidence": {
+        "file": "src/modules/service-calls/presentation/PanelController.ts",
+        "symbol": "PanelController.attendCall"
+      }
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/panel/calls/recent",
+      "module": "ServiceCalls",
+      "description": "Lista os chamados recentemente atendidos ou finalizados.",
+      "authentication": true,
+      "roles": ["OWNER", "WAITER", "ADMIN"],
+      "requireTenant": true,
+      "pathParams": [],
+      "queryParams": [
+        {
+          "name": "limit",
+          "type": "integer",
+          "default": 10,
+          "required": false
+        }
+      ],
+      "requestBody": null,
+      "successResponse": {
+        "status": 200,
+        "type": "application/json",
+        "schema": {
+          "type": "array",
+          "items": {
+            "id": {
+              "type": "string",
+              "format": "uuid"
+            },
+            "tableNumber": {
+              "type": "integer"
+            },
+            "type": {
+              "type": "string"
+            },
+            "status": {
+              "type": "string"
+            },
+            "attendedAt": {
+              "type": "string",
+              "format": "date-time"
+            },
+            "rating": {
+              "type": "integer",
+              "nullable": true
+            },
+            "executionTimeSec": {
+              "type": "integer"
+            }
+          }
+        }
+      },
+      "errors": [],
+      "status": "VERIFIED_IMPLEMENTED",
+      "evidence": {
+        "file": "src/modules/service-calls/presentation/PanelController.ts",
+        "symbol": "PanelController.getRecentCalls"
+      }
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/analytics/summary",
+      "module": "Analytics",
+      "description": "Retorna os indicadores consolidados (Resumo do Dia / Período): totais, tempos médios/medianos/p95 de reação e atendimento, taxa dentro da meta SLA e distribuição.",
+      "authentication": true,
+      "roles": ["OWNER", "ADMIN"],
+      "requireTenant": true,
+      "pathParams": [],
+      "queryParams": [
+        {
+          "name": "from",
+          "type": "string",
+          "format": "date",
+          "required": false,
+          "description": "Data inicial YYYY-MM-DD"
+        },
+        {
+          "name": "to",
+          "type": "string",
+          "format": "date",
+          "required": false,
+          "description": "Data final YYYY-MM-DD"
+        }
+      ],
+      "requestBody": null,
+      "successResponse": {
+        "status": 200,
+        "type": "application/json",
+        "schema": {
+          "range": {
+            "from": {
+              "type": "string"
+            },
+            "to": {
+              "type": "string"
+            }
+          },
+          "summary": {
+            "overview": {
+              "totalCalls": {
+                "type": "integer"
+              },
+              "waiterCalls": {
+                "type": "integer"
+              },
+              "billCalls": {
+                "type": "integer"
+              },
+              "completedCalls": {
+                "type": "integer"
+              },
+              "cancelledCalls": {
+                "type": "integer"
+              },
+              "expiredCalls": {
+                "type": "integer"
+              },
+              "percentageWithinTarget": {
+                "type": "number"
+              },
+              "responseTimes": {
+                "averageResponseTimeSec": {
+                  "type": "number"
+                },
+                "medianResponseTimeSec": {
+                  "type": "number"
+                },
+                "p90ResponseTimeSec": {
+                  "type": "number"
+                },
+                "p95ResponseTimeSec": {
+                  "type": "number"
+                }
+              },
+              "ratings": {
+                "average": {
+                  "type": "number",
+                  "nullable": true
+                },
+                "totalRated": {
+                  "type": "integer"
+                }
+              }
+            }
+          }
+        }
+      },
+      "errors": [
+        {
+          "status": 400,
+          "code": "INVALID_DATE_RANGE"
+        }
+      ],
+      "status": "VERIFIED_IMPLEMENTED",
+      "evidence": {
+        "file": "src/modules/analytics/presentation/AnalyticsController.ts",
+        "symbol": "AnalyticsController.getSummary"
+      }
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/analytics/by-hour",
+      "module": "Analytics",
+      "description": "Distribuição dos chamados e tempos de espera por baldes de hora (00h às 23h) para identificação de horários de pico.",
+      "authentication": true,
+      "roles": ["OWNER", "ADMIN"],
+      "requireTenant": true,
+      "pathParams": [],
+      "queryParams": [
+        {
+          "name": "from",
+          "type": "string",
+          "format": "date",
+          "required": false
+        },
+        {
+          "name": "to",
+          "type": "string",
+          "format": "date",
+          "required": false
+        }
+      ],
+      "requestBody": null,
+      "successResponse": {
+        "status": 200,
+        "type": "application/json",
+        "schema": {
+          "hourly": {
+            "type": "array",
+            "items": {
+              "hour": {
+                "type": "integer",
+                "minimum": 0,
+                "maximum": 23
+              },
+              "totalCalls": {
+                "type": "integer"
+              },
+              "averageWaitSec": {
+                "type": "number"
+              }
+            }
+          }
+        }
+      },
+      "errors": [],
+      "status": "VERIFIED_IMPLEMENTED",
+      "evidence": {
+        "file": "src/modules/analytics/presentation/AnalyticsController.ts",
+        "symbol": "AnalyticsController.getByHour"
+      }
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/analytics/tables-ranking",
+      "module": "Analytics",
+      "description": "Ranking de mesas ordenadas por volume de chamados e maior tempo de espera.",
+      "authentication": true,
+      "roles": ["OWNER", "ADMIN"],
+      "requireTenant": true,
+      "pathParams": [],
+      "queryParams": [
+        {
+          "name": "from",
+          "type": "string",
+          "format": "date",
+          "required": false
+        },
+        {
+          "name": "to",
+          "type": "string",
+          "format": "date",
+          "required": false
+        }
+      ],
+      "requestBody": null,
+      "successResponse": {
+        "status": 200,
+        "type": "application/json",
+        "schema": {
+          "ranking": {
+            "byVolume": {
+              "type": "array"
+            },
+            "byWaitTime": {
+              "type": "array"
+            }
+          }
+        }
+      },
+      "errors": [],
+      "status": "VERIFIED_IMPLEMENTED",
+      "evidence": {
+        "file": "src/modules/analytics/presentation/AnalyticsController.ts",
+        "symbol": "AnalyticsController.getTablesRanking"
+      }
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/analytics/calls",
+      "module": "Analytics",
+      "description": "Histórico detalhado e paginado de chamados com filtros avançados (tipo, status, mesa, data).",
+      "authentication": true,
+      "roles": ["OWNER", "ADMIN"],
+      "requireTenant": true,
+      "pathParams": [],
+      "queryParams": [
+        {
+          "name": "from",
+          "type": "string",
+          "format": "date",
+          "required": false
+        },
+        {
+          "name": "to",
+          "type": "string",
+          "format": "date",
+          "required": false
+        },
+        {
+          "name": "cursor",
+          "type": "string",
+          "required": false
+        },
+        {
+          "name": "limit",
+          "type": "integer",
+          "default": 20,
+          "required": false
+        },
+        {
+          "name": "type",
+          "type": "string",
+          "enum": ["WAITER", "BILL"],
+          "required": false
+        },
+        {
+          "name": "status",
+          "type": "string",
+          "required": false
+        },
+        {
+          "name": "table",
+          "type": "integer",
+          "required": false
+        }
+      ],
+      "requestBody": null,
+      "successResponse": {
+        "status": 200,
+        "type": "application/json",
+        "schema": {
+          "items": {
+            "type": "array"
+          },
+          "nextCursor": {
+            "type": "string",
+            "nullable": true
+          },
+          "hasMore": {
+            "type": "boolean"
+          }
+        }
+      },
+      "errors": [],
+      "status": "VERIFIED_IMPLEMENTED",
+      "evidence": {
+        "file": "src/modules/analytics/presentation/AnalyticsController.ts",
+        "symbol": "AnalyticsController.getCalls"
+      }
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/analytics/summary/compare",
+      "module": "Analytics",
+      "description": "Compara os indicadores operacionais de hoje em relação ao dia anterior e ao mesmo dia da semana anterior.",
+      "authentication": true,
+      "roles": ["OWNER", "ADMIN"],
+      "requireTenant": true,
+      "pathParams": [],
+      "queryParams": [],
+      "requestBody": null,
+      "successResponse": {
+        "status": 200,
+        "type": "application/json",
+        "schema": {
+          "today": {
+            "type": "object"
+          },
+          "previousDay": {
+            "type": "object"
+          },
+          "comparison": {
+            "callsDiffPercent": {
+              "type": "number"
+            },
+            "responseTimeDiffPercent": {
+              "type": "number"
+            }
+          }
+        }
+      },
+      "errors": [],
+      "status": "VERIFIED_IMPLEMENTED",
+      "evidence": {
+        "file": "src/modules/analytics/presentation/AnalyticsController.ts",
+        "symbol": "AnalyticsController.getCompare"
+      }
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/analytics/export.csv",
+      "module": "Analytics",
+      "description": "Exporta o histórico de chamados no formato CSV compatível com RFC 4180.",
+      "authentication": true,
+      "roles": ["OWNER", "ADMIN"],
+      "requireTenant": true,
+      "pathParams": [],
+      "queryParams": [
+        {
+          "name": "from",
+          "type": "string",
+          "format": "date",
+          "required": false
+        },
+        {
+          "name": "to",
+          "type": "string",
+          "format": "date",
+          "required": false
+        }
+      ],
+      "requestBody": null,
+      "successResponse": {
+        "status": 200,
+        "type": "text/csv; charset=utf-8",
+        "headers": {
+          "Content-Type": "text/csv; charset=utf-8",
+          "Content-Disposition": "attachment; filename=\"historico-chamados-...csv\""
+        }
+      },
+      "errors": [
+        {
+          "status": 400,
+          "code": "INVALID_DATE_RANGE"
+        }
+      ],
+      "status": "VERIFIED_IMPLEMENTED",
+      "evidence": {
+        "file": "src/modules/analytics/presentation/AnalyticsController.ts",
+        "symbol": "AnalyticsController.exportCsv"
+      }
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/health/live",
+      "module": "Observability",
+      "description": "Liveness probe kubernetes/docker. Retorna 200 OK se o processo da aplicação está ativo.",
+      "authentication": false,
+      "roles": ["ANONYMOUS"],
+      "pathParams": [],
+      "queryParams": [],
+      "requestBody": null,
+      "successResponse": {
+        "status": 200,
+        "type": "application/json",
+        "schema": {
+          "status": {
+            "type": "string",
+            "example": "ok"
+          }
+        }
+      },
+      "errors": [],
+      "status": "VERIFIED_IMPLEMENTED",
+      "evidence": {
+        "file": "src/platform/health/health.controller.ts",
+        "symbol": "HealthController.live"
+      }
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/health/ready",
+      "module": "Observability",
+      "description": "Readiness probe. Valida conectividade real com PostgreSQL, Redis (se configurado) e uso de memória.",
+      "authentication": false,
+      "roles": ["ANONYMOUS"],
+      "pathParams": [],
+      "queryParams": [],
+      "requestBody": null,
+      "successResponse": {
+        "status": 200,
+        "type": "application/json",
+        "schema": {
+          "status": {
+            "type": "string",
+            "example": "ok"
+          },
+          "checks": {
+            "database": {
+              "type": "string",
+              "example": "up"
+            },
+            "redis": {
+              "type": "string",
+              "example": "up"
+            },
+            "memory": {
+              "heapUsedMb": {
+                "type": "integer"
+              },
+              "rssMb": {
+                "type": "integer"
+              }
+            }
+          },
+          "timestamp": {
+            "type": "string",
+            "format": "date-time"
+          }
+        }
+      },
+      "errors": [
+        {
+          "status": 503,
+          "detail": "Database or Redis is unreachable"
+        }
+      ],
+      "status": "VERIFIED_IMPLEMENTED",
+      "evidence": {
+        "file": "src/platform/health/health.controller.ts",
+        "symbol": "HealthController.ready"
+      }
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/metrics",
+      "module": "Observability",
+      "description": "Métricas no formato texto Prometheus v0.0.4. Também disponível na raiz /metrics para scrapers padrão.",
+      "authentication": false,
+      "roles": ["ANONYMOUS"],
+      "pathParams": [],
+      "queryParams": [],
+      "requestBody": null,
+      "successResponse": {
+        "status": 200,
+        "type": "text/plain; version=0.0.4; charset=utf-8"
+      },
+      "errors": [],
+      "status": "VERIFIED_IMPLEMENTED",
+      "evidence": {
+        "file": "src/platform/metrics/presentation/MetricsController.ts",
+        "symbol": "MetricsController.getMetrics"
+      }
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/docs",
+      "module": "OpenAPI",
+      "description": "Interface HTML interativa da documentação da API (Scalar / Swagger custom).",
+      "authentication": false,
+      "roles": ["ANONYMOUS"],
+      "pathParams": [],
+      "queryParams": [],
+      "requestBody": null,
+      "successResponse": {
+        "status": 200,
+        "type": "text/html; charset=utf-8"
+      },
+      "errors": [
+        {
+          "status": 404,
+          "detail": "Documentação desabilitada neste ambiente (DOCS_ENABLED=false)"
+        }
+      ],
+      "status": "VERIFIED_IMPLEMENTED",
+      "evidence": {
+        "file": "src/platform/openapi/presentation/OpenApiController.ts",
+        "symbol": "OpenApiController.getDocsHtml"
+      }
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/docs/json",
+      "module": "OpenAPI",
+      "description": "Especificação OpenAPI 3.1.0 completa em formato JSON. Também disponível na raiz em /openapi.json.",
+      "authentication": false,
+      "roles": ["ANONYMOUS"],
+      "pathParams": [],
+      "queryParams": [],
+      "requestBody": null,
+      "successResponse": {
+        "status": 200,
+        "type": "application/json; charset=utf-8"
+      },
+      "errors": [
+        {
+          "status": 404,
+          "detail": "Documentação desabilitada"
+        }
+      ],
+      "status": "VERIFIED_IMPLEMENTED",
+      "evidence": {
+        "file": "src/platform/openapi/presentation/OpenApiController.ts",
+        "symbol": "OpenApiController.getDocsJson"
+      }
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/docs/yaml",
+      "module": "OpenAPI",
+      "description": "Especificação OpenAPI 3.1.0 completa em formato YAML.",
+      "authentication": false,
+      "roles": ["ANONYMOUS"],
+      "pathParams": [],
+      "queryParams": [],
+      "requestBody": null,
+      "successResponse": {
+        "status": 200,
+        "type": "text/yaml; charset=utf-8"
+      },
+      "errors": [
+        {
+          "status": 404,
+          "detail": "Documentação desabilitada"
+        }
+      ],
+      "status": "VERIFIED_IMPLEMENTED",
+      "evidence": {
+        "file": "src/platform/openapi/presentation/OpenApiController.ts",
+        "symbol": "OpenApiController.getDocsYaml"
+      }
+    }
+  ]
+}

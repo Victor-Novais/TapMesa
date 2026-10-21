@@ -1,0 +1,62 @@
+# Dependências
+node_modules/
+.pnp.*
+.yarn/*
+!.yarn/patches
+
+# Next.js e build
+.next/
+out/
+build/
+dist/
+*.tsbuildinfo
+next-env.d.ts
+
+# Ambiente e segredos
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+*.crt
+secrets/
+
+# Logs
+logs/
+*.log
+npm-debug.log*
+
+# Testes e relatórios
+coverage/
+playwright-report/
+test-results/
+blob-report/
+.lighthouseci/
+reports/
+
+# PWA gerado
+public/sw.js
+public/sw.js.map
+public/swe-worker-*.js
+public/workbox-*.js
+
+# Docker local
+docker-compose.override.local.yml
+
+# IDEs e sistema operacional
+.idea/
+.vscode/*
+!.vscode/extensions.json
+!.vscode/settings.json
+*.swp
+.DS_Store
+Thumbs.db
+
+# Temporários e caches
+tmp/
+temp/
+.cache/
+.eslintcache
+.turbo/
+.husky/_/
+.vercel/
