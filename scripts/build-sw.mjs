@@ -13,3 +13,4 @@ try {
   console.error("Erro ao gerar public/sw.js:", err);
   process.exit(1);
 }
+
