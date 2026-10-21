@@ -80,7 +80,7 @@ export function RecentCallsDrawer({
             variant="ghost"
             onClick={onRefresh}
             disabled={isLoading}
-            className="h-8 w-8 p-0 text-zinc-500 hover:text-zinc-900 dark:hover:text-zinc-100"
+            className="h-10 w-10 min-h-[44px] min-w-[44px] p-0 text-zinc-500 hover:text-zinc-900 dark:hover:text-zinc-100"
             aria-label="Atualizar lista de recentes"
             title="Atualizar lista"
           >
@@ -119,7 +119,7 @@ export function RecentCallsDrawer({
               return (
                 <div
                   key={call.id}
-                  className="rounded-2xl border border-zinc-200/90 bg-zinc-50/70 p-4 transition-all dark:border-zinc-800 dark:bg-zinc-800/50 hover:bg-zinc-50 dark:hover:bg-zinc-800/80"
+                  className="rounded-2xl border border-zinc-200/90 bg-zinc-50/70 p-4 transition-[background-color,border-color] duration-150 ease-out dark:border-zinc-800 dark:bg-zinc-800/50 hover:bg-zinc-50 dark:hover:bg-zinc-800/80"
                 >
                   <div className="flex items-center justify-between pb-2">
                     <div className="flex items-center gap-2">

@@ -84,7 +84,7 @@ export function PanelCallCard({
       role="region"
       aria-label={`Mesa ${call.tableNumber}, chamado de ${isBill ? "Conta" : "Garçom"}`}
       className={cn(
-        "group relative flex flex-col justify-between overflow-hidden rounded-3xl border bg-white p-5 lg:p-6 shadow-md transition-all duration-200 animate-in fade-in zoom-in-95 dark:bg-zinc-900 select-none",
+        "group relative flex flex-col justify-between overflow-hidden rounded-3xl border bg-white p-5 lg:p-6 shadow-md transition-[border-color,box-shadow,background-color] duration-150 ease-out animate-in fade-in zoom-in-95 dark:bg-zinc-900 select-none",
         // Níveis visuais de alerta
         isUrgent
           ? "border-red-500/90 ring-4 ring-red-500/20 shadow-red-500/10 dark:border-red-500 dark:ring-red-950/60"

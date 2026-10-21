@@ -63,7 +63,7 @@ export function ToastProvider({ children }: { children: React.ReactNode }) {
             key={item.id}
             role="status"
             className={cn(
-              "pointer-events-auto flex items-start gap-3 rounded-2xl border bg-white p-4 shadow-xl transition-all duration-200 animate-in slide-in-from-bottom-2 dark:bg-zinc-900",
+              "pointer-events-auto flex items-start gap-3 rounded-2xl border bg-white p-4 shadow-xl transition-[transform,opacity] duration-200 animate-in fade-in-0 slide-in-from-bottom-3 ease-out dark:bg-zinc-900",
               item.type === "success" &&
                 "border-emerald-200 dark:border-emerald-800/60",
               item.type === "error" && "border-red-200 dark:border-red-800/60",
@@ -96,7 +96,7 @@ export function ToastProvider({ children }: { children: React.ReactNode }) {
             <button
               type="button"
               onClick={() => removeToast(item.id)}
-              className="shrink-0 rounded-lg p-1 text-zinc-400 hover:text-zinc-600 focus:outline-none dark:text-zinc-500 dark:hover:text-zinc-300"
+              className="shrink-0 -mr-2 -mt-2 inline-flex h-10 w-10 min-h-[44px] min-w-[44px] items-center justify-center rounded-xl text-zinc-400 hover:text-zinc-600 active:scale-95 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-orange-500 dark:text-zinc-500 dark:hover:text-zinc-300 transition-transform"
               aria-label="Fechar notificação"
             >
               <X className="h-4 w-4" />

@@ -87,7 +87,7 @@ export function AttendedCallCard({
         role="status"
         aria-live="polite"
         className={cn(
-          "relative overflow-hidden rounded-3xl border border-amber-200/80 bg-white/95 p-5 shadow-xl backdrop-blur transition-all duration-200 animate-in fade-in zoom-in-95 dark:border-amber-900/60 dark:bg-zinc-900/95",
+          "relative overflow-hidden rounded-3xl border border-amber-200/80 bg-white/95 p-5 shadow-xl backdrop-blur transition-[border-color,box-shadow,background-color] duration-150 ease-out animate-in fade-in zoom-in-95 dark:border-amber-900/60 dark:bg-zinc-900/95",
           className,
         )}
       >

@@ -36,11 +36,11 @@ export const DialogContent = React.forwardRef<
     <DialogPrimitive.Content
       ref={ref}
       className={cn(
-        "fixed z-50 w-full bg-white p-6 shadow-2xl transition-all duration-200 dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800",
+        "fixed z-50 w-full bg-white p-6 shadow-2xl dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800",
         // Mobile: Bottom sheet
-        "inset-x-0 bottom-0 max-h-[90dvh] overflow-y-auto rounded-t-3xl animate-in slide-in-from-bottom duration-200",
+        "inset-x-0 bottom-0 max-h-[90dvh] overflow-y-auto rounded-t-3xl animate-in slide-in-from-bottom duration-200 ease-out",
         // Desktop / Tablet: Centered modal
-        "sm:inset-auto sm:left-[50%] sm:top-[50%] sm:max-w-lg sm:translate-x-[-50%] sm:translate-y-[-50%] sm:rounded-2xl sm:slide-in-from-bottom-0 sm:zoom-in-95",
+        "sm:inset-auto sm:left-[50%] sm:top-[50%] sm:max-w-lg sm:translate-x-[-50%] sm:translate-y-[-50%] sm:rounded-2xl sm:slide-in-from-bottom-0 sm:zoom-in-95 sm:fade-in-0 sm:duration-200 sm:ease-out",
         className,
       )}
       {...props}
