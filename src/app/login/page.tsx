@@ -22,7 +22,7 @@ export default function LoginPage() {
       tabIndex={-1}
       className="flex min-h-screen flex-col items-center justify-center bg-zinc-50/50 p-4 sm:p-6 dark:bg-zinc-950 focus:outline-none"
     >
-      <div className="w-full max-w-[420px] space-y-6">
+      <div className="w-full max-w-105 space-y-6">
         {/* Brand Header */}
         <div className="flex flex-col items-center text-center">
           <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-orange-600 text-white shadow-lg shadow-orange-600/20">
