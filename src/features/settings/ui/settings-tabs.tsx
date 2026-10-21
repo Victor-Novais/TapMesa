@@ -3,9 +3,9 @@
 import * as React from "react";
 import { useRouter, usePathname, useSearchParams } from "next/navigation";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/shared/ui/tabs";
-import { Card } from "@/shared/ui/card";
 import { ServiceSettingsForm } from "./service-settings-form";
 import { AppearanceSettingsForm } from "./appearance-settings-form";
+import { NotificationsSettingsForm } from "./notifications-settings-form";
 import { Clock, Palette, Bell } from "lucide-react";
 
 type SettingsTab = "service" | "appearance" | "notifications";
@@ -71,18 +71,7 @@ export function SettingsTabs() {
 
         {/* Aba 3: Notificações (F18) */}
         <TabsContent value="notifications" className="pt-4">
-          <Card className="p-8 text-center border-dashed">
-            <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-2xl bg-orange-100 text-orange-600 dark:bg-orange-950/40 dark:text-orange-400">
-              <Bell className="h-6 w-6" />
-            </div>
-            <h3 className="mt-4 text-base font-bold text-zinc-900 dark:text-zinc-50">
-              Canais de Notificação
-            </h3>
-            <p className="mt-1.5 max-w-md mx-auto text-sm text-zinc-500">
-              Configurações de envio de e-mails para chamados urgentes e
-              relatório automático com o resumo do dia operacional (F18).
-            </p>
-          </Card>
+          <NotificationsSettingsForm />
         </TabsContent>
       </Tabs>
     </div>

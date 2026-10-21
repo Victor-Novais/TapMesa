@@ -65,3 +65,9 @@
 - **Documentação / Requisitos:** `API_REFERENCE.md` sugeria que `GET /api/v1/auth/me` retornava `id`, `username`, `role`, `restaurantId`, etc.
 - **Back-end Real:** `AuthController.me` retorna o objeto extraído diretamente do JWT via `JwtAuthGuard` (`{ sub: string, role: Role, rid?: string, imp?: string, iat: number, exp: number }`). O campo de identificação único é `sub` (UUID) e `username` não está incluído no payload do token.
 - **Decisão no Front-end:** O modelo de usuário no front-end (`AuthUser`) normaliza `id = user.id || user.sub` e `restaurantId = user.restaurantId || user.rid`, preservando o `username` preenchido no momento da autenticação ou derivando de forma segura.
+
+### 8. Armazenamento em Memória das Configurações de Notificação
+
+- **Documentação / Requisitos:** Não especificava o ciclo de vida de persistência.
+- **Back-end Real:** `NotificationSettingsController` manipula repositório em memória no estado atual do backend (`TapMesa-Back-End`), o que significa que reinicializações da instância do servidor podem retornar as configurações de notificação para os valores padrão até que a persistência em banco relacional seja finalizada.
+- **Decisão no Front-end:** O front-end refaz a consulta `GET /restaurant/notifications/settings` imediatamente após o `PATCH`, sincronizando o formulário diretamente com o estado real retornado pelo servidor e orientando o operador com notas informativas transparentes.

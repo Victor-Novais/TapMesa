@@ -1,11 +1,13 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { settingsApi } from "@/shared/api";
+import { settingsApi, notificationsApi } from "@/shared/api";
 import { queryKeys } from "@/shared/api/query-client";
 import type {
   ServiceSettings,
   UpdateServiceSettingsRequest,
   RestaurantAppearance,
   UpdateAppearanceRequest,
+  NotificationSettingsDto,
+  UpdateNotificationSettingsRequest,
 } from "@/shared/types/api";
 
 export function useServiceSettingsQuery() {
@@ -98,5 +100,43 @@ export function useUploadBackgroundMutation() {
         queryKey: queryKeys.settings.appearance,
       });
     },
+  });
+}
+
+export function useNotificationSettingsQuery() {
+  return useQuery<NotificationSettingsDto>({
+    queryKey: queryKeys.notifications.settings,
+    queryFn: () => notificationsApi.getNotificationSettings(),
+    staleTime: 60_000,
+  });
+}
+
+export function useUpdateNotificationSettingsMutation() {
+  const queryClient = useQueryClient();
+
+  return useMutation<
+    NotificationSettingsDto,
+    Error,
+    UpdateNotificationSettingsRequest
+  >({
+    mutationFn: (data) => notificationsApi.updateNotificationSettings(data),
+    onSuccess: (updated) => {
+      queryClient.setQueryData(queryKeys.notifications.settings, updated);
+      queryClient.invalidateQueries({
+        queryKey: queryKeys.notifications.settings,
+      });
+    },
+  });
+}
+
+export function useSendDailySummaryTestMutation() {
+  return useMutation<{ success: boolean; message: string }, Error, void>({
+    mutationFn: () => notificationsApi.sendDailySummaryTest(),
+  });
+}
+
+export function useSendUrgentAlertTestMutation() {
+  return useMutation<{ success: boolean; message: string }, Error, void>({
+    mutationFn: () => notificationsApi.sendUrgentAlertTest(),
   });
 }
