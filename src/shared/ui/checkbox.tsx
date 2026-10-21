@@ -1,0 +1,67 @@
+"use client";
+
+import * as React from "react";
+import * as CheckboxPrimitive from "@radix-ui/react-checkbox";
+import { Check } from "lucide-react";
+import { cn } from "@/shared/lib/cn";
+
+export interface CheckboxProps extends React.ComponentPropsWithoutRef<
+  typeof CheckboxPrimitive.Root
+> {
+  label?: string;
+  description?: string;
+}
+
+export const Checkbox = React.forwardRef<
+  React.ElementRef<typeof CheckboxPrimitive.Root>,
+  CheckboxProps
+>(({ className, label, description, id, disabled, ...props }, ref) => {
+  const generatedId = React.useId();
+  const checkboxId = id || generatedId;
+
+  const content = (
+    <CheckboxPrimitive.Root
+      ref={ref}
+      id={checkboxId}
+      disabled={disabled}
+      className={cn(
+        "peer h-5 w-5 shrink-0 rounded-md border border-zinc-300 shadow-sm transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-orange-500 focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 data-[state=checked]:bg-orange-600 data-[state=checked]:border-orange-600 data-[state=checked]:text-white dark:border-zinc-700 dark:data-[state=checked]:bg-orange-600",
+        className,
+      )}
+      {...props}
+    >
+      <CheckboxPrimitive.Indicator
+        className={cn("flex items-center justify-center text-current")}
+      >
+        <Check className="h-3.5 w-3.5 stroke-[3]" />
+      </CheckboxPrimitive.Indicator>
+    </CheckboxPrimitive.Root>
+  );
+
+  if (!label && !description) {
+    return content;
+  }
+
+  return (
+    <div className="flex items-start gap-2.5 text-left">
+      <div className="pt-0.5">{content}</div>
+      <div className="space-y-0.5">
+        {label && (
+          <label
+            htmlFor={checkboxId}
+            className="text-sm font-medium text-zinc-900 dark:text-zinc-100 cursor-pointer select-none"
+          >
+            {label}
+          </label>
+        )}
+        {description && (
+          <p className="text-xs text-zinc-500 dark:text-zinc-400">
+            {description}
+          </p>
+        )}
+      </div>
+    </div>
+  );
+});
+
+Checkbox.displayName = CheckboxPrimitive.Root.displayName;

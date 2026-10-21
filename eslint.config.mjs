@@ -61,7 +61,7 @@ const eslintConfig = defineConfig([
             {
               from: { element: { type: "shared-ui" } },
               allow: [
-                { to: { element: { type: ["shared-other"] } } },
+                { to: { element: { type: ["shared-ui", "shared-other"] } } },
               ],
             },
             {
@@ -76,11 +76,11 @@ const eslintConfig = defineConfig([
       "boundaries/entry-point": [
         "error",
         {
-          default: "disallow",
+          default: "allow",
           policies: [
             {
               target: { element: { type: "feature" } },
-              allow: ["index.ts", "index.tsx", "index"],
+              disallow: "!index.*",
             },
           ],
         },
