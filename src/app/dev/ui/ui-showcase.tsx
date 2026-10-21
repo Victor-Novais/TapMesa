@@ -59,7 +59,9 @@ import {
   TableThemeProvider,
   TableScreenSkeleton,
   TableScreenError,
+  CallActions,
 } from "@/features/table-screen";
+import { cn } from "@/shared/lib/cn";
 import {
   Moon,
   Sun,
@@ -722,6 +724,10 @@ function TableScreenDemo() {
   const [selectedTheme, setSelectedTheme] = React.useState<
     "light" | "dark" | "image" | "skeleton" | "not_found" | "paused"
   >("light");
+  const [callScenario, setCallScenario] = React.useState<
+    "idle" | "waiter" | "bill" | "both"
+  >("idle");
+  const [baseTime] = React.useState(() => Date.now());
 
   const themes = {
     light: {
@@ -737,6 +743,8 @@ function TableScreenDemo() {
       },
       texts: {
         welcomeTitle: "Bem-vindo à Mesa {tableNumber}",
+        callWaiterButton: "Chamar Garçom",
+        requestBillButton: "Pedir a Conta",
       },
       socials: {
         wifiSsid: "Trattoria_Clientes",
@@ -758,6 +766,8 @@ function TableScreenDemo() {
       },
       texts: {
         welcomeTitle: "Mesa {tableNumber} • Lounge",
+        callWaiterButton: "Chamar Garçom",
+        requestBillButton: "Pedir a Conta",
       },
       socials: {
         wifiSsid: "Nocturne_5G",
@@ -779,6 +789,8 @@ function TableScreenDemo() {
       },
       texts: {
         welcomeTitle: "Mesa {tableNumber} • Boi Bravo",
+        callWaiterButton: "Chamar Garçom",
+        requestBillButton: "Pedir a Conta",
       },
       socials: {
         wifiSsid: "BoiBravo_Guest",
@@ -788,51 +800,147 @@ function TableScreenDemo() {
     },
   };
 
+  const mockCalls = React.useMemo(() => {
+    const nowIso = new Date(baseTime).toISOString();
+    const tenMinAgo = new Date(baseTime - 145000).toISOString();
+    const twoMinAgo = new Date(baseTime - 48000).toISOString();
+
+    const waiterCall = {
+      id: "demo-waiter-1",
+      type: "WAITER" as const,
+      status: "PENDING" as const,
+      note: "Trazer gelo e copos extras",
+      createdAt: tenMinAgo,
+      attendedAt: null,
+      rating: null,
+      reopenCount: 1,
+      serverNow: nowIso,
+    };
+
+    const billCall = {
+      id: "demo-bill-1",
+      type: "BILL" as const,
+      status: "PENDING" as const,
+      note: "Dividir em duas vias no cartão",
+      createdAt: twoMinAgo,
+      attendedAt: null,
+      rating: null,
+      reopenCount: 0,
+      serverNow: nowIso,
+    };
+
+    if (callScenario === "waiter") return [waiterCall];
+    if (callScenario === "bill") return [billCall];
+    if (callScenario === "both") return [waiterCall, billCall];
+    return [];
+  }, [callScenario, baseTime]);
+
   return (
     <div className="space-y-4">
-      <div className="flex flex-wrap items-center gap-2">
-        <Button
-          size="sm"
-          variant={selectedTheme === "light" ? "primary" : "outline"}
-          onClick={() => setSelectedTheme("light")}
-        >
-          1. Tema Claro
-        </Button>
-        <Button
-          size="sm"
-          variant={selectedTheme === "dark" ? "primary" : "outline"}
-          onClick={() => setSelectedTheme("dark")}
-        >
-          2. Tema Escuro
-        </Button>
-        <Button
-          size="sm"
-          variant={selectedTheme === "image" ? "primary" : "outline"}
-          onClick={() => setSelectedTheme("image")}
-        >
-          3. Tema Imagem
-        </Button>
-        <Button
-          size="sm"
-          variant={selectedTheme === "skeleton" ? "primary" : "outline"}
-          onClick={() => setSelectedTheme("skeleton")}
-        >
-          4. Esqueleto (Loading)
-        </Button>
-        <Button
-          size="sm"
-          variant={selectedTheme === "paused" ? "primary" : "outline"}
-          onClick={() => setSelectedTheme("paused")}
-        >
-          5. Mesa Pausada
-        </Button>
-        <Button
-          size="sm"
-          variant={selectedTheme === "not_found" ? "primary" : "outline"}
-          onClick={() => setSelectedTheme("not_found")}
-        >
-          6. QR Inválido (404)
-        </Button>
+      <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+        <div className="flex flex-wrap items-center gap-2">
+          <Button
+            size="sm"
+            variant={selectedTheme === "light" ? "primary" : "outline"}
+            onClick={() => setSelectedTheme("light")}
+          >
+            1. Claro
+          </Button>
+          <Button
+            size="sm"
+            variant={selectedTheme === "dark" ? "primary" : "outline"}
+            onClick={() => setSelectedTheme("dark")}
+          >
+            2. Escuro
+          </Button>
+          <Button
+            size="sm"
+            variant={selectedTheme === "image" ? "primary" : "outline"}
+            onClick={() => setSelectedTheme("image")}
+          >
+            3. Imagem
+          </Button>
+          <Button
+            size="sm"
+            variant={selectedTheme === "skeleton" ? "primary" : "outline"}
+            onClick={() => setSelectedTheme("skeleton")}
+          >
+            4. Esqueleto
+          </Button>
+          <Button
+            size="sm"
+            variant={selectedTheme === "paused" ? "primary" : "outline"}
+            onClick={() => setSelectedTheme("paused")}
+          >
+            5. Pausada
+          </Button>
+          <Button
+            size="sm"
+            variant={selectedTheme === "not_found" ? "primary" : "outline"}
+            onClick={() => setSelectedTheme("not_found")}
+          >
+            6. 404
+          </Button>
+        </div>
+
+        {/* Call scenario selector */}
+        {selectedTheme !== "skeleton" &&
+          selectedTheme !== "paused" &&
+          selectedTheme !== "not_found" && (
+            <div className="flex items-center gap-1.5 rounded-xl border border-zinc-200 bg-zinc-50 p-1 dark:border-zinc-800 dark:bg-zinc-900">
+              <span className="px-2 text-[11px] font-semibold text-zinc-500 uppercase">
+                Chamados:
+              </span>
+              <button
+                type="button"
+                onClick={() => setCallScenario("idle")}
+                className={cn(
+                  "px-2 py-1 text-xs font-medium rounded-lg transition-colors",
+                  callScenario === "idle"
+                    ? "bg-white shadow text-zinc-900 dark:bg-zinc-800 dark:text-zinc-50"
+                    : "text-zinc-600 hover:text-zinc-900 dark:text-zinc-400 dark:hover:text-zinc-200",
+                )}
+              >
+                Livre
+              </button>
+              <button
+                type="button"
+                onClick={() => setCallScenario("waiter")}
+                className={cn(
+                  "px-2 py-1 text-xs font-medium rounded-lg transition-colors",
+                  callScenario === "waiter"
+                    ? "bg-white shadow text-zinc-900 dark:bg-zinc-800 dark:text-zinc-50"
+                    : "text-zinc-600 hover:text-zinc-900 dark:text-zinc-400 dark:hover:text-zinc-200",
+                )}
+              >
+                Garçom
+              </button>
+              <button
+                type="button"
+                onClick={() => setCallScenario("bill")}
+                className={cn(
+                  "px-2 py-1 text-xs font-medium rounded-lg transition-colors",
+                  callScenario === "bill"
+                    ? "bg-white shadow text-zinc-900 dark:bg-zinc-800 dark:text-zinc-50"
+                    : "text-zinc-600 hover:text-zinc-900 dark:text-zinc-400 dark:hover:text-zinc-200",
+                )}
+              >
+                Conta
+              </button>
+              <button
+                type="button"
+                onClick={() => setCallScenario("both")}
+                className={cn(
+                  "px-2 py-1 text-xs font-medium rounded-lg transition-colors",
+                  callScenario === "both"
+                    ? "bg-white shadow text-zinc-900 dark:bg-zinc-800 dark:text-zinc-50"
+                    : "text-zinc-600 hover:text-zinc-900 dark:text-zinc-400 dark:hover:text-zinc-200",
+                )}
+              >
+                Ambos
+              </button>
+            </div>
+          )}
       </div>
 
       <div className="relative mx-auto max-w-sm overflow-hidden rounded-3xl border border-zinc-300 shadow-xl dark:border-zinc-700">
@@ -848,7 +956,15 @@ function TableScreenDemo() {
               tableNumber={7}
               appearance={themes[selectedTheme]}
               available={true}
-            />
+            >
+              <CallActions
+                token="demo-token"
+                calls={mockCalls}
+                available={true}
+                showWaitTimeToCustomer={true}
+                texts={themes[selectedTheme].texts}
+              />
+            </TableScreen>
           </TableThemeProvider>
         )}
       </div>

@@ -5,6 +5,7 @@ import { TableThemeProvider } from "./table-theme-provider";
 import { TableScreen } from "./table-screen";
 import { TableScreenSkeleton } from "./table-screen-skeleton";
 import { TableScreenError } from "./table-screen-error";
+import { CallActions } from "./call-actions";
 import { parseApiError } from "@/shared/api/problem-details";
 
 interface TableScreenViewProps {
@@ -52,7 +53,15 @@ export function TableScreenView({ token }: TableScreenViewProps) {
         available={data.available}
         unavailableReason={data.unavailableReason}
         message={data.message}
-      />
+      >
+        <CallActions
+          token={token}
+          calls={data.calls}
+          available={data.available}
+          showWaitTimeToCustomer={data.showWaitTimeToCustomer}
+          texts={data.appearance.texts}
+        />
+      </TableScreen>
     </TableThemeProvider>
   );
 }

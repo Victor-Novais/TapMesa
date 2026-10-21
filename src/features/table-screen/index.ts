@@ -6,6 +6,14 @@ export { TableThemeProvider } from "./ui/table-theme-provider";
 export { TableScreenSkeleton } from "./ui/table-screen-skeleton";
 export { TableScreenError } from "./ui/table-screen-error";
 export type { TableErrorType } from "./ui/table-screen-error";
+export { CallActions } from "./ui/call-actions";
+export type { CallActionsProps } from "./ui/call-actions";
+export { PendingCallCard } from "./ui/pending-call-card";
+export type { PendingCallCardProps } from "./ui/pending-call-card";
+export {
+  useOpenCallMutation,
+  useCancelCallMutation,
+} from "./api/use-table-mutations";
 export {
   getContrastRatio,
   getAccessibleTextColor,
