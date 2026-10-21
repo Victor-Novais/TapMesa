@@ -20,7 +20,9 @@ export default function AdminError({
   reset: () => void;
 }) {
   useEffect(() => {
-    console.error("Admin route error:", error.message);
+    if (process.env.NODE_ENV !== "production") {
+      console.error("Admin route error:", error.message);
+    }
   }, [error]);
 
   return (

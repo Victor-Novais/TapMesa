@@ -43,6 +43,11 @@ self.addEventListener("fetch", (event) => {
   const { request } = event;
   const url = new URL(request.url);
 
+  // 0. NUNCA interceptar requisições cross-origin (ex: backend em outro subdomínio/porta)
+  if (url.origin !== self.location.origin) {
+    return;
+  }
+
   // 1. NUNCA interceptar nem cachear requisições para a API (/api/*)
   if (url.pathname.startsWith("/api/")) {
     return;

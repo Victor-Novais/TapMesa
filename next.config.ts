@@ -1,8 +1,14 @@
 import type { NextConfig } from "next";
 
+const isProd = process.env.NODE_ENV === "production";
+
 const apiOrigin = process.env.NEXT_PUBLIC_API_URL
   ? new URL(process.env.NEXT_PUBLIC_API_URL).origin
   : "http://localhost:3000";
+
+const scriptSrc = isProd
+  ? "script-src 'self' 'unsafe-inline'"
+  : "script-src 'self' 'unsafe-eval' 'unsafe-inline'";
 
 const securityHeaders = [
   {
@@ -12,6 +18,14 @@ const securityHeaders = [
   {
     key: "X-Frame-Options",
     value: "DENY",
+  },
+  {
+    key: "X-DNS-Prefetch-Control",
+    value: "on",
+  },
+  {
+    key: "Strict-Transport-Security",
+    value: "max-age=63072000; includeSubDomains; preload",
   },
   {
     key: "Permissions-Policy",
@@ -28,7 +42,7 @@ const securityHeaders = [
       `connect-src 'self' ${apiOrigin}`,
       `img-src 'self' data: blob: https: ${apiOrigin}`,
       "style-src 'self' 'unsafe-inline'",
-      "script-src 'self' 'unsafe-eval' 'unsafe-inline'",
+      scriptSrc,
       "font-src 'self' data:",
       "frame-ancestors 'none'",
       "base-uri 'self'",
@@ -39,6 +53,8 @@ const securityHeaders = [
 
 const nextConfig: NextConfig = {
   output: "standalone",
+  compress: true,
+  poweredByHeader: false,
   images: {
     remotePatterns: [
       {

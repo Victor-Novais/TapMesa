@@ -20,8 +20,9 @@ export default function DashboardError({
   reset: () => void;
 }) {
   useEffect(() => {
-    // Log do erro restrito sem vazar dados sensíveis
-    console.error("Dashboard route error:", error.message);
+    if (process.env.NODE_ENV !== "production") {
+      console.error("Dashboard route error:", error.message);
+    }
   }, [error]);
 
   return (

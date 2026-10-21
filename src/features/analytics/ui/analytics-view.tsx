@@ -1,6 +1,7 @@
 "use client";
 
 import * as React from "react";
+import dynamic from "next/dynamic";
 import {
   useServiceSettingsQuery,
   useAnalyticsSummaryQuery,
@@ -18,13 +19,25 @@ import {
 } from "../lib/operational-date";
 import { PeriodSelector } from "./period-selector";
 import { AnalyticsKpis } from "./analytics-kpis";
-import { HourlyChart } from "./hourly-chart";
 import { TablesRanking } from "./tables-ranking";
 import { CallsTable } from "./calls-table";
 import { Skeleton } from "@/shared/ui/skeleton";
 import { EmptyState } from "@/shared/ui/empty-state";
 import { Button } from "@/shared/ui/button";
 import { AlertCircle, RefreshCw, LayoutDashboard } from "lucide-react";
+
+const HourlyChart = dynamic(
+  () => import("./hourly-chart").then((mod) => mod.HourlyChart),
+  {
+    loading: () => (
+      <div className="rounded-2xl border border-zinc-200 bg-white p-6 shadow-sm dark:border-zinc-800 dark:bg-zinc-900">
+        <Skeleton className="h-6 w-48 mb-4" />
+        <Skeleton className="h-[280px] w-full rounded-xl" />
+      </div>
+    ),
+    ssr: false,
+  },
+);
 
 export function AnalyticsView() {
   const { data: serviceSettings } = useServiceSettingsQuery();

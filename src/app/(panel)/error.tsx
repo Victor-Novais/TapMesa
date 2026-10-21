@@ -20,7 +20,9 @@ export default function PanelError({
   reset: () => void;
 }) {
   useEffect(() => {
-    console.error("Panel route error:", error.message);
+    if (process.env.NODE_ENV !== "production") {
+      console.error("Panel route error:", error.message);
+    }
   }, [error]);
 
   return (
