@@ -61,7 +61,18 @@ import {
   TableScreenError,
   CallActions,
 } from "@/features/table-screen";
-import { PanelCallCard, RecentCallsDrawer } from "@/features/panel";
+import {
+  PanelCallCard,
+  RecentCallsDrawer,
+  PanelStartDialog,
+  PanelSettingsDialog,
+  playWaiterSound,
+  playBillSound,
+  playUrgentSound,
+  speakText,
+  usePanelAudio,
+  useWakeLock,
+} from "@/features/panel";
 import type { PanelCallDto, RecentAttendedCallDto } from "@/shared/types/api";
 import { cn } from "@/shared/lib/cn";
 import {
@@ -1142,7 +1153,13 @@ const INITIAL_DEMO_RECENTS: RecentAttendedCallDto[] = [
 function PanelScreenDemo() {
   const { toast } = useToast();
   const [drawerOpen, setDrawerOpen] = React.useState(false);
+  const [startDialogOpen, setStartDialogOpen] = React.useState(false);
+  const [settingsDialogOpen, setSettingsDialogOpen] = React.useState(false);
+  const [mockFullscreen, setMockFullscreen] = React.useState(false);
   const [submittingId, setSubmittingId] = React.useState<string | null>(null);
+
+  const audio = usePanelAudio(false);
+  const wakeLock = useWakeLock(false);
 
   const [calls, setCalls] = React.useState<PanelCallDto[]>(INITIAL_DEMO_CALLS);
   const [recentCalls, setRecentCalls] =
@@ -1223,7 +1240,61 @@ function PanelScreenDemo() {
           </span>
         </div>
 
-        <div className="flex items-center gap-2">
+        <div className="flex flex-wrap items-center gap-2">
+          <Button
+            size="sm"
+            variant="outline"
+            onClick={() => playWaiterSound(80)}
+            className="text-xs font-semibold h-8"
+          >
+            🔊 Som Garçom
+          </Button>
+
+          <Button
+            size="sm"
+            variant="outline"
+            onClick={() => playBillSound(80)}
+            className="text-xs font-semibold h-8"
+          >
+            🔊 Som Conta
+          </Button>
+
+          <Button
+            size="sm"
+            variant="outline"
+            onClick={() => playUrgentSound(80)}
+            className="text-xs font-semibold h-8 text-red-600"
+          >
+            🔥 Som Urgente
+          </Button>
+
+          <Button
+            size="sm"
+            variant="outline"
+            onClick={() => speakText("Mesa 7 chama o garçom com observação.")}
+            className="text-xs font-semibold h-8"
+          >
+            🗣️ Voz pt-BR
+          </Button>
+
+          <Button
+            size="sm"
+            variant="outline"
+            onClick={() => setStartDialogOpen(true)}
+            className="text-xs font-semibold h-8"
+          >
+            📺 Modal Iniciar (F11)
+          </Button>
+
+          <Button
+            size="sm"
+            variant="outline"
+            onClick={() => setSettingsDialogOpen(true)}
+            className="text-xs font-semibold h-8"
+          >
+            ⚙️ Ajustes (F11)
+          </Button>
+
           <Button
             size="sm"
             variant="outline"
@@ -1269,6 +1340,27 @@ function PanelScreenDemo() {
             type: "info",
           });
         }}
+      />
+
+      <PanelStartDialog
+        open={startDialogOpen}
+        onStart={async () => {
+          setStartDialogOpen(false);
+          toast({
+            title: "Painel iniciado!",
+            description: "Áudio liberado e modo operação ativo.",
+            type: "success",
+          });
+        }}
+      />
+
+      <PanelSettingsDialog
+        open={settingsDialogOpen}
+        onOpenChange={setSettingsDialogOpen}
+        audio={audio}
+        wakeLock={wakeLock}
+        isFullscreen={mockFullscreen}
+        onToggleFullscreen={async () => setMockFullscreen((p) => !p)}
       />
     </div>
   );
