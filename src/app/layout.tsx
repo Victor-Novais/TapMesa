@@ -23,6 +23,12 @@ export const metadata: Metadata = {
   description: "Chamada de garçom e pedido de conta via QR Code",
   icons: {
     icon: "/favicon.ico",
+    apple: "/icon-192.png",
+  },
+  appleWebApp: {
+    capable: true,
+    statusBarStyle: "default",
+    title: "TapMesa",
   },
 };
 

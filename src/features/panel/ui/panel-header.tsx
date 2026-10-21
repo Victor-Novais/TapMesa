@@ -13,6 +13,7 @@ import {
   Volume2,
   VolumeX,
   ArrowLeft,
+  Settings,
 } from "lucide-react";
 import { Badge } from "@/shared/ui/badge";
 import { Button } from "@/shared/ui/button";
@@ -32,6 +33,11 @@ export interface PanelHeaderProps {
   counters: PanelCounters;
   recentCount: number;
   onOpenRecent: () => void;
+  onOpenSettings?: () => void;
+  isMuted?: boolean;
+  onToggleMute?: () => void;
+  isFullscreen?: boolean;
+  onToggleFullscreen?: () => Promise<void> | void;
   userMenu?: React.ReactNode;
   className?: string;
 }
@@ -42,6 +48,11 @@ export function PanelHeader({
   counters,
   recentCount,
   onOpenRecent,
+  onOpenSettings,
+  isMuted: externalIsMuted,
+  onToggleMute: externalOnToggleMute,
+  isFullscreen: externalIsFullscreen,
+  onToggleFullscreen: externalOnToggleFullscreen,
   userMenu,
 }: PanelHeaderProps) {
   const { user, role } = useAuth();
@@ -63,8 +74,11 @@ export function PanelHeader({
     restaurant?.name ||
     (hasRestaurant ? "Restaurante" : "Salão");
 
-  const [isFullscreen, setIsFullscreen] = React.useState(false);
-  const [isMuted, setIsMuted] = React.useState(false);
+  const [localFullscreen, setLocalFullscreen] = React.useState(false);
+  const [localMuted, setLocalMuted] = React.useState(false);
+
+  const isFullscreen = externalIsFullscreen ?? localFullscreen;
+  const isMuted = externalIsMuted ?? localMuted;
 
   // Formata o horário do relógio operacional oficial
   const formattedTime = new Date(now).toLocaleTimeString("pt-BR", {
@@ -76,22 +90,34 @@ export function PanelHeader({
   const canGoToDashboard = role === "OWNER" || role === "ADMIN";
 
   const handleToggleFullscreen = async () => {
+    if (externalOnToggleFullscreen) {
+      await externalOnToggleFullscreen();
+      return;
+    }
     try {
       if (!document.fullscreenElement) {
         await document.documentElement.requestFullscreen();
-        setIsFullscreen(true);
+        setLocalFullscreen(true);
       } else {
         await document.exitFullscreen();
-        setIsFullscreen(false);
+        setLocalFullscreen(false);
       }
     } catch {
       // Ignora erro se tela cheia for bloqueada pelo navegador
     }
   };
 
+  const handleToggleMute = () => {
+    if (externalOnToggleMute) {
+      externalOnToggleMute();
+    } else {
+      setLocalMuted((prev) => !prev);
+    }
+  };
+
   React.useEffect(() => {
     const handleFullscreenChange = () => {
-      setIsFullscreen(Boolean(document.fullscreenElement));
+      setLocalFullscreen(Boolean(document.fullscreenElement));
     };
 
     document.addEventListener("fullscreenchange", handleFullscreenChange);
@@ -102,7 +128,7 @@ export function PanelHeader({
 
   return (
     <header className="sticky top-0 z-40 w-full border-b border-zinc-200/80 bg-white/95 px-4 sm:px-6 lg:px-8 py-2.5 backdrop-blur dark:border-zinc-800/80 dark:bg-zinc-900/95 shadow-sm">
-      <div className="flex flex-wrap items-center justify-between gap-3 max-w-[1920px] mx-auto">
+      <div className="flex flex-wrap items-center justify-between gap-3 max-w-[3840px] mx-auto">
         {/* Left Section: Branding & Operational Clock */}
         <div className="flex items-center gap-3 min-w-0">
           <div className="flex items-center gap-2">
@@ -154,12 +180,12 @@ export function PanelHeader({
         <div className="flex items-center gap-2 sm:gap-3">
           <ConnectionIndicator status={connectionStatus} />
 
-          {/* Sound Toggle (Preparatório F11) */}
+          {/* Sound Mute Toggle */}
           <Button
             type="button"
             variant="ghost"
             size="sm"
-            onClick={() => setIsMuted((prev) => !prev)}
+            onClick={handleToggleMute}
             className="h-9 w-9 p-0 text-zinc-600 hover:text-zinc-900 dark:text-zinc-400 dark:hover:text-zinc-100"
             aria-label={isMuted ? "Ativar som" : "Silenciar som"}
             title={isMuted ? "Ativar som" : "Silenciar som"}
@@ -176,7 +202,7 @@ export function PanelHeader({
             type="button"
             variant="ghost"
             size="sm"
-            onClick={handleToggleFullscreen}
+            onClick={() => void handleToggleFullscreen()}
             className="hidden sm:inline-flex h-9 w-9 p-0 text-zinc-600 hover:text-zinc-900 dark:text-zinc-400 dark:hover:text-zinc-100"
             aria-label={isFullscreen ? "Sair da tela cheia" : "Tela cheia"}
             title={isFullscreen ? "Sair da tela cheia" : "Tela cheia"}
@@ -187,6 +213,21 @@ export function PanelHeader({
               <Maximize2 className="h-4 w-4" />
             )}
           </Button>
+
+          {/* Settings Modal Button */}
+          {onOpenSettings && (
+            <Button
+              type="button"
+              variant="ghost"
+              size="sm"
+              onClick={onOpenSettings}
+              className="h-9 w-9 p-0 text-zinc-600 hover:text-zinc-900 dark:text-zinc-400 dark:hover:text-zinc-100"
+              aria-label="Abrir configurações de som e tela do painel"
+              title="Configurações do Painel"
+            >
+              <Settings className="h-4 w-4" />
+            </Button>
+          )}
 
           {/* Recent Drawer Button with Badge */}
           <Button

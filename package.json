@@ -3,8 +3,9 @@
   "version": "1.0.0",
   "private": true,
   "scripts": {
-    "dev": "next dev -p 3001",
-    "build": "next build",
+    "build:sw": "node scripts/build-sw.mjs",
+    "dev": "npm run build:sw && next dev -p 3001",
+    "build": "npm run build:sw && next build",
     "start": "next start -p 3001",
     "lint": "eslint src/",
     "typecheck": "tsc --noEmit",
