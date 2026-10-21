@@ -126,3 +126,29 @@ body {
     scroll-behavior: auto !important;
   }
 }
+
+/* Regras de Impressão A4 (RF-D06, RNF-20) */
+@media print {
+  @page {
+    size: A4 portrait;
+    margin: 8mm;
+  }
+
+  html,
+  body {
+    background: #ffffff !important;
+    color: #000000 !important;
+    margin: 0 !important;
+    padding: 0 !important;
+  }
+
+  .print-avoid-break {
+    break-inside: avoid !important;
+    page-break-inside: avoid !important;
+  }
+
+  .print-page-break {
+    break-after: page !important;
+    page-break-after: always !important;
+  }
+}

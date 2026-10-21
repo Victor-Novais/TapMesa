@@ -17,29 +17,39 @@ export default function DashboardLayout({
 
   return (
     <AuthGate allowedRoles={["OWNER", "ADMIN"]}>
-      <div className="flex min-h-screen bg-zinc-50 dark:bg-zinc-950">
+      <div className="flex min-h-screen bg-zinc-50 dark:bg-zinc-950 print:bg-white print:min-h-0 print:block">
         {/* Desktop / Tablet Sidebar */}
-        <DashboardSidebar
-          isCollapsed={isSidebarCollapsed}
-          onToggleCollapse={() => setIsSidebarCollapsed((prev) => !prev)}
-        />
+        <div className="print:hidden">
+          <DashboardSidebar
+            isCollapsed={isSidebarCollapsed}
+            onToggleCollapse={() => setIsSidebarCollapsed((prev) => !prev)}
+          />
+        </div>
 
         {/* Mobile Navigation Drawer */}
-        <DashboardMobileDrawer
-          open={mobileDrawerOpen}
-          onOpenChange={setMobileDrawerOpen}
-        />
+        <div className="print:hidden">
+          <DashboardMobileDrawer
+            open={mobileDrawerOpen}
+            onOpenChange={setMobileDrawerOpen}
+          />
+        </div>
 
         {/* Main Content Area */}
-        <div className="flex flex-1 flex-col min-w-0">
-          <DashboardHeader onOpenMobileMenu={() => setMobileDrawerOpen(true)} />
+        <div className="flex flex-1 flex-col min-w-0 print:block print:w-full">
+          <div className="print:hidden">
+            <DashboardHeader
+              onOpenMobileMenu={() => setMobileDrawerOpen(true)}
+            />
+          </div>
 
-          <main className="flex-1 px-4 py-6 sm:px-6 lg:px-8 pb-24 lg:pb-8 max-w-7xl w-full mx-auto">
+          <main className="flex-1 px-4 py-6 sm:px-6 lg:px-8 pb-24 lg:pb-8 max-w-7xl w-full mx-auto print:p-0 print:m-0 print:max-w-none print:w-full">
             {children}
           </main>
 
           {/* Mobile Bottom Navigation */}
-          <DashboardBottomNav />
+          <div className="print:hidden">
+            <DashboardBottomNav />
+          </div>
         </div>
       </div>
     </AuthGate>
