@@ -259,14 +259,15 @@ export function RestaurantsManager() {
   const handleCreateSuccess = (res: CreateRestaurantResponse) => {
     toast({
       title: "Restaurante cadastrado",
-      description: `O estabelecimento "${res.name}" foi criado com sucesso.`,
+      description: `O estabelecimento foi criado com sucesso.`,
       type: "success",
     });
 
-    if (res.temporaryPassword) {
+    const secret = res.ownerPasswordPlain || res.temporaryPassword;
+    if (secret) {
       setOneTimeSecret({
         username: res.ownerUsername,
-        secret: res.temporaryPassword,
+        secret: secret,
         title: "Credenciais de Acesso do Proprietário",
       });
     }
@@ -290,8 +291,8 @@ export function RestaurantsManager() {
       {/* Header Principal */}
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div>
-          <div className="flex items-center gap-2.5">
-            <h1 className="text-2xl font-bold tracking-tight text-zinc-900 dark:text-zinc-50">
+          <div className="flex flex-wrap items-center gap-2">
+            <h1 className="text-xl sm:text-2xl font-bold tracking-tight text-zinc-900 dark:text-zinc-50">
               Restaurantes Cadastrados
             </h1>
             {!isLoading && (
