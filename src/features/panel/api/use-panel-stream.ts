@@ -129,8 +129,8 @@ export function usePanelStream(options: UsePanelStreamOptions = {}) {
           }
         });
 
-        // 3. CALL_CREATED
-        es.addEventListener("CALL_CREATED", (e: MessageEvent) => {
+        // 3. CALL_CREATED / call.opened
+        const handleCreated = (e: MessageEvent) => {
           if (isClosed) return;
           try {
             const data = JSON.parse(e.data);
@@ -157,9 +157,12 @@ export function usePanelStream(options: UsePanelStreamOptions = {}) {
           } catch {
             triggerDebouncedCallsRefresh();
           }
-        });
+        };
 
-        // 4. CALL_ACKNOWLEDGED / CALL_ASSUMED
+        es.addEventListener("CALL_CREATED", handleCreated);
+        es.addEventListener("call.opened", handleCreated);
+
+        // 4. CALL_ACKNOWLEDGED / CALL_ASSUMED / call.acknowledged
         const handleAssumed = (e: MessageEvent) => {
           if (isClosed) return;
           try {
@@ -178,9 +181,10 @@ export function usePanelStream(options: UsePanelStreamOptions = {}) {
 
         es.addEventListener("CALL_ACKNOWLEDGED", handleAssumed);
         es.addEventListener("CALL_ASSUMED", handleAssumed);
+        es.addEventListener("call.acknowledged", handleAssumed);
 
-        // 5. CALL_ATTENDED
-        es.addEventListener("CALL_ATTENDED", (e: MessageEvent) => {
+        // 5. CALL_ATTENDED / call.attended
+        const handleAttended = (e: MessageEvent) => {
           if (isClosed) return;
           try {
             const data = JSON.parse(e.data);
@@ -202,9 +206,12 @@ export function usePanelStream(options: UsePanelStreamOptions = {}) {
           } catch {
             // Ignora erro
           }
-        });
+        };
 
-        // 6. CALL_CONFIRMED / CALL_CLOSED_UNCONFIRMED
+        es.addEventListener("CALL_ATTENDED", handleAttended);
+        es.addEventListener("call.attended", handleAttended);
+
+        // 6. CALL_CONFIRMED / call.confirmed / CALL_CLOSED_UNCONFIRMED / call.closed
         const handleClosed = (
           e: MessageEvent,
           status: "CONFIRMED" | "CLOSED_UNCONFIRMED",
@@ -227,12 +234,18 @@ export function usePanelStream(options: UsePanelStreamOptions = {}) {
         es.addEventListener("CALL_CONFIRMED", (e) =>
           handleClosed(e, "CONFIRMED"),
         );
+        es.addEventListener("call.confirmed", (e) =>
+          handleClosed(e, "CONFIRMED"),
+        );
         es.addEventListener("CALL_CLOSED_UNCONFIRMED", (e) =>
           handleClosed(e, "CLOSED_UNCONFIRMED"),
         );
+        es.addEventListener("call.closed", (e) =>
+          handleClosed(e, "CLOSED_UNCONFIRMED"),
+        );
 
-        // 7. CALL_REOPENED
-        es.addEventListener("CALL_REOPENED", (e: MessageEvent) => {
+        // 7. CALL_REOPENED / call.reopened
+        const handleReopened = (e: MessageEvent) => {
           if (isClosed) return;
           try {
             const data = JSON.parse(e.data);
@@ -247,9 +260,12 @@ export function usePanelStream(options: UsePanelStreamOptions = {}) {
           } catch {
             triggerDebouncedCallsRefresh();
           }
-        });
+        };
 
-        // 8. CALL_CANCELLED / CALL_EXPIRED
+        es.addEventListener("CALL_REOPENED", handleReopened);
+        es.addEventListener("call.reopened", handleReopened);
+
+        // 8. CALL_CANCELLED / call.cancelled / CALL_EXPIRED / call.expired
         const handleRemoved = (e: MessageEvent) => {
           if (isClosed) return;
           try {
@@ -264,7 +280,9 @@ export function usePanelStream(options: UsePanelStreamOptions = {}) {
         };
 
         es.addEventListener("CALL_CANCELLED", handleRemoved);
+        es.addEventListener("call.cancelled", handleRemoved);
         es.addEventListener("CALL_EXPIRED", handleRemoved);
+        es.addEventListener("call.expired", handleRemoved);
 
         // Tratamento de queda do EventSource
         es.onerror = () => {

@@ -26,6 +26,18 @@ export function useTableStream(token: string) {
     let eventSource: EventSource | null = null;
     let retryTimeout: ReturnType<typeof setTimeout> | null = null;
     let retryDelay = 1000;
+    let debounceTimer: ReturnType<typeof setTimeout> | null = null;
+
+    const triggerDebouncedRefresh = () => {
+      if (debounceTimer) clearTimeout(debounceTimer);
+      debounceTimer = setTimeout(() => {
+        if (!isClosed) {
+          queryClient.invalidateQueries({
+            queryKey: queryKeys.publicTable(token),
+          });
+        }
+      }, 300);
+    };
 
     function openStream(isRetry = false) {
       if (isClosed) return;
@@ -50,9 +62,7 @@ export function useTableStream(token: string) {
           setConnectionStatus("connected");
           retryDelay = 1000;
           // Reconcilia o estado completo ao abrir conexão
-          queryClient.invalidateQueries({
-            queryKey: queryKeys.publicTable(token),
-          });
+          triggerDebouncedRefresh();
         };
 
         // 1. Snapshot inicial enviado pelo backend
@@ -89,13 +99,22 @@ export function useTableStream(token: string) {
         // 2. Eventos de Chamados
         const callEvents = [
           "CALL_CREATED",
+          "call.opened",
           "CALL_ACKNOWLEDGED",
+          "call.acknowledged",
           "CALL_ASSUMED",
           "CALL_ATTENDED",
+          "call.attended",
           "CALL_CONFIRMED",
+          "call.confirmed",
           "CALL_CANCELLED",
+          "call.cancelled",
           "CALL_EXPIRED",
+          "call.expired",
           "CALL_CLOSED_UNCONFIRMED",
+          "call.closed",
+          "CALL_REOPENED",
+          "call.reopened",
         ];
 
         callEvents.forEach((eventName) => {
@@ -108,12 +127,16 @@ export function useTableStream(token: string) {
                 occurredAt?: string;
               };
 
+              const isAttended =
+                eventName === "CALL_ATTENDED" || eventName === "call.attended";
+              const isConfirmed =
+                eventName === "CALL_CONFIRMED" ||
+                eventName === "call.confirmed" ||
+                eventName === "CALL_CLOSED_UNCONFIRMED" ||
+                eventName === "call.closed";
+
               // Se for transição direta para ATTENDED ou CONFIRMED, aplicar patch instantâneo
-              if (
-                data.callId &&
-                (eventName === "CALL_ATTENDED" ||
-                  eventName === "CALL_CONFIRMED")
-              ) {
+              if (data.callId && (isAttended || isConfirmed)) {
                 queryClient.setQueryData<PublicTableDto>(
                   queryKeys.publicTable(token),
                   (old) => {
@@ -124,14 +147,10 @@ export function useTableStream(token: string) {
                         if (c.id === data.callId) {
                           return {
                             ...c,
-                            status:
-                              eventName === "CALL_ATTENDED"
-                                ? "ATTENDED"
-                                : "CONFIRMED",
-                            attendedAt:
-                              eventName === "CALL_ATTENDED"
-                                ? data.occurredAt || new Date().toISOString()
-                                : c.attendedAt,
+                            status: isAttended ? "ATTENDED" : "CONFIRMED",
+                            attendedAt: isAttended
+                              ? data.occurredAt || new Date().toISOString()
+                              : c.attendedAt,
                           };
                         }
                         return c;
@@ -144,10 +163,8 @@ export function useTableStream(token: string) {
               // Em caso de falha no parse do payload parcial, reconciliação via GET trata
             }
 
-            // Reconcilia com GET oficial para garantir todos os campos
-            queryClient.invalidateQueries({
-              queryKey: queryKeys.publicTable(token),
-            });
+            // Reconcilia com GET oficial para garantir todos os campos de forma debounced
+            triggerDebouncedRefresh();
           });
         });
 

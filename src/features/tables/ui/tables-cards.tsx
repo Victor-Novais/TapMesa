@@ -193,8 +193,8 @@ export function TablesCards({
             <div className="my-3 space-y-1 text-xs text-zinc-500 dark:text-zinc-400">
               <div className="flex items-center justify-between">
                 <span>Identificador:</span>
-                <span className="font-mono text-zinc-700 dark:text-zinc-300">
-                  /m/{table.token.slice(0, 10)}...
+                <span className="font-mono text-zinc-700 dark:text-zinc-300 truncate">
+                  /m/{table.token}
                 </span>
               </div>
               <div className="flex items-center justify-between">

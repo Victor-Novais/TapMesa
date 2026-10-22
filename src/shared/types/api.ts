@@ -518,9 +518,11 @@ export interface CreateRestaurantRequest {
 }
 
 export interface CreateRestaurantResponse {
-  id: string;
-  name: string;
+  restaurantId?: string;
+  id?: string;
+  name?: string;
   ownerUsername: string;
+  ownerPasswordPlain?: string;
   temporaryPassword?: string;
 }
 
