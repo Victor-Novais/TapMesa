@@ -1,13 +1,15 @@
 node_modules
 .next
 .git
+.github
 .env*
 !.env.example
 coverage
 docs
 tmp
 temp
+e2e
 playwright-report
 test-results
 npm-debug.log*
-
+*.md
