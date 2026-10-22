@@ -1,0 +1,29 @@
+version: 2
+updates:
+  # Maintain dependencies for npm
+  - package-ecosystem: "npm"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+      time: "03:00"
+      timezone: "America/Sao_Paulo"
+    open-pull-requests-limit: 10
+    reviewers:
+      - "Victor-Novais"
+    commit-message:
+      prefix: "chore(deps)"
+
+  # Maintain dependencies for GitHub Actions
+  - package-ecosystem: "github-actions"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+      time: "03:00"
+      timezone: "America/Sao_Paulo"
+    open-pull-requests-limit: 5
+    reviewers:
+      - "Victor-Novais"
+    commit-message:
+      prefix: "ci(actions)"
