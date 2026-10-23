@@ -30,30 +30,45 @@ export function AnalyticsKpis({
   isToday,
   responseGoalSec = 60,
 }: AnalyticsKpisProps) {
-  // Taxa de conclusão
+  // Taxa de atendimento
   const completionRate =
     overview.totalCalls > 0
-      ? Math.round((overview.completedCalls / overview.totalCalls) * 100)
+      ? Math.round((overview.attendedCount / overview.totalCalls) * 100)
       : 0;
 
   // % dentro da meta
   const withinTargetRate = overview.percentageWithinTarget ?? 0;
   const isWithinTargetGoalMet = withinTargetRate >= 85;
 
-  // Variações comparativas com o dia anterior (exibidas somente quando visualizando Hoje)
+  // Variações comparativas com o dia anterior (exibidas somente quando visualizando Hoje).
+  // A API devolve os dois dias; a variação percentual é calculada aqui.
+  const todayOverview = compare?.today.metrics.overview;
+  const yesterdayOverview = compare?.yesterday.metrics.overview;
+  const callsDiffPercent =
+    todayOverview && yesterdayOverview && yesterdayOverview.totalCalls > 0
+      ? ((todayOverview.totalCalls - yesterdayOverview.totalCalls) /
+          yesterdayOverview.totalCalls) *
+        100
+      : null;
+  const avgToday = todayOverview?.responseTimes.averageResponseTimeSec ?? 0;
+  const avgYesterday =
+    yesterdayOverview?.responseTimes.averageResponseTimeSec ?? 0;
+  const responseTimeDiffPercent =
+    avgYesterday > 0 ? ((avgToday - avgYesterday) / avgYesterday) * 100 : null;
+
   const callsVariation =
-    isToday && compare?.comparison?.callsDiffPercent !== undefined
+    isToday && callsDiffPercent !== null
       ? {
-          value: compare.comparison.callsDiffPercent,
+          value: Math.round(callsDiffPercent),
           label: "vs ontem",
         }
       : undefined;
 
   const responseTimeVariation =
-    isToday && compare?.comparison?.responseTimeDiffPercent !== undefined
+    isToday && responseTimeDiffPercent !== null
       ? {
           // Em tempo de resposta, redução é positivo (invertemos para indicador verde de redução)
-          value: -compare.comparison.responseTimeDiffPercent,
+          value: -Math.round(responseTimeDiffPercent),
           label: "vs ontem",
         }
       : undefined;
@@ -63,8 +78,7 @@ export function AnalyticsKpis({
     ? `${overview.ratings.average.toFixed(1)} / 3.0`
     : "--";
 
-  const totalProblematic =
-    (overview.cancelledCalls || 0) + (overview.expiredCalls || 0);
+  const totalProblematic = overview.cancelledCount + overview.expiredCount;
 
   return (
     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
@@ -81,13 +95,13 @@ export function AnalyticsKpis({
         }
       />
 
-      {/* 2. Chamados Concluídos */}
+      {/* 2. Chamados Atendidos */}
       <StatCard
-        title="Chamados Concluídos"
-        value={overview.completedCalls}
+        title="Chamados Atendidos"
+        value={overview.attendedCount}
         goalStatus={completionRate >= 85 ? "met" : "neutral"}
-        goalLabel={`${completionRate}% concluídos`}
-        description="Atendidos com sucesso pela equipe"
+        goalLabel={`${completionRate}% atendidos`}
+        description={`${Math.round(overview.confirmationRate)}% confirmados pelo cliente · ${overview.reopenedCount} reabertos`}
         icon={
           <CheckCircle2 className="h-4 w-4 text-emerald-600 dark:text-emerald-400" />
         }
@@ -130,8 +144,8 @@ export function AnalyticsKpis({
       <StatCard
         title="Percentil 90 (P90)"
         value={formatDurationSec(overview.responseTimes?.p90ResponseTimeSec)}
-        description={`P95: ${formatDurationSec(
-          overview.responseTimes?.p95ResponseTimeSec,
+        description={`Maior espera: ${formatDurationSec(
+          overview.responseTimes?.maxWaitTimeSec,
         )}`}
         icon={<Clock className="h-4 w-4 text-zinc-600 dark:text-zinc-400" />}
       />
@@ -142,9 +156,7 @@ export function AnalyticsKpis({
         value={totalProblematic}
         goalStatus={totalProblematic > 0 ? "unmet" : "met"}
         goalLabel={totalProblematic > 0 ? "Atenção" : "Zero perdas"}
-        description={`${overview.cancelledCalls || 0} cancelados · ${
-          overview.expiredCalls || 0
-        } expirados`}
+        description={`${overview.cancelledCount} cancelados · ${overview.expiredCount} expirados`}
         icon={
           <AlertTriangle className="h-4 w-4 text-amber-600 dark:text-amber-400" />
         }
@@ -160,8 +172,8 @@ export function AnalyticsKpis({
             : "neutral"
         }
         goalLabel={
-          overview.ratings?.totalRated
-            ? `${overview.ratings.totalRated} avaliados`
+          overview.ratings?.total
+            ? `${overview.ratings.total} avaliados`
             : "Sem avaliações"
         }
         description="Nota de 1 (Ruim) a 3 (Bom)"

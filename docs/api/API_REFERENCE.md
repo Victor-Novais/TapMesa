@@ -8,7 +8,7 @@ Este documento descreve detalhadamente todos os **69 endpoints** da API do TapMe
 
 ## 1. Módulo: Identidade e Autenticação (`IdentityAccess`)
 
-Controlador: [`AuthController`](file:///home/novais/Desktop/TapMesa-Back-End/src/modules/identity-access/presentation/AuthController.ts)
+Controlador: [`AuthController`](../../src/modules/identity-access/presentation/AuthController.ts)
 
 ### 1.1. Login de Usuário
 
@@ -34,11 +34,11 @@ Controlador: [`AuthController`](file:///home/novais/Desktop/TapMesa-Back-End/src
 - **Erros Possíveis:**
   - `400 Bad Request` (`VALIDATION_ERROR`): Campos ausentes ou inválidos.
   - `401 Unauthorized` (`INVALID_CREDENTIALS`): Nome de usuário ou senha incorretos.
-  - `403 Forbidden` (`ACCOUNT_LOCKED`): Conta temporariamente bloqueada após 5 falhas consecutivas (bloqueio de 15 minutos).
+  - `401 Unauthorized` (`ACCOUNT_LOCKED`): Conta temporariamente bloqueada após 5 falhas consecutivas (bloqueio de 15 minutos).
   - `403 Forbidden` (`ACCOUNT_INACTIVE` / `USER_INACTIVE`): Usuário com flag `active: false`.
   - `403 Forbidden` (`RESTAURANT_SUSPENDED`): Restaurante ao qual o usuário pertence está suspenso.
   - `429 Too Many Requests`: Limite de taxa de tentativas de login excedido.
-- **Evidência de Código:** [`AuthController.login`](file:///home/novais/Desktop/TapMesa-Back-End/src/modules/identity-access/presentation/AuthController.ts#L61-L91), [`LoginUseCase`](file:///home/novais/Desktop/TapMesa-Back-End/src/modules/identity-access/application/use-cases/LoginUseCase.ts).
+- **Evidência de Código:** [`AuthController.login`](../../src/modules/identity-access/presentation/AuthController.ts#L61-L91), [`LoginUseCase`](../../src/modules/identity-access/application/use-cases/LoginUseCase.ts).
 
 ---
 
@@ -61,7 +61,7 @@ Controlador: [`AuthController`](file:///home/novais/Desktop/TapMesa-Back-End/src
   - `401 Unauthorized`: Cookie `refresh_token` não encontrado.
   - `401 Unauthorized` (`INVALID_REFRESH_TOKEN`): Token expirado ou inexistente.
   - `401 Unauthorized` (`TOKEN_REUSE_DETECTED`): **Detecção de Reúso!** O token já havia sido utilizado anteriormente por terceiros; toda a família de sessões do usuário é revogada imediatamente por segurança. O cookie é limpo (`clearCookie`).
-- **Evidência de Código:** [`AuthController.refresh`](file:///home/novais/Desktop/TapMesa-Back-End/src/modules/identity-access/presentation/AuthController.ts#L93-L121).
+- **Evidência de Código:** [`AuthController.refresh`](../../src/modules/identity-access/presentation/AuthController.ts#L93-L121).
 
 ---
 
@@ -78,7 +78,7 @@ Controlador: [`AuthController`](file:///home/novais/Desktop/TapMesa-Back-End/src
       "message": "Logged out successfully"
     }
     ```
-- **Evidência de Código:** [`AuthController.logout`](file:///home/novais/Desktop/TapMesa-Back-End/src/modules/identity-access/presentation/AuthController.ts#L123-L135).
+- **Evidência de Código:** [`AuthController.logout`](../../src/modules/identity-access/presentation/AuthController.ts#L123-L135).
 
 ---
 
@@ -91,24 +91,22 @@ Controlador: [`AuthController`](file:///home/novais/Desktop/TapMesa-Back-End/src
 - **Resposta de Sucesso (`200 OK`):**
   ```json
   {
-    "id": "e2293b22-c32f-4889-a5e0-f38b02daeeaa",
-    "sub": "e2293b22-c32f-4889-a5e0-f38b02daeeaa",
-    "username": "carlos_gerente",
+    "sub": "2a94f1a2-6a3f-4481-b75d-c29b6e072851",
     "role": "OWNER",
-    "restaurantId": "58ef7166-7245-42a1-b65f-40e895c1c8ba",
-    "rid": "58ef7166-7245-42a1-b65f-40e895c1c8ba",
-    "imp": null
+    "rid": "23037aa0-94d2-4a84-ab18-af0251eff7ba",
+    "iat": 1792698738,
+    "exp": 1792699638
   }
   ```
 - **Erros Possíveis:**
   - `401 Unauthorized`: Token ausente, inválido ou expirado.
-- **Evidência de Código:** [`AuthController.me`](file:///home/novais/Desktop/TapMesa-Back-End/src/modules/identity-access/presentation/AuthController.ts#L137-L141).
+- **Evidência de Código:** [`AuthController.me`](../../src/modules/identity-access/presentation/AuthController.ts#L137-L141).
 
 ---
 
 ## 2. Módulo: Usuários da Equipe (`IdentityAccess - Team`)
 
-Controlador: [`RestaurantUsersController`](file:///home/novais/Desktop/TapMesa-Back-End/src/modules/identity-access/presentation/RestaurantUsersController.ts)  
+Controlador: [`RestaurantUsersController`](../../src/modules/identity-access/presentation/RestaurantUsersController.ts)  
 Guards aplicados: `JwtAuthGuard`, `RolesGuard`, `TenantGuard`  
 Perfis permitidos: `OWNER`, `ADMIN`  
 Contexto de Tenant: Obrigatório (`@RequireTenant()`)
@@ -129,17 +127,19 @@ Contexto de Tenant: Obrigatório (`@RequireTenant()`)
 - **Resposta de Sucesso (`201 Created`):**
   ```json
   {
-    "id": "4a159981-d1c9-4670-8bfa-145617061d47",
+    "id": "86b95b8f-049c-44df-96c2-5733bcb607dd",
+    "restaurantId": "23037aa0-94d2-4a84-ab18-af0251eff7ba",
     "username": "garcom_joao",
     "role": "WAITER",
     "active": true,
-    "temporaryPassword": "SenhaOpcional123"
+    "createdAt": "2026-10-22T19:52:18.492Z",
+    "temporaryPassword": "jkhcAyBMnD"
   }
   ```
 - **Erros Possíveis:**
   - `400 Bad Request`: Validação de username ou role falhou.
   - `409 Conflict` (`USERNAME_ALREADY_EXISTS`): Nome de usuário já está em uso no sistema.
-- **Evidência de Código:** [`RestaurantUsersController.createUser`](file:///home/novais/Desktop/TapMesa-Back-End/src/modules/identity-access/presentation/RestaurantUsersController.ts#L52-L73).
+- **Evidência de Código:** [`RestaurantUsersController.createUser`](../../src/modules/identity-access/presentation/RestaurantUsersController.ts#L52-L73).
 
 ---
 
@@ -151,40 +151,45 @@ Contexto de Tenant: Obrigatório (`@RequireTenant()`)
   ```json
   [
     {
-      "id": "4a159981-d1c9-4670-8bfa-145617061d47",
+      "id": "86b95b8f-049c-44df-96c2-5733bcb607dd",
+      "restaurantId": "23037aa0-94d2-4a84-ab18-af0251eff7ba",
       "username": "garcom_joao",
       "role": "WAITER",
       "active": true,
-      "createdAt": "2026-10-20T14:00:00.000Z"
+      "failedAttempts": 0,
+      "isLocked": false,
+      "createdAt": "2026-10-22T19:52:18.492Z"
     }
   ]
   ```
-- **Evidência de Código:** [`RestaurantUsersController.listUsers`](file:///home/novais/Desktop/TapMesa-Back-End/src/modules/identity-access/presentation/RestaurantUsersController.ts#L75-L81).
+- **Evidência de Código:** [`RestaurantUsersController.listUsers`](../../src/modules/identity-access/presentation/RestaurantUsersController.ts#L75-L81).
 
 ---
 
 ### 2.3. Métricas de Atendimento por Atendente
 
 - **Método / Rota:** `GET /api/v1/restaurant/users/metrics`
-- **Finalidade:** Retorna métricas de produtividade e qualidade do atendimento da equipe (quantidade de chamados atendidos, tempo médio de reação, tempo médio de execução e média de avaliação rápida).
+- **Finalidade:** Retorna métricas de produtividade e qualidade do atendimento da equipe (por garçom: chamados atendidos e tempos médio, mais rápido e mais lento de resposta).
 - **Query Params:**
   - `userId` (opcional, string UUID): Filtra métricas de um atendente específico.
 - **Resposta de Sucesso (`200 OK`):**
   ```json
   {
-    "attendants": [
+    "restaurantId": "23037aa0-94d2-4a84-ab18-af0251eff7ba",
+    "totalCallsAttended": 1,
+    "waiters": [
       {
-        "userId": "4a159981-d1c9-4670-8bfa-145617061d47",
+        "userId": "86b95b8f-049c-44df-96c2-5733bcb607dd",
         "username": "garcom_joao",
-        "totalAttended": 42,
-        "averageReactionTimeSec": 28.5,
-        "averageExecutionTimeSec": 94.2,
-        "averageRating": 2.85
+        "totalCallsAttended": 1,
+        "avgResponseTimeSec": 0,
+        "fastestResponseSec": 0,
+        "slowestResponseSec": 0
       }
     ]
   }
   ```
-- **Evidência de Código:** [`RestaurantUsersController.getMetrics`](file:///home/novais/Desktop/TapMesa-Back-End/src/modules/identity-access/presentation/RestaurantUsersController.ts#L83-L96).
+- **Evidência de Código:** [`RestaurantUsersController.getMetrics`](../../src/modules/identity-access/presentation/RestaurantUsersController.ts#L83-L96).
 
 ---
 
@@ -194,7 +199,7 @@ Contexto de Tenant: Obrigatório (`@RequireTenant()`)
 - **Parâmetros de Rota:** `id` (UUID do usuário).
 - **Resposta de Sucesso (`200 OK`):** Retorna o objeto do usuário.
 - **Erros Possíveis:** `404 Not Found` (`USER_NOT_FOUND`).
-- **Evidência de Código:** [`RestaurantUsersController.getUser`](file:///home/novais/Desktop/TapMesa-Back-End/src/modules/identity-access/presentation/RestaurantUsersController.ts#L98-L115).
+- **Evidência de Código:** [`RestaurantUsersController.getUser`](../../src/modules/identity-access/presentation/RestaurantUsersController.ts#L98-L115).
 
 ---
 
@@ -213,7 +218,7 @@ Contexto de Tenant: Obrigatório (`@RequireTenant()`)
 - **Erros Possíveis:**
   - `400 Bad Request` (`CANNOT_DEACTIVATE_SELF`): Tentativa de bloquear o próprio usuário.
   - `404 Not Found` (`USER_NOT_FOUND`).
-- **Evidência de Código:** [`RestaurantUsersController.updateStatus`](file:///home/novais/Desktop/TapMesa-Back-End/src/modules/identity-access/presentation/RestaurantUsersController.ts#L117-L141).
+- **Evidência de Código:** [`RestaurantUsersController.updateStatus`](../../src/modules/identity-access/presentation/RestaurantUsersController.ts#L117-L141).
 
 ---
 
@@ -221,7 +226,7 @@ Contexto de Tenant: Obrigatório (`@RequireTenant()`)
 
 - **Método / Rota:** `POST /api/v1/restaurant/users/:id/reset-password`
 - **Finalidade:** Gera uma nova senha temporária para o atendente.
-- **Resposta de Sucesso (`200 OK`):**
+- **Resposta de Sucesso (`201 Created`):**
   ```json
   {
     "id": "4a159981-d1c9-4670-8bfa-145617061d47",
@@ -229,7 +234,7 @@ Contexto de Tenant: Obrigatório (`@RequireTenant()`)
     "temporaryPassword": "NovaSenhaTemporaria#456"
   }
   ```
-- **Evidência de Código:** [`RestaurantUsersController.resetPassword`](file:///home/novais/Desktop/TapMesa-Back-End/src/modules/identity-access/presentation/RestaurantUsersController.ts#L143-L161).
+- **Evidência de Código:** [`RestaurantUsersController.resetPassword`](../../src/modules/identity-access/presentation/RestaurantUsersController.ts#L143-L161).
 
 ---
 
@@ -239,13 +244,13 @@ Contexto de Tenant: Obrigatório (`@RequireTenant()`)
 - **Finalidade:** Exclui o atendente. O usuário logado não pode excluir a si mesmo.
 - **Resposta de Sucesso (`204 No Content`).**
 - **Erros Possíveis:** `400 Bad Request` (`CANNOT_DELETE_SELF`), `404 Not Found`.
-- **Evidência de Código:** [`RestaurantUsersController.deleteUser`](file:///home/novais/Desktop/TapMesa-Back-End/src/modules/identity-access/presentation/RestaurantUsersController.ts#L163-L184).
+- **Evidência de Código:** [`RestaurantUsersController.deleteUser`](../../src/modules/identity-access/presentation/RestaurantUsersController.ts#L163-L184).
 
 ---
 
 ## 3. Módulo: Administração Geral de Restaurantes (`Tenancy - Admin`)
 
-Controlador: [`AdminRestaurantsController`](file:///home/novais/Desktop/TapMesa-Back-End/src/modules/tenancy/presentation/AdminRestaurantsController.ts)  
+Controlador: [`AdminRestaurantsController`](../../src/modules/tenancy/presentation/AdminRestaurantsController.ts)  
 Perfil exigido: `ADMIN`
 
 ### 3.1. Cadastrar Restaurante
@@ -262,14 +267,12 @@ Perfil exigido: `ADMIN`
 - **Resposta de Sucesso (`201 Created`):**
   ```json
   {
-    "restaurantId": "e2e92c21-f187-4318-93f4-34509e51cce1",
-    "restaurantName": "Churrascaria Boi Bravo",
-    "ownerId": "8b51d8d2-1111-4444-9999-a1b2c3d4e5f6",
-    "ownerUsername": "boi_bravo_adm",
-    "temporaryPassword": "GeradaRandomicamente#99"
+    "restaurantId": "23037aa0-94d2-4a84-ab18-af0251eff7ba",
+    "ownerUsername": "dono_boibravo",
+    "ownerPasswordPlain": "NPcbdT6o"
   }
   ```
-- **Evidência de Código:** [`AdminRestaurantsController.create`](file:///home/novais/Desktop/TapMesa-Back-End/src/modules/tenancy/presentation/AdminRestaurantsController.ts#L106-L131).
+- **Evidência de Código:** [`AdminRestaurantsController.create`](../../src/modules/tenancy/presentation/AdminRestaurantsController.ts#L106-L131).
 
 ---
 
@@ -282,21 +285,19 @@ Perfil exigido: `ADMIN`
 - **Resposta de Sucesso (`200 OK`):**
   ```json
   {
-    "items": [
+    "data": [
       {
-        "id": "e2e92c21-f187-4318-93f4-34509e51cce1",
-        "name": "Churrascaria Boi Bravo",
-        "status": "ACTIVE",
-        "createdAt": "2026-10-20T10:00:00.000Z",
-        "tableCount": 15,
-        "userCount": 4
+        "id": "3485c0dc-a890-426b-8fb6-86fba9840aa6",
+        "name": "Pizzaria Forno a Lenha",
+        "ownerUsername": "dono_fornoalenha",
+        "createdAt": "2026-10-22T19:52:18.173Z",
+        "status": "ACTIVE"
       }
     ],
-    "nextCursor": "e2e92c21-f187-4318-93f4-34509e51cce1",
-    "hasMore": false
+    "nextCursor": "986912f6-3cc1-40bc-b4c2-60b3a06189d0"
   }
   ```
-- **Evidência de Código:** [`AdminRestaurantsController.list`](file:///home/novais/Desktop/TapMesa-Back-End/src/modules/tenancy/presentation/AdminRestaurantsController.ts#L133-L144).
+- **Evidência de Código:** [`AdminRestaurantsController.list`](../../src/modules/tenancy/presentation/AdminRestaurantsController.ts#L133-L144).
 
 ---
 
@@ -312,7 +313,7 @@ Perfil exigido: `ADMIN`
   ```
 - **Resposta de Sucesso (`204 No Content`).**
 - **Erros Possíveis:** `400 Bad Request` (`CONFIRMATION_NAME_MISMATCH`), `404 Not Found`.
-- **Evidência de Código:** [`AdminRestaurantsController.delete`](file:///home/novais/Desktop/TapMesa-Back-End/src/modules/tenancy/presentation/AdminRestaurantsController.ts#L146-L167).
+- **Evidência de Código:** [`AdminRestaurantsController.delete`](../../src/modules/tenancy/presentation/AdminRestaurantsController.ts#L146-L167).
 
 ---
 
@@ -322,15 +323,15 @@ Perfil exigido: `ADMIN`
   - `PATCH /api/v1/admin/restaurants/:id/suspend`
   - `PATCH /api/v1/admin/restaurants/:id/reactivate`
 - **Resposta de Sucesso (`204 No Content`).**
-- **Evidência de Código:** [`AdminRestaurantsController.suspend`](file:///home/novais/Desktop/TapMesa-Back-End/src/modules/tenancy/presentation/AdminRestaurantsController.ts#L169-L184), [`AdminRestaurantsController.reactivate`](file:///home/novais/Desktop/TapMesa-Back-End/src/modules/tenancy/presentation/AdminRestaurantsController.ts#L186-L201).
+- **Evidência de Código:** [`AdminRestaurantsController.suspend`](../../src/modules/tenancy/presentation/AdminRestaurantsController.ts#L169-L184), [`AdminRestaurantsController.reactivate`](../../src/modules/tenancy/presentation/AdminRestaurantsController.ts#L186-L201).
 
 ---
 
 ### 3.5. Resetar Senha do Proprietário (Owner)
 
 - **Método / Rota:** `POST /api/v1/admin/restaurants/:id/reset-owner-password`
-- **Resposta de Sucesso (`200 OK`):** Retorna `restaurantId`, `ownerId`, `ownerUsername` e `temporaryPassword`.
-- **Evidência de Código:** [`AdminRestaurantsController.resetPassword`](file:///home/novais/Desktop/TapMesa-Back-End/src/modules/tenancy/presentation/AdminRestaurantsController.ts#L203-L221).
+- **Resposta de Sucesso (`201 Created`):** `{ "newPasswordPlain": "gnsbqhYF" }`. A senha é exibida uma única vez e nunca é armazenada em texto.
+- **Evidência de Código:** [`AdminRestaurantsController.resetPassword`](../../src/modules/tenancy/presentation/AdminRestaurantsController.ts#L203-L221).
 
 ---
 
@@ -341,23 +342,22 @@ Perfil exigido: `ADMIN`
 - **Resposta de Sucesso (`200 OK`):**
   ```json
   {
-    "accessToken": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
-    "restaurantId": "e2e92c21-f187-4318-93f4-34509e51cce1",
-    "restaurantName": "Churrascaria Boi Bravo",
-    "ownerId": "8b51d8d2-1111-4444-9999-a1b2c3d4e5f6",
-    "ownerUsername": "boi_bravo_adm",
-    "impersonatedBy": "admin-user-uuid"
+    "accessToken": "eyJhbGciOiJIUzI1NiIs...",
+    "restaurantId": "3485c0dc-a890-426b-8fb6-86fba9840aa6",
+    "ownerId": "0e653336-b199-4d68-8b7f-815a2e45f739",
+    "ownerUsername": "dono_fornoalenha",
+    "impersonatedBy": "de069117-e248-4091-b496-a511abc3cc99"
   }
   ```
   _(O `accessToken` gerado possui `role: OWNER`, `rid: <restaurantId>` e `imp: <adminId>`. Toda operação de escrita realizada com este token será auditada com a ação `IMPERSONATED_ACTION`)._
 - **Erros Possíveis:** `400 Bad Request` (`CANNOT_IMPERSONATE_SUSPENDED_RESTAURANT`).
-- **Evidência de Código:** [`AdminRestaurantsController.impersonate`](file:///home/novais/Desktop/TapMesa-Back-End/src/modules/tenancy/presentation/AdminRestaurantsController.ts#L223-L260).
+- **Evidência de Código:** [`AdminRestaurantsController.impersonate`](../../src/modules/tenancy/presentation/AdminRestaurantsController.ts#L223-L260).
 
 ---
 
 ### 3.7. Consulta aos Logs de Auditoria
 
-- **Controlador:** [`AdminAuditController`](file:///home/novais/Desktop/TapMesa-Back-End/src/modules/tenancy/presentation/AdminAuditController.ts)
+- **Controlador:** [`AdminAuditController`](../../src/modules/tenancy/presentation/AdminAuditController.ts)
 - **Método / Rota:** `GET /api/v1/admin/audit`
 - **Perfil exigido:** `ADMIN`.
 - **Query Params:** `cursor`, `limit` (default 50), `restaurantId`, `action`, `actorUserId`.
@@ -366,31 +366,30 @@ Perfil exigido: `ADMIN`
   {
     "items": [
       {
-        "id": "18434a90-8d4e-4b72-bc32-159491ba63eb",
-        "at": "2026-10-20T17:10:00.000Z",
-        "action": "IMPERSONATED_ACTION",
-        "actorUserId": "admin-uuid",
-        "restaurantId": "restaurant-uuid",
-        "target": "PUT /api/v1/settings/service",
+        "id": "4d3a3def-8554-4229-b8d7-717de15becf9",
+        "at": "2026-10-22T19:52:18.183Z",
+        "action": "CREATE_RESTAURANT",
+        "actorUserId": "de069117-e248-4091-b496-a511abc3cc99",
+        "restaurantId": "3485c0dc-a890-426b-8fb6-86fba9840aa6",
+        "target": "3485c0dc-a890-426b-8fb6-86fba9840aa6",
         "ip": "127.0.0.1",
         "meta": {
-          "impersonatedUserId": "owner-uuid",
-          "method": "PUT",
-          "path": "/api/v1/settings/service"
+          "name": "Pizzaria Forno a Lenha",
+          "ownerUsername": "dono_fornoalenha"
         }
       }
     ],
-    "nextCursor": null,
-    "totalCount": 1
+    "nextCursor": "6001aa1d-aec5-4adc-b761-4dc0898e69e1",
+    "totalCount": 8
   }
   ```
-- **Evidência de Código:** [`AdminAuditController.list`](file:///home/novais/Desktop/TapMesa-Back-End/src/modules/tenancy/presentation/AdminAuditController.ts#L26-L40).
+- **Evidência de Código:** [`AdminAuditController.list`](../../src/modules/tenancy/presentation/AdminAuditController.ts#L26-L40).
 
 ---
 
 ## 4. Módulo: Configurações e Aparência (`Tenancy - Settings`)
 
-Controlador: [`SettingsController`](file:///home/novais/Desktop/TapMesa-Back-End/src/modules/tenancy/presentation/SettingsController.ts)  
+Controlador: [`SettingsController`](../../src/modules/tenancy/presentation/SettingsController.ts)  
 Perfis permitidos: `OWNER`, `ADMIN`  
 Contexto de Tenant: Obrigatório (`@RequireTenant()`)
 
@@ -416,7 +415,7 @@ Contexto de Tenant: Obrigatório (`@RequireTenant()`)
   - `dayCutoffHour` define a virada do dia operacional (ex: 5 = 05:00 da manhã).
   - `showWaitTimeToCustomer`: Se `true`, a tela do cliente exibe o tempo decorrido desde a abertura do chamado.
 - **Resposta de Sucesso (`200 OK`):** Objeto com as configurações consolidadas.
-- **Evidência de Código:** [`SettingsController.getServiceSettings`](file:///home/novais/Desktop/TapMesa-Back-End/src/modules/tenancy/presentation/SettingsController.ts#L104-L111), [`SettingsController.updateServiceSettings`](file:///home/novais/Desktop/TapMesa-Back-End/src/modules/tenancy/presentation/SettingsController.ts#L113-L144).
+- **Evidência de Código:** [`SettingsController.getServiceSettings`](../../src/modules/tenancy/presentation/SettingsController.ts#L104-L111), [`SettingsController.updateServiceSettings`](../../src/modules/tenancy/presentation/SettingsController.ts#L113-L144).
 
 ---
 
@@ -435,23 +434,29 @@ Contexto de Tenant: Obrigatório (`@RequireTenant()`)
     "backgroundValue": "#1A1A24",
     "colors": {
       "primary": "#E11D48",
-      "secondary": "#4F46E5",
       "background": "#0F172A",
+      "surface": "#1E293B",
       "text": "#F8FAFC"
     },
     "texts": {
       "welcomeTitle": "Bem-vindo à nossa mesa!",
-      "waiterButton": "Chamar Garçom",
-      "billButton": "Pedir a Conta"
+      "callWaiterButton": "Chamar Garçom",
+      "requestBillButton": "Pedir a Conta"
     },
     "socials": {
-      "instagram": "@tapmesa",
+      "instagram": "instagram.com/tapmesa",
+      "googleReview": "https://g.page/r/tapmesa/review",
       "wifiName": "TapMesa_Clientes",
       "wifiPassword": "tapmesacliente"
     }
   }
   ```
-- **Evidência de Código:** [`SettingsController.getAppearance`](file:///home/novais/Desktop/TapMesa-Back-End/src/modules/tenancy/presentation/SettingsController.ts#L146-L186).
+- **Regras do `PUT` (todos os campos são opcionais):**
+  - `colors` e `texts` são **mesclados** com os valores atuais. Cores em hexadecimal; textos até 200 caracteres e não vazios.
+  - Chaves canônicas de `texts`: `welcomeTitle`, `callWaiterButton`, `requestBillButton`, `notePlaceholder`, `pendingMessage`, `attendedPrompt`, `confirmButton`, `contestButton`, `cancelButton`.
+  - `socials` **substitui o objeto inteiro** (chave ausente ou vazia é removida). Links recebem `https://` quando faltar e só aceitam http(s); `wifiName` e `wifiPassword` são texto puro (até 100 caracteres).
+- **Resposta de Sucesso (`200 OK`):** a aparência completa (`RestaurantAppearance` em `TYPESCRIPT_CONTRACTS.md`).
+- **Evidência de Código:** [`SettingsController.getAppearance`](../../src/modules/tenancy/presentation/SettingsController.ts#L146-L186).
 
 ---
 
@@ -461,17 +466,52 @@ Contexto de Tenant: Obrigatório (`@RequireTenant()`)
   - `POST /api/v1/settings/appearance/logo`
   - `POST /api/v1/settings/appearance/background`
 - **Formato:** `multipart/form-data` com campo `file`.
-- **Restrições:** Tamanho máximo de 10 MB. Tipos permitidos: PNG, JPG, JPEG, WEBP, SVG.
+- **Restrições:** máximo de 2 MB por imagem (`400 FILE_TOO_LARGE`; o transporte multipart corta em 10 MB). Tipos aceitos: JPEG, PNG e WebP, validados pelos magic bytes do arquivo. **SVG não é aceito** (`400 INVALID_IMAGE_FORMAT`). Sem arquivo: `400 MISSING_FILE`. A imagem é reprocessada (máx. 1024 px) e o arquivo anterior é apagado.
+- **Resposta de Sucesso (`200 OK`):** a aparência completa atualizada (mesmo formato de `GET /settings/appearance`). No logo, `logoUrl` aponta para o novo arquivo; no fundo, `backgroundType` passa a `"image"` e `backgroundValue` recebe a URL.
+- **URL pública:** com `STORAGE_DRIVER=s3`, `{S3_ENDPOINT}/{S3_BUCKET}/{arquivo}`. Com `STORAGE_DRIVER=local`, `{PUBLIC_APP_URL}/storage/{arquivo}`; nesse modo a API **não** serve `/storage`, então o arquivo só abre se algo (proxy do front ou servidor estático) servir a pasta `storage/` da API nesse caminho.
+- **Evidência de Código:** [`SettingsController.uploadLogo`](../../src/modules/tenancy/presentation/SettingsController.ts#L221-L257).
+
+---
+
+### 4.4. Restaurante do Contexto Atual
+
+- **Rotas:**
+  - `GET /api/v1/restaurant/current`
+  - `GET /api/v1/restaurant/:restaurantId` (o `TenantGuard` responde `403 Forbidden` se o ID não for o do token, exceto para ADMIN)
+- **Perfis:** OWNER e WAITER (exige contexto de restaurante).
 - **Resposta de Sucesso (`200 OK`):**
-  - Para logo: `{ "logoUrl": "https://..." }`
-  - Para background: `{ "backgroundValue": "https://..." }`
-- **Evidência de Código:** [`SettingsController.uploadLogo`](file:///home/novais/Desktop/TapMesa-Back-End/src/modules/tenancy/presentation/SettingsController.ts#L221-L257).
+  ```json
+  {
+    "id": "9e942f92-24f9-468a-b326-615ead1eabed",
+    "name": "Churrascaria Boi Bravo",
+    "status": "ACTIVE",
+    "createdAt": "2026-10-22T19:57:44.399Z",
+    "impersonatedBy": null
+  }
+  ```
+  _(`impersonatedBy` traz o ID do ADMIN quando o token é de impersonação.)_
+- **Evidência de Código:** [`TenantRestaurantController`](../../src/modules/tenancy/presentation/TenantRestaurantController.ts).
+
+### 4.5. Verificação de Contexto Multi-tenant
+
+- **Método / Rota:** `POST /api/v1/restaurant/context-check`
+- **Finalidade:** Diagnóstico: devolve o contexto que o back resolveu a partir do token (útil para validar impersonação).
+- **Resposta de Sucesso (`200 OK`):**
+  ```json
+  {
+    "tenantId": "9e942f92-24f9-468a-b326-615ead1eabed",
+    "userId": "b722c1d8-2a63-4dc7-b7e3-e5f330c264ac",
+    "role": "OWNER",
+    "impersonatedBy": null
+  }
+  ```
+- **Evidência de Código:** [`TenantRestaurantController.contextCheck`](../../src/modules/tenancy/presentation/TenantRestaurantController.ts).
 
 ---
 
 ## 5. Módulo: Notificações e Alertas (`Notifications`)
 
-Controlador: [`NotificationsController`](file:///home/novais/Desktop/TapMesa-Back-End/src/modules/notifications/presentation/NotificationsController.ts)  
+Controlador: [`NotificationsController`](../../src/modules/notifications/presentation/NotificationsController.ts)  
 Perfis permitidos: `OWNER`, `ADMIN`  
 Contexto de Tenant: Obrigatório (`@RequireTenant()`)
 
@@ -492,7 +532,7 @@ Contexto de Tenant: Obrigatório (`@RequireTenant()`)
   }
   ```
 - **Resposta de Sucesso (`200 OK`):** Objeto com as preferências atualizadas.
-- **Evidência de Código:** [`NotificationsController.getSettings`](file:///home/novais/Desktop/TapMesa-Back-End/src/modules/notifications/presentation/NotificationsController.ts#L48-L62), [`NotificationsController.updateSettings`](file:///home/novais/Desktop/TapMesa-Back-End/src/modules/notifications/presentation/NotificationsController.ts#L64-L88).
+- **Evidência de Código:** [`NotificationsController.getSettings`](../../src/modules/notifications/presentation/NotificationsController.ts#L48-L62), [`NotificationsController.updateSettings`](../../src/modules/notifications/presentation/NotificationsController.ts#L64-L88).
 
 ---
 
@@ -507,8 +547,9 @@ Contexto de Tenant: Obrigatório (`@RequireTenant()`)
     "recipientEmail": "proprietario@restaurante.com.br"
   }
   ```
-- **Resposta de Sucesso (`200 OK`):** `{ "sent": true, "recipient": "...", "operationalDay": "2026-10-20" }`
-- **Evidência de Código:** [`NotificationsController.sendDailySummary`](file:///home/novais/Desktop/TapMesa-Back-End/src/modules/notifications/presentation/NotificationsController.ts#L99-L162).
+- **Resposta de Sucesso (`201 Created`):** `{ "sent": true, "recipient": "...", "subject": "[TapMesa] Resumo do Dia — ...", "operationalDay": "2026-10-20" }`
+- **Atenção:** o adaptador de e-mail atual é `InMemoryEmailSender`; a resposta indica `sent: true`, mas nenhum e-mail sai do servidor até existir um adaptador SMTP/provedor real.
+- **Evidência de Código:** [`NotificationsController.sendDailySummary`](../../src/modules/notifications/presentation/NotificationsController.ts#L99-L162).
 
 ---
 
@@ -526,14 +567,15 @@ Contexto de Tenant: Obrigatório (`@RequireTenant()`)
     "force": false
   }
   ```
+- **Resposta de Sucesso (`201 Created`):** `{ "sent": true, "recipient": "...", "subject": "...", "tableNumber": 7, "waitDurationSec": 360 }`. Também emite o evento SSE `alert.raised` no painel. Mesma ressalva do item 5.2 sobre o envio real de e-mail.
 - **Regras:** Se `force: false` e um alerta recente foi emitido dentro do `alertCooldownMinutes`, a API rejeita com status `409 Conflict` (`ALERT_COOLDOWN_ACTIVE`).
-- **Evidência de Código:** [`NotificationsController.sendUrgentAlert`](file:///home/novais/Desktop/TapMesa-Back-End/src/modules/notifications/presentation/NotificationsController.ts#L164-L208).
+- **Evidência de Código:** [`NotificationsController.sendUrgentAlert`](../../src/modules/notifications/presentation/NotificationsController.ts#L164-L208).
 
 ---
 
 ## 6. Módulo: Salão e Mesas (`DiningRoom`)
 
-Controlador: [`TablesController`](file:///home/novais/Desktop/TapMesa-Back-End/src/modules/dining-room/presentation/TablesController.ts)  
+Controlador: [`TablesController`](../../src/modules/dining-room/presentation/TablesController.ts)  
 Perfis permitidos: `OWNER`, `ADMIN`  
 Contexto de Tenant: Obrigatório (`@RequireTenant()`)
 
@@ -553,18 +595,19 @@ Contexto de Tenant: Obrigatório (`@RequireTenant()`)
   ```json
   [
     {
-      "id": "27db11c2-3e28-444a-a434-6c382f7e7161",
-      "restaurantId": "58ef7166-7245-42a1-b65f-40e895c1c8ba",
+      "id": "cdd268f3-b5b1-47c3-b0bc-35684929e9c4",
+      "restaurantId": "23037aa0-94d2-4a84-ab18-af0251eff7ba",
       "number": 1,
-      "token": "a1f9e8d7c6b5a4...",
+      "token": "64WT9Q6BLS",
       "paused": false,
-      "createdAt": "2026-10-20T12:00:00.000Z"
+      "url": "https://app.tapmesa.com.br/m/64WT9Q6BLS",
+      "createdAt": "2026-10-22T19:52:18.856Z"
     }
   ]
   ```
 - **Erros Possíveis:**
   - `409 Conflict` (`DUPLICATE_TABLE_NUMBER`): Mesa(s) já existente(s). O payload de erro retorna a lista `duplicates: [1, 2]`.
-- **Evidência de Código:** [`TablesController.createTables`](file:///home/novais/Desktop/TapMesa-Back-End/src/modules/dining-room/presentation/TablesController.ts#L69-L81).
+- **Evidência de Código:** [`TablesController.createTables`](../../src/modules/dining-room/presentation/TablesController.ts#L69-L81).
 
 ---
 
@@ -572,7 +615,7 @@ Contexto de Tenant: Obrigatório (`@RequireTenant()`)
 
 - **Método / Rota:** `GET /api/v1/tables`
 - **Resposta de Sucesso (`200 OK`):** Lista todas as mesas cadastradas, ordenadas pelo número.
-- **Evidência de Código:** [`TablesController.listTables`](file:///home/novais/Desktop/TapMesa-Back-End/src/modules/dining-room/presentation/TablesController.ts#L83-L88).
+- **Evidência de Código:** [`TablesController.listTables`](../../src/modules/dining-room/presentation/TablesController.ts#L83-L88).
 
 ---
 
@@ -580,7 +623,7 @@ Contexto de Tenant: Obrigatório (`@RequireTenant()`)
 
 - **Método / Rota:** `GET /api/v1/tables/next-number`
 - **Resposta de Sucesso (`200 OK`):** `{ "nextNumber": 11 }`.
-- **Evidência de Código:** [`TablesController.getNextNumber`](file:///home/novais/Desktop/TapMesa-Back-End/src/modules/dining-room/presentation/TablesController.ts#L90-L95).
+- **Evidência de Código:** [`TablesController.getNextNumber`](../../src/modules/dining-room/presentation/TablesController.ts#L90-L95).
 
 ---
 
@@ -591,30 +634,33 @@ Contexto de Tenant: Obrigatório (`@RequireTenant()`)
 - **Resposta de Sucesso (`200 OK`):**
   ```json
   {
-    "restaurantName": "Bistrô Paris",
-    "logoUrl": "https://...",
-    "primaryColor": "#E11D48",
+    "restaurant": {
+      "name": "Churrascaria Boi Bravo",
+      "logoUrl": null
+    },
     "tables": [
       {
-        "id": "27db11c2-3e28-444a-a434-6c382f7e7161",
+        "id": "cdd268f3-b5b1-47c3-b0bc-35684929e9c4",
         "number": 1,
-        "token": "a1f9e8d7c6b5a4...",
-        "qrCodeSvg": "<svg xmlns=...",
-        "url": "https://app.tapmesa.com.br/m/a1f9e8d7c6b5a4..."
+        "token": "64WT9Q6BLS",
+        "paused": false,
+        "url": "https://app.tapmesa.com.br/m/64WT9Q6BLS",
+        "qrSvg": "<svg xmlns=\"http://www.w3.org/2000/svg\" ...>"
       }
     ]
   }
   ```
-- **Evidência de Código:** [`TablesController.getPrintView`](file:///home/novais/Desktop/TapMesa-Back-End/src/modules/dining-room/presentation/TablesController.ts#L97-L102).
+- **Evidência de Código:** [`TablesController.getPrintView`](../../src/modules/dining-room/presentation/TablesController.ts#L97-L102).
 
 ---
 
 ### 6.5. Download do QR Code de uma Mesa
 
 - **Método / Rota:** `GET /api/v1/tables/:id/qr`
-- **Query Params:** `format` (`svg` padrão, ou `png`).
-- **Resposta de Sucesso (`200 OK`):** Stream binário da imagem com cabeçalho `Content-Disposition: inline; filename="mesa-1-qr.svg"`.
-- **Evidência de Código:** [`TablesController.getTableQr`](file:///home/novais/Desktop/TapMesa-Back-End/src/modules/dining-room/presentation/TablesController.ts#L104-L121).
+- **Query Params:** `format` (`png` padrão, ou `svg`).
+- **Resposta de Sucesso (`200 OK`):** Stream binário da imagem com cabeçalho `Content-Disposition: inline; filename="mesa-1-qr.png"`.
+- **Cabeçalho `X-Table-Url`:** URL pública canônica embutida no QR (`{PUBLIC_APP_URL}/m/{token}`), exposta via CORS (`Access-Control-Expose-Headers`). É exatamente o mesmo valor do campo `url` retornado em `GET /api/v1/tables`, na criação e na folha de impressão; o botão "Copiar link" do front deve usar esse valor em vez de montar a URL.
+- **Evidência de Código:** [`TablesController.getTableQr`](../../src/modules/dining-room/presentation/TablesController.ts#L104-L121).
 
 ---
 
@@ -625,22 +671,22 @@ Contexto de Tenant: Obrigatório (`@RequireTenant()`)
   - `PATCH /api/v1/tables/:id/resume`
 - **Finalidade:** Quando uma mesa está pausada, clientes que lerem seu QR Code receberão a indicação de indisponibilidade e não poderão abrir chamados.
 - **Resposta de Sucesso (`200 OK`):** Objeto da mesa com flag `paused: true/false`.
-- **Evidência de Código:** [`TablesController.pauseTable`](file:///home/novais/Desktop/TapMesa-Back-End/src/modules/dining-room/presentation/TablesController.ts#L123-L141).
+- **Evidência de Código:** [`TablesController.pauseTable`](../../src/modules/dining-room/presentation/TablesController.ts#L123-L141).
 
 ---
 
 ### 6.7. Excluir Mesa
 
 - **Método / Rota:** `DELETE /api/v1/tables/:id`
-- **Finalidade:** Remove a mesa do banco de dados, encerra eventuais conexões SSE abertas para ela e notifica a tela do cliente (`TABLE_DELETED`).
+- **Finalidade:** Remove a mesa do banco de dados, encerra eventuais conexões SSE abertas para ela e notifica a tela do cliente (`table.removed`).
 - **Resposta de Sucesso (`204 No Content`).**
-- **Evidência de Código:** [`TablesController.deleteTable`](file:///home/novais/Desktop/TapMesa-Back-End/src/modules/dining-room/presentation/TablesController.ts#L143-L174).
+- **Evidência de Código:** [`TablesController.deleteTable`](../../src/modules/dining-room/presentation/TablesController.ts#L143-L174).
 
 ---
 
 ## 7. Módulo: Chamados - Tela Pública da Mesa (`ServiceCalls - Public`)
 
-Controlador: [`PublicTablesController`](file:///home/novais/Desktop/TapMesa-Back-End/src/modules/service-calls/presentation/PublicTablesController.ts)  
+Controlador: [`PublicTablesController`](../../src/modules/service-calls/presentation/PublicTablesController.ts)  
 Autenticação: Nenhuma / Pública (`@Public()`). Identificação via `:token` na rota.  
 Guarda de proteção: `PublicTableRateLimitGuard` contra força bruta de tokens.
 
@@ -654,19 +700,20 @@ Guarda de proteção: `PublicTableRateLimitGuard` contra força bruta de tokens.
   - `Cache-Control: no-cache, no-transform`
   - `Connection: keep-alive`
   - `X-Accel-Buffering: no`
-- **Heartbeat:** Linha de comentário `: ping\n\n` enviada a cada 15 segundos para manter a conexão ativa através de NATs, proxies reversos e firewalls.
-- **Eventos Notificados:**
-  - `CALL_CREATED`: Novo chamado aberto nesta mesa.
-  - `CALL_ACKNOWLEDGED`: Garçom visualizou / está a caminho.
-  - `CALL_ASSUMED`: Garçom assumiu a responsabilidade pelo chamado (T26).
-  - `CALL_ATTENDED`: Garçom marcou como atendido (abre janela de confirmação).
-  - `CALL_CONFIRMED`: Atendimento confirmado com sucesso.
-  - `CALL_CANCELLED`: Chamado cancelado pelo cliente.
-  - `CALL_EXPIRED`: Chamado expirado por atingir 20 min sem atendimento.
-  - `CALL_CLOSED_UNCONFIRMED`: Janela de confirmação encerrou sem contestação.
-  - `TABLE_PAUSED` / `TABLE_RESUMED`: Alteração administrativa no estado da mesa.
-  - `TABLE_DELETED`: Mesa removida pelo restaurante.
-- **Evidência de Código:** [`PublicTablesController.stream`](file:///home/novais/Desktop/TapMesa-Back-End/src/modules/service-calls/presentation/PublicTablesController.ts#L106-L197).
+- **Heartbeat:** Linha de comentário `: heartbeat\n\n` enviada a cada 25 segundos para manter a conexão ativa através de NATs, proxies reversos e firewalls.
+- **Eventos Notificados** (nome exato do campo `event:` do SSE):
+  - `snapshot`: Estado atual da mesa logo após conectar.
+  - `call.opened`: Novo chamado aberto nesta mesa.
+  - `call.acknowledged`: Garçom assumiu / está a caminho (T26).
+  - `call.attended`: Garçom marcou como atendido (abre janela de confirmação).
+  - `call.confirmed`: Atendimento confirmado pelo cliente (com `rating` opcional de 1 a 3).
+  - `call.reopened`: Cliente contestou o atendimento ("Ainda não"); o chamado volta a `PENDING`.
+  - `call.cancelled`: Chamado cancelado pelo cliente.
+  - `call.expired`: Chamado expirado por atingir 20 min sem atendimento.
+  - `call.closed`: Janela de confirmação encerrou sem resposta (`CLOSED_UNCONFIRMED`).
+  - `table.removed`: Mesa removida pelo restaurante; o servidor encerra a conexão em seguida.
+- **Observação:** pausar/retomar mesa não emite evento SSE; a mudança aparece na próxima leitura de `GET /public/tables/:token`.
+- **Evidência de Código:** [`PublicTablesController.stream`](../../src/modules/service-calls/presentation/PublicTablesController.ts#L106-L197).
 
 ---
 
@@ -677,39 +724,42 @@ Guarda de proteção: `PublicTableRateLimitGuard` contra força bruta de tokens.
 - **Resposta de Sucesso (`200 OK`):**
   ```json
   {
-    "tableNumber": 5,
+    "tableNumber": 1,
+    "appearance": {
+      "name": "Churrascaria Boi Bravo",
+      "description": null,
+      "logoUrl": null,
+      "backgroundType": "color",
+      "backgroundValue": "#0f172a",
+      "colors": {
+        "primary": "#f97316",
+        "background": "#0f172a",
+        "surface": "#1e293b",
+        "text": "#f8fafc"
+      },
+      "texts": {
+        "welcomeTitle": "Bem-vindo!",
+        "callWaiterButton": "Chamar Garçom",
+        "requestBillButton": "Pedir a Conta",
+        "notePlaceholder": "Observação opcional (ex.: trazer gelo)",
+        "pendingMessage": "Seu chamado foi enviado. Aguarde o atendimento.",
+        "attendedPrompt": "Você foi atendido?",
+        "confirmButton": "Sim, fui atendido",
+        "contestButton": "Ainda não",
+        "cancelButton": "Cancelar chamado"
+      },
+      "socials": {}
+    },
     "available": true,
     "unavailableReason": null,
     "message": null,
-    "showWaitTimeToCustomer": true,
-    "serverNow": "2026-10-20T19:30:00.000Z",
-    "appearance": {
-      "restaurantName": "Bistrô Paris",
-      "description": "Gastronomia francesa contemporânea",
-      "logoUrl": "https://...",
-      "backgroundType": "color",
-      "backgroundValue": "#0F172A",
-      "colors": { "primary": "#E11D48" },
-      "texts": { "welcomeTitle": "Mesa 5" },
-      "socials": { "instagram": "@bistroparis" }
-    },
-    "calls": [
-      {
-        "id": "b182e750-f655-46f3-a17e-7d63a48e71c9",
-        "type": "WAITER",
-        "status": "PENDING",
-        "note": "Mais guardanapos, por favor",
-        "createdAt": "2026-10-20T19:28:10.000Z",
-        "attendedAt": null,
-        "rating": null,
-        "reopenCount": 0,
-        "serverNow": "2026-10-20T19:30:00.000Z"
-      }
-    ]
+    "showWaitTimeToCustomer": false,
+    "calls": [],
+    "serverNow": "2026-10-22T19:52:18.971Z"
   }
   ```
 - **Erros Possíveis:** `404 Not Found` (`TABLE_NOT_FOUND`).
-- **Evidência de Código:** [`PublicTablesController.getTable`](file:///home/novais/Desktop/TapMesa-Back-End/src/modules/service-calls/presentation/PublicTablesController.ts#L199-L226).
+- **Evidência de Código:** [`PublicTablesController.getTable`](../../src/modules/service-calls/presentation/PublicTablesController.ts#L199-L226).
 
 ---
 
@@ -724,24 +774,29 @@ Guarda de proteção: `PublicTableRateLimitGuard` contra força bruta de tokens.
     "note": "Trazer o cardápio de sobremesas"
   }
   ```
-  _(Campo `type` aceita `"WAITER"` ou `"BILL"`. Campo `note` é opcional, máximo de 140 caracteres)._
+  _(Campo `type` aceita `"WAITER"` ou `"BILL"`. Campo `note` é opcional, máximo de 150 caracteres após sanitização; acima disso retorna `400 INVALID_CALL_NOTE`)._
 - **Comportamento Idempotente:**
   - Se NÃO houver chamado pendente do mesmo tipo nesta mesa: cria o registro no banco, emite evento em tempo real e retorna status `201 Created`.
   - Se JÁ HOUVER chamado pendente do mesmo tipo nesta mesa: não gera duplicata; retorna status `200 OK` com o chamado existente e a flag `"alreadyPending": true`.
 - **Resposta de Sucesso:**
   ```json
   {
-    "id": "b182e750-f655-46f3-a17e-7d63a48e71c9",
+    "id": "51dde969-9431-472d-a28b-372e802d25b2",
     "type": "WAITER",
     "status": "PENDING",
-    "note": "Trazer o cardápio de sobremesas",
-    "createdAt": "2026-10-20T19:28:10.000Z",
+    "note": "agua",
+    "createdAt": "2026-10-22T19:52:18.993Z",
+    "attendedAt": null,
+    "acknowledgedAt": null,
+    "rating": null,
+    "confirmationDeadline": null,
+    "reopenCount": 0,
     "alreadyPending": false,
-    "serverNow": "2026-10-20T19:28:10.000Z"
+    "serverNow": "2026-10-22T19:52:19.027Z"
   }
   ```
 - **Erros Possíveis:** `400 Bad Request` (`TABLE_PAUSED`).
-- **Evidência de Código:** [`PublicTablesController.openCall`](file:///home/novais/Desktop/TapMesa-Back-End/src/modules/service-calls/presentation/PublicTablesController.ts#L257-L290).
+- **Evidência de Código:** [`PublicTablesController.openCall`](../../src/modules/service-calls/presentation/PublicTablesController.ts#L257-L290).
 
 ---
 
@@ -751,7 +806,7 @@ Guarda de proteção: `PublicTableRateLimitGuard` contra força bruta de tokens.
 - **Finalidade:** Permite ao cliente desistir da chamada enquanto ela estiver com status `PENDING`.
 - **Resposta de Sucesso (`200 OK`):** Retorna o chamado com `status: CANCELLED`.
 - **Erros Possíveis:** `400 Bad Request` (`INVALID_CALL_TRANSITION` caso já tenha sido atendido).
-- **Evidência de Código:** [`PublicTablesController.cancelCall`](file:///home/novais/Desktop/TapMesa-Back-End/src/modules/service-calls/presentation/PublicTablesController.ts#L292-L315).
+- **Evidência de Código:** [`PublicTablesController.cancelCall`](../../src/modules/service-calls/presentation/PublicTablesController.ts#L292-L315).
 
 ---
 
@@ -767,7 +822,7 @@ Guarda de proteção: `PublicTableRateLimitGuard` contra força bruta de tokens.
   ```
   _(Valores válidos para `rating`: `1` = Ruim, `2` = Regular, `3` = Bom. Se enviado qualquer outro valor, a API responde `400 Bad Request` com código `INVALID_RATING`)._
 - **Resposta de Sucesso (`200 OK`):** Retorna o chamado atualizado.
-- **Evidência de Código:** [`PublicTablesController.confirmCall`](file:///home/novais/Desktop/TapMesa-Back-End/src/modules/service-calls/presentation/PublicTablesController.ts#L317-L352).
+- **Evidência de Código:** [`PublicTablesController.confirmCall`](../../src/modules/service-calls/presentation/PublicTablesController.ts#L317-L352).
 
 ---
 
@@ -780,13 +835,39 @@ Guarda de proteção: `PublicTableRateLimitGuard` contra força bruta de tokens.
   - Incrementa o contador `reopenCount` (máximo de 2 reaberturas).
   - No painel, o chamado volta a piscar em vermelho com destaque de contestação.
 - **Resposta de Sucesso (`200 OK`):** Chamado em `PENDING` com `reopenCount: 1`.
-- **Evidência de Código:** [`PublicTablesController.contestCall`](file:///home/novais/Desktop/TapMesa-Back-End/src/modules/service-calls/presentation/PublicTablesController.ts#L354-L377).
+- **Evidência de Código:** [`PublicTablesController.contestCall`](../../src/modules/service-calls/presentation/PublicTablesController.ts#L354-L377).
+
+---
+
+### 7.7. Listar Chamados Ativos da Mesa
+
+- **Método / Rota:** `GET /api/v1/public/tables/:token/calls`
+- **Finalidade:** Recarrega os chamados ativos da mesa sem baixar a aparência (ex.: após reconectar o SSE).
+- **Autenticação:** Pública (`@Public()`), com o mesmo rate limit das demais rotas públicas.
+- **Resposta de Sucesso (`200 OK`):**
+  ```json
+  [
+    {
+      "id": "4b7f8d63-f237-4544-a54a-36ba895f7344",
+      "type": "WAITER",
+      "status": "PENDING",
+      "note": "Mais guardanapos, por favor",
+      "createdAt": "2026-10-22T19:57:45.390Z",
+      "attendedAt": null,
+      "confirmationDeadline": null,
+      "reopenCount": 0,
+      "serverNow": "2026-10-22T19:57:45.453Z"
+    }
+  ]
+  ```
+- **Erros Possíveis:** `404 Not Found` (`TABLE_NOT_FOUND`).
+- **Evidência de Código:** [`PublicTablesController`](../../src/modules/service-calls/presentation/PublicTablesController.ts).
 
 ---
 
 ## 8. Módulo: Chamados - Painel da Equipe em Tempo Real (`ServiceCalls - Panel`)
 
-Controlador: [`PanelController`](file:///home/novais/Desktop/TapMesa-Back-End/src/modules/service-calls/presentation/PanelController.ts)  
+Controlador: [`PanelController`](../../src/modules/service-calls/presentation/PanelController.ts)  
 Perfis autorizados: `WAITER`, `OWNER`, `ADMIN`  
 Contexto de Tenant: Obrigatório (`@RequireTenant()`)
 
@@ -803,7 +884,7 @@ Contexto de Tenant: Obrigatório (`@RequireTenant()`)
     "expiresInSec": 60
   }
   ```
-- **Evidência de Código:** [`PanelController.createStreamTicket`](file:///home/novais/Desktop/TapMesa-Back-End/src/modules/service-calls/presentation/PanelController.ts#L129-L143).
+- **Evidência de Código:** [`PanelController.createStreamTicket`](../../src/modules/service-calls/presentation/PanelController.ts#L129-L143).
 
 ---
 
@@ -815,11 +896,11 @@ Contexto de Tenant: Obrigatório (`@RequireTenant()`)
 - **Snapshot Inicial:** Logo após o aperto de mão, o servidor envia imediatamente o evento `snapshot` contendo o estado completo da operação:
   ```
   event: snapshot
-  data: {"calls":[...],"alertSec":180,"urgentSec":300,"activeCallsCount":3,"waiterCallsCount":2,"billCallsCount":1,"serverNow":"..."}
+  data: {"activeCalls":[...],"recentCalls":[...],"thresholds":{"alertSec":180,"urgentSec":300},"serverNow":"..."}
   ```
 - **Heartbeat:** Linha de comentário `: heartbeat\n\n` a cada 25 segundos.
-- **Eventos:** Notifica criação, reconhecimento, assunção de chamados, atendimentos e fechamentos em tempo real.
-- **Evidência de Código:** [`PanelController.stream`](file:///home/novais/Desktop/TapMesa-Back-End/src/modules/service-calls/presentation/PanelController.ts#L145-L215).
+- **Eventos:** os mesmos `call.*` e `table.removed` do canal da mesa, mais `alert.raised` (alerta de urgência, T25).
+- **Evidência de Código:** [`PanelController.stream`](../../src/modules/service-calls/presentation/PanelController.ts#L145-L215).
 
 ---
 
@@ -827,7 +908,8 @@ Contexto de Tenant: Obrigatório (`@RequireTenant()`)
 
 - **Método / Rota:** `GET /api/v1/panel/state`
 - **Finalidade:** Retorna o snapshot atual do painel via HTTP padrão (útil para fallback caso o SSE falhe).
-- **Evidência de Código:** [`PanelController.getState`](file:///home/novais/Desktop/TapMesa-Back-End/src/modules/service-calls/presentation/PanelController.ts#L217-L224).
+- **Resposta de Sucesso (`200 OK`):** mesmo formato do evento `snapshot` (`PanelStateDto` em `TYPESCRIPT_CONTRACTS.md`): `activeCalls`, `recentCalls`, `thresholds { alertSec, urgentSec }` e `serverNow`.
+- **Evidência de Código:** [`PanelController.getState`](../../src/modules/service-calls/presentation/PanelController.ts#L217-L224).
 
 ---
 
@@ -836,7 +918,7 @@ Contexto de Tenant: Obrigatório (`@RequireTenant()`)
 - **Método / Rota:** `GET /api/v1/panel/calls`
 - **Cabeçalho Adicionado:** `X-Server-Now: 2026-10-20T19:30:00.000Z`.
 - **Resposta de Sucesso (`200 OK`):** Lista de chamados com cronômetros calculáveis.
-- **Evidência de Código:** [`PanelController.getCalls`](file:///home/novais/Desktop/TapMesa-Back-End/src/modules/service-calls/presentation/PanelController.ts#L226-L236).
+- **Evidência de Código:** [`PanelController.getCalls`](../../src/modules/service-calls/presentation/PanelController.ts#L226-L236).
 
 ---
 
@@ -849,16 +931,26 @@ Contexto de Tenant: Obrigatório (`@RequireTenant()`)
 - **Resposta de Sucesso (`200 OK`):**
   ```json
   {
-    "id": "b182e750-f655-46f3-a17e-7d63a48e71c9",
+    "id": "51dde969-9431-472d-a28b-372e802d25b2",
+    "restaurantId": "23037aa0-94d2-4a84-ab18-af0251eff7ba",
+    "tableId": "cdd268f3-b5b1-47c3-b0bc-35684929e9c4",
+    "tableNumber": 1,
+    "type": "WAITER",
     "status": "PENDING",
-    "acknowledgedAt": "2026-10-20T19:29:05.000Z",
-    "acknowledgedById": "garcom-user-uuid",
-    "reactionTimeSec": 55,
+    "note": "agua",
+    "createdAt": "2026-10-22T19:52:18.993Z",
+    "originalCreatedAt": "2026-10-22T19:52:18.993Z",
+    "acknowledgedAt": "2026-10-22T19:52:19.264Z",
+    "acknowledgedById": "86b95b8f-049c-44df-96c2-5733bcb607dd",
+    "reopenCount": 0,
+    "reopened": false,
+    "contested": false,
+    "reactionTimeSec": 0,
     "alreadyAcknowledged": false,
-    "serverNow": "2026-10-20T19:29:05.000Z"
+    "serverNow": "2026-10-22T19:52:19.264Z"
   }
   ```
-- **Evidência de Código:** [`PanelController.acknowledgeCall`](file:///home/novais/Desktop/TapMesa-Back-End/src/modules/service-calls/presentation/PanelController.ts#L238-L256), [`PanelController.assumeCall`](file:///home/novais/Desktop/TapMesa-Back-End/src/modules/service-calls/presentation/PanelController.ts#L258-L265).
+- **Evidência de Código:** [`PanelController.acknowledgeCall`](../../src/modules/service-calls/presentation/PanelController.ts#L238-L256), [`PanelController.assumeCall`](../../src/modules/service-calls/presentation/PanelController.ts#L258-L265).
 
 ---
 
@@ -869,16 +961,31 @@ Contexto de Tenant: Obrigatório (`@RequireTenant()`)
 - **Resposta de Sucesso (`200 OK`):**
   ```json
   {
-    "id": "b182e750-f655-46f3-a17e-7d63a48e71c9",
+    "id": "51dde969-9431-472d-a28b-372e802d25b2",
+    "restaurantId": "23037aa0-94d2-4a84-ab18-af0251eff7ba",
+    "tableId": "cdd268f3-b5b1-47c3-b0bc-35684929e9c4",
+    "tableNumber": 1,
+    "type": "WAITER",
     "status": "ATTENDED",
-    "attendedAt": "2026-10-20T19:30:45.000Z",
-    "attendedById": "garcom-user-uuid",
-    "executionTimeSec": 155,
+    "note": "agua",
+    "createdAt": "2026-10-22T19:52:18.993Z",
+    "originalCreatedAt": "2026-10-22T19:52:18.993Z",
+    "acknowledgedAt": "2026-10-22T19:52:19.264Z",
+    "acknowledgedById": "86b95b8f-049c-44df-96c2-5733bcb607dd",
+    "firstAttendedAt": "2026-10-22T19:52:19.303Z",
+    "attendedAt": "2026-10-22T19:52:19.303Z",
+    "attendedById": "86b95b8f-049c-44df-96c2-5733bcb607dd",
+    "rating": null,
+    "reopenCount": 0,
+    "reopened": false,
+    "contested": false,
+    "reactionTimeSec": 0,
+    "executionTimeSec": 0,
     "alreadyAttended": false,
-    "serverNow": "2026-10-20T19:30:45.000Z"
+    "serverNow": "2026-10-22T19:52:19.303Z"
   }
   ```
-- **Evidência de Código:** [`PanelController.attendCall`](file:///home/novais/Desktop/TapMesa-Back-End/src/modules/service-calls/presentation/PanelController.ts#L267-L285).
+- **Evidência de Código:** [`PanelController.attendCall`](../../src/modules/service-calls/presentation/PanelController.ts#L267-L285).
 
 ---
 
@@ -886,13 +993,13 @@ Contexto de Tenant: Obrigatório (`@RequireTenant()`)
 
 - **Método / Rota:** `GET /api/v1/panel/calls/recent?limit=10`
 - **Finalidade:** Lista os últimos chamados atendidos para exibição em gaveta de histórico recente do painel.
-- **Evidência de Código:** [`PanelController.getRecentCalls`](file:///home/novais/Desktop/TapMesa-Back-End/src/modules/service-calls/presentation/PanelController.ts#L287-L302).
+- **Evidência de Código:** [`PanelController.getRecentCalls`](../../src/modules/service-calls/presentation/PanelController.ts#L287-L302).
 
 ---
 
 ## 9. Módulo: Resumo do Dia e Métricas (`Analytics`)
 
-Controlador: [`AnalyticsController`](file:///home/novais/Desktop/TapMesa-Back-End/src/modules/analytics/presentation/AnalyticsController.ts)  
+Controlador: [`AnalyticsController`](../../src/modules/analytics/presentation/AnalyticsController.ts)  
 Perfis permitidos: `OWNER`, `ADMIN`  
 Contexto de Tenant: Obrigatório (`@RequireTenant()`)
 
@@ -905,31 +1012,224 @@ Contexto de Tenant: Obrigatório (`@RequireTenant()`)
 - **Resposta de Sucesso (`200 OK`):**
   ```json
   {
-    "range": { "from": "2026-10-20", "to": "2026-10-20" },
+    "range": {
+      "from": "2026-10-22",
+      "to": "2026-10-22",
+      "daysCount": 1
+    },
     "summary": {
       "overview": {
-        "totalCalls": 128,
-        "waiterCalls": 98,
-        "billCalls": 30,
-        "completedCalls": 124,
-        "cancelledCalls": 2,
-        "expiredCalls": 2,
-        "percentageWithinTarget": 92.4,
+        "totalCalls": 2,
+        "statusCounts": {
+          "pending": 0,
+          "attended": 0,
+          "confirmed": 1,
+          "cancelled": 1,
+          "expired": 0,
+          "closed": 0
+        },
+        "attendedCount": 1,
+        "expiredCount": 0,
+        "cancelledCount": 1,
+        "reopenedCount": 1,
         "responseTimes": {
-          "averageResponseTimeSec": 112,
-          "medianResponseTimeSec": 85,
-          "p90ResponseTimeSec": 175,
-          "p95ResponseTimeSec": 210
+          "averageResponseTimeSec": 0,
+          "medianResponseTimeSec": 0,
+          "p90ResponseTimeSec": 0,
+          "maxWaitTimeSec": 0,
+          "sampleCount": 1
+        },
+        "reactionTimes": {
+          "averageResponseTimeSec": 0,
+          "medianResponseTimeSec": 0,
+          "p90ResponseTimeSec": 0,
+          "maxWaitTimeSec": 0,
+          "sampleCount": 1
+        },
+        "executionTimes": {
+          "averageResponseTimeSec": 0,
+          "medianResponseTimeSec": 0,
+          "p90ResponseTimeSec": 0,
+          "maxWaitTimeSec": 0,
+          "sampleCount": 1
         },
         "ratings": {
-          "average": 2.82,
-          "totalRated": 76
+          "1": 0,
+          "2": 0,
+          "3": 1,
+          "total": 1,
+          "average": 3
+        },
+        "percentageWithinTarget": 100,
+        "confirmationRate": 100,
+        "waiterCalls": 1,
+        "billCalls": 1
+      },
+      "byType": {
+        "waiter": {
+          "totalCalls": 1,
+          "statusCounts": {
+            "pending": 0,
+            "attended": 0,
+            "confirmed": 1,
+            "cancelled": 0,
+            "expired": 0,
+            "closed": 0
+          },
+          "attendedCount": 1,
+          "expiredCount": 0,
+          "cancelledCount": 0,
+          "reopenedCount": 1,
+          "responseTimes": {
+            "averageResponseTimeSec": 0,
+            "medianResponseTimeSec": 0,
+            "p90ResponseTimeSec": 0,
+            "maxWaitTimeSec": 0,
+            "sampleCount": 1
+          },
+          "reactionTimes": {
+            "averageResponseTimeSec": 0,
+            "medianResponseTimeSec": 0,
+            "p90ResponseTimeSec": 0,
+            "maxWaitTimeSec": 0,
+            "sampleCount": 1
+          },
+          "executionTimes": {
+            "averageResponseTimeSec": 0,
+            "medianResponseTimeSec": 0,
+            "p90ResponseTimeSec": 0,
+            "maxWaitTimeSec": 0,
+            "sampleCount": 1
+          },
+          "ratings": {
+            "1": 0,
+            "2": 0,
+            "3": 1,
+            "total": 1,
+            "average": 3
+          },
+          "percentageWithinTarget": 100,
+          "confirmationRate": 100
+        },
+        "bill": {
+          "totalCalls": 1,
+          "statusCounts": {
+            "pending": 0,
+            "attended": 0,
+            "confirmed": 0,
+            "cancelled": 1,
+            "expired": 0,
+            "closed": 0
+          },
+          "attendedCount": 0,
+          "expiredCount": 0,
+          "cancelledCount": 1,
+          "reopenedCount": 0,
+          "responseTimes": {
+            "averageResponseTimeSec": 0,
+            "medianResponseTimeSec": 0,
+            "p90ResponseTimeSec": 0,
+            "maxWaitTimeSec": 0,
+            "sampleCount": 0
+          },
+          "reactionTimes": {
+            "averageResponseTimeSec": 0,
+            "medianResponseTimeSec": 0,
+            "p90ResponseTimeSec": 0,
+            "maxWaitTimeSec": 0,
+            "sampleCount": 0
+          },
+          "executionTimes": {
+            "averageResponseTimeSec": 0,
+            "medianResponseTimeSec": 0,
+            "p90ResponseTimeSec": 0,
+            "maxWaitTimeSec": 0,
+            "sampleCount": 0
+          },
+          "ratings": {
+            "1": 0,
+            "2": 0,
+            "3": 0,
+            "total": 0,
+            "average": null
+          },
+          "percentageWithinTarget": 0,
+          "confirmationRate": 0
+        }
+      },
+      "byHour": [
+        {
+          "hour": 20,
+          "totalCalls": 0,
+          "waiterCalls": 0,
+          "billCalls": 0,
+          "attendedCalls": 0,
+          "averageResponseTimeSec": 0,
+          "averageWaiterResponseTimeSec": 0,
+          "averageBillResponseTimeSec": 0
+        }
+      ],
+      "ranking": {
+        "all": {
+          "byVolume": [
+            {
+              "tableNumber": 1,
+              "totalCalls": 1,
+              "attendedCalls": 1,
+              "averageResponseTimeSec": 0
+            }
+          ],
+          "byResponseTime": [
+            {
+              "tableNumber": 1,
+              "totalCalls": 1,
+              "attendedCalls": 1,
+              "averageResponseTimeSec": 0
+            }
+          ]
+        },
+        "waiter": {
+          "byVolume": [
+            {
+              "tableNumber": 1,
+              "totalCalls": 1,
+              "attendedCalls": 1,
+              "averageResponseTimeSec": 0
+            }
+          ],
+          "byResponseTime": [
+            {
+              "tableNumber": 1,
+              "totalCalls": 1,
+              "attendedCalls": 1,
+              "averageResponseTimeSec": 0
+            }
+          ]
+        },
+        "bill": {
+          "byVolume": [
+            {
+              "tableNumber": 2,
+              "totalCalls": 1,
+              "attendedCalls": 0,
+              "averageResponseTimeSec": 0
+            }
+          ],
+          "byResponseTime": [
+            {
+              "tableNumber": 2,
+              "totalCalls": 1,
+              "attendedCalls": 0,
+              "averageResponseTimeSec": 0
+            }
+          ]
         }
       }
-    }
+    },
+    "serverNow": "2026-10-22T19:52:19.442Z"
   }
   ```
-- **Evidência de Código:** [`AnalyticsController.getSummary`](file:///home/novais/Desktop/TapMesa-Back-End/src/modules/analytics/presentation/AnalyticsController.ts#L43-L64).
+- **Evidência de Código:** [`AnalyticsController.getSummary`](../../src/modules/analytics/presentation/AnalyticsController.ts#L43-L64).
 
 ---
 
@@ -940,14 +1240,27 @@ Contexto de Tenant: Obrigatório (`@RequireTenant()`)
 - **Resposta de Sucesso (`200 OK`):**
   ```json
   {
-    "hourly": [
-      { "hour": 12, "totalCalls": 24, "averageWaitSec": 98 },
-      { "hour": 13, "totalCalls": 38, "averageWaitSec": 142 },
-      { "hour": 20, "totalCalls": 45, "averageWaitSec": 165 }
-    ]
+    "range": {
+      "from": "2026-10-22",
+      "to": "2026-10-22",
+      "daysCount": 1
+    },
+    "byHour": [
+      {
+        "hour": 20,
+        "totalCalls": 0,
+        "waiterCalls": 0,
+        "billCalls": 0,
+        "attendedCalls": 0,
+        "averageResponseTimeSec": 0,
+        "averageWaiterResponseTimeSec": 0,
+        "averageBillResponseTimeSec": 0
+      }
+    ],
+    "serverNow": "2026-10-22T19:52:19.466Z"
   }
   ```
-- **Evidência de Código:** [`AnalyticsController.getByHour`](file:///home/novais/Desktop/TapMesa-Back-End/src/modules/analytics/presentation/AnalyticsController.ts#L66-L87).
+- **Evidência de Código:** [`AnalyticsController.getByHour`](../../src/modules/analytics/presentation/AnalyticsController.ts#L66-L87).
 
 ---
 
@@ -958,17 +1271,71 @@ Contexto de Tenant: Obrigatório (`@RequireTenant()`)
 - **Resposta de Sucesso (`200 OK`):**
   ```json
   {
+    "range": {
+      "from": "2026-10-22",
+      "to": "2026-10-22",
+      "daysCount": 1
+    },
     "ranking": {
-      "byVolume": [
-        { "tableNumber": 12, "totalCalls": 18, "averageWaitSec": 88 }
-      ],
-      "byWaitTime": [
-        { "tableNumber": 4, "totalCalls": 5, "averageWaitSec": 245 }
-      ]
-    }
+      "all": {
+        "byVolume": [
+          {
+            "tableNumber": 1,
+            "totalCalls": 1,
+            "attendedCalls": 1,
+            "averageResponseTimeSec": 0
+          }
+        ],
+        "byResponseTime": [
+          {
+            "tableNumber": 1,
+            "totalCalls": 1,
+            "attendedCalls": 1,
+            "averageResponseTimeSec": 0
+          }
+        ]
+      },
+      "waiter": {
+        "byVolume": [
+          {
+            "tableNumber": 1,
+            "totalCalls": 1,
+            "attendedCalls": 1,
+            "averageResponseTimeSec": 0
+          }
+        ],
+        "byResponseTime": [
+          {
+            "tableNumber": 1,
+            "totalCalls": 1,
+            "attendedCalls": 1,
+            "averageResponseTimeSec": 0
+          }
+        ]
+      },
+      "bill": {
+        "byVolume": [
+          {
+            "tableNumber": 2,
+            "totalCalls": 1,
+            "attendedCalls": 0,
+            "averageResponseTimeSec": 0
+          }
+        ],
+        "byResponseTime": [
+          {
+            "tableNumber": 2,
+            "totalCalls": 1,
+            "attendedCalls": 0,
+            "averageResponseTimeSec": 0
+          }
+        ]
+      }
+    },
+    "serverNow": "2026-10-22T19:52:19.491Z"
   }
   ```
-- **Evidência de Código:** [`AnalyticsController.getTablesRanking`](file:///home/novais/Desktop/TapMesa-Back-End/src/modules/analytics/presentation/AnalyticsController.ts#L89-L110).
+- **Evidência de Código:** [`AnalyticsController.getTablesRanking`](../../src/modules/analytics/presentation/AnalyticsController.ts#L89-L110).
 
 ---
 
@@ -981,24 +1348,35 @@ Contexto de Tenant: Obrigatório (`@RequireTenant()`)
   {
     "items": [
       {
-        "id": "b182e750-f655-46f3-a17e-7d63a48e71c9",
-        "tableNumber": 5,
-        "type": "WAITER",
-        "status": "CONFIRMED",
-        "createdAt": "2026-10-20T19:28:10.000Z",
-        "attendedAt": "2026-10-20T19:30:45.000Z",
-        "confirmedAt": "2026-10-20T19:31:10.000Z",
-        "rating": 3,
+        "id": "57e15f1a-0498-4458-876c-6d606b173e59",
+        "tableNumber": 2,
+        "type": "BILL",
+        "status": "CANCELLED",
+        "note": null,
+        "createdAt": "2026-10-22T19:52:19.076Z",
+        "acknowledgedAt": null,
+        "firstAttendedAt": null,
+        "attendedAt": null,
+        "confirmedAt": null,
+        "cancelledAt": "2026-10-22T19:52:19.104Z",
+        "expiredAt": null,
+        "closedAt": "2026-10-22T19:52:19.104Z",
+        "rating": null,
+        "reactionTimeSec": null,
+        "executionTimeSec": null,
+        "responseTimeSec": null,
+        "resolutionTimeSec": null,
+        "confirmationTimeSec": null,
         "reopenCount": 0,
-        "reactionTimeSec": 55,
-        "executionTimeSec": 155
+        "contested": false
       }
     ],
-    "nextCursor": "b182e750-f655-46f3-a17e-7d63a48e71c9",
-    "hasMore": true
+    "nextCursor": "MTc5MjY5ODczOTA3Nnw1N2UxNWYxYS0wNDk4LTQ0NTgtODc2Yy02ZDYwNmIxNzNlNTk=",
+    "totalCount": 2,
+    "serverNow": "2026-10-22T19:52:19.514Z"
   }
   ```
-- **Evidência de Código:** [`AnalyticsController.getCalls`](file:///home/novais/Desktop/TapMesa-Back-End/src/modules/analytics/presentation/AnalyticsController.ts#L112-L147).
+- **Evidência de Código:** [`AnalyticsController.getCalls`](../../src/modules/analytics/presentation/AnalyticsController.ts#L112-L147).
 
 ---
 
@@ -1006,7 +1384,7 @@ Contexto de Tenant: Obrigatório (`@RequireTenant()`)
 
 - **Método / Rota:** `GET /api/v1/analytics/summary/compare`
 - **Finalidade:** Compara automaticamente o dia de hoje com o dia anterior e com o mesmo dia da semana anterior.
-- **Evidência de Código:** [`AnalyticsController.getCompare`](file:///home/novais/Desktop/TapMesa-Back-End/src/modules/analytics/presentation/AnalyticsController.ts#L149-L165).
+- **Evidência de Código:** [`AnalyticsController.getCompare`](../../src/modules/analytics/presentation/AnalyticsController.ts#L149-L165).
 
 ---
 
@@ -1017,7 +1395,7 @@ Contexto de Tenant: Obrigatório (`@RequireTenant()`)
 - **Cabeçalhos de Resposta:**
   - `Content-Type: text/csv; charset=utf-8`
   - `Content-Disposition: attachment; filename="historico-chamados-2026-10-20.csv"`
-- **Evidência de Código:** [`AnalyticsController.exportCsv`](file:///home/novais/Desktop/TapMesa-Back-End/src/modules/analytics/presentation/AnalyticsController.ts#L167-L198).
+- **Evidência de Código:** [`AnalyticsController.exportCsv`](../../src/modules/analytics/presentation/AnalyticsController.ts#L167-L198).
 
 ---
 
@@ -1027,16 +1405,16 @@ Contexto de Tenant: Obrigatório (`@RequireTenant()`)
 
 - `GET /api/v1/health/live`: Liveness probe do processo. Retorna `200 OK` `{ "status": "ok" }`.
 - `GET /api/v1/health/ready`: Readiness probe. Valida conexão com PostgreSQL e Redis. Se o banco cair, responde `503 Service Unavailable`.
-- **Evidência de Código:** [`HealthController`](file:///home/novais/Desktop/TapMesa-Back-End/src/platform/health/health.controller.ts).
+- **Evidência de Código:** [`HealthController`](../../src/platform/health/health.controller.ts).
 
 ### 10.2. Métricas Prometheus
 
 - `GET /metrics` e `GET /api/v1/metrics`: Formato texto padrão Prometheus v0.0.4 contendo latências HTTP, taxa de erros, conexões SSE ativas e métricas de negócio.
-- **Evidência de Código:** [`MetricsController`](file:///home/novais/Desktop/TapMesa-Back-End/src/platform/metrics/presentation/MetricsController.ts).
+- **Evidência de Código:** [`MetricsController`](../../src/platform/metrics/presentation/MetricsController.ts).
 
 ### 10.3. Documentação OpenAPI
 
 - `GET /api/v1/docs`: Interface visual HTML interativa.
 - `GET /api/v1/docs/json` e `GET /openapi.json`: Especificação completa em JSON.
 - `GET /api/v1/docs/yaml`: Especificação completa em YAML.
-- **Evidência de Código:** [`OpenApiController`](file:///home/novais/Desktop/TapMesa-Back-End/src/platform/openapi/presentation/OpenApiController.ts).
+- **Evidência de Código:** [`OpenApiController`](../../src/platform/openapi/presentation/OpenApiController.ts).

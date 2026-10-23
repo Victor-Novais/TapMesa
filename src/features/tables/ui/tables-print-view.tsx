@@ -2,7 +2,10 @@
 
 import * as React from "react";
 import Link from "next/link";
-import { useTablesPrintViewQuery } from "../api/use-tables-query";
+import {
+  useBrandAppearanceQuery,
+  useTablesPrintViewQuery,
+} from "../api/use-tables-query";
 import { TablePrintCard } from "./table-print-card";
 import { Button } from "@/shared/ui/button";
 import { Checkbox } from "@/shared/ui/checkbox";
@@ -22,6 +25,7 @@ import {
 export function TablesPrintView() {
   const { data, isLoading, isError, error, refetch } =
     useTablesPrintViewQuery();
+  const { data: appearance } = useBrandAppearanceQuery();
 
   // Controla exclusões de seleção: por padrão todas as mesas vêm selecionadas (sem useEffect / sem efeito em cascata)
   const [deselectedTableIds, setDeselectedTableIds] = React.useState<
@@ -148,7 +152,7 @@ export function TablesPrintView() {
                 Impressão de QR Codes
               </h1>
               <p className="text-xs text-zinc-500 dark:text-zinc-400">
-                {data?.restaurantName} · Folha A4 para recorte
+                {data?.restaurant.name} · Folha A4 para recorte
               </p>
             </div>
           </div>
@@ -288,9 +292,9 @@ export function TablesPrintView() {
               <TablePrintCard
                 key={table.id}
                 table={table}
-                restaurantName={data?.restaurantName || "TapMesa"}
-                logoUrl={data?.logoUrl || null}
-                primaryColor={data?.primaryColor || "#ea580c"}
+                restaurantName={data?.restaurant.name ?? ""}
+                logoUrl={data?.restaurant.logoUrl ?? null}
+                primaryColor={appearance?.colors.primary}
                 layoutSize={layoutSize}
               />
             ))}

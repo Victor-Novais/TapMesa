@@ -96,11 +96,8 @@ export function LoginForm() {
     try {
       const loginResponse = await login(data);
       const user = await getMe();
-      if (!user.username) {
-        user.username = data.username;
-      }
 
-      setAuth(loginResponse.accessToken, user);
+      setAuth(loginResponse.accessToken, user, data.username);
 
       const destination = getSafeRedirectUrl(nextParam, user.role);
       router.push(destination);
@@ -108,7 +105,7 @@ export function LoginForm() {
       const problem = parseProblemDetails(err);
 
       if (problem.status === 429) {
-        setRateLimitSeconds(60);
+        setRateLimitSeconds(problem.retryAfter ?? 60);
         setErrorMessage(
           "Muitas tentativas em pouco tempo. Por segurança, aguarde alguns instantes antes de tentar novamente.",
         );

@@ -15,10 +15,14 @@ import { PendingCallCard } from "./pending-call-card";
 import { AttendedCallCard } from "./attended-call-card";
 import { ConfirmedCallCard } from "./confirmed-call-card";
 import { useOpenCallMutation } from "../api/use-table-mutations";
+import { getAccessibleTextColor } from "../lib/contrast";
 import { parseApiError } from "@/shared/api/problem-details";
 import { UI_MESSAGES } from "@/shared/messages/ui";
 import { cn } from "@/shared/lib/cn";
 import type { PublicCallDto, CallType } from "@/shared/types/api";
+
+// Limite oficial da observação do chamado (o back recusa acima disso)
+export const MAX_CALL_NOTE_LENGTH = 150;
 
 export interface CallActionsProps {
   token: string;
@@ -26,6 +30,7 @@ export interface CallActionsProps {
   available?: boolean;
   showWaitTimeToCustomer?: boolean;
   texts?: Record<string, string>;
+  colors?: Record<string, string>;
   className?: string;
 }
 
@@ -35,6 +40,7 @@ export function CallActions({
   available = true,
   showWaitTimeToCustomer = false,
   texts = {},
+  colors = {},
   className,
 }: CallActionsProps) {
   const [note, setNote] = React.useState("");
@@ -77,17 +83,22 @@ export function CallActions({
   const hasAnyFreeType = !isWaiterActive || !isBillActive;
 
   const waiterButtonText =
-    texts.callWaiterButton ||
-    texts.waiterButton ||
-    UI_MESSAGES.calls.callWaiter;
+    texts.callWaiterButton || UI_MESSAGES.calls.callWaiter;
 
   const billButtonText =
-    texts.requestBillButton ||
-    texts.billButton ||
-    UI_MESSAGES.calls.requestBill;
+    texts.requestBillButton || UI_MESSAGES.calls.requestBill;
 
   const notePlaceholder =
     texts.notePlaceholder || UI_MESSAGES.calls.notePlaceholder;
+
+  // Cor do botão da conta escolhida pelo dono em Aparência (colors.secondary)
+  const billButtonStyle: React.CSSProperties | undefined = colors.secondary
+    ? {
+        backgroundColor: colors.secondary,
+        borderColor: colors.secondary,
+        color: getAccessibleTextColor("#ffffff", colors.secondary),
+      }
+    : undefined;
 
   const handleDismissConfirmed = (callId: string) => {
     setDismissedConfirmedIds((prev) => new Set(prev).add(callId));
@@ -99,7 +110,9 @@ export function CallActions({
     setActiveSubmittingType(type);
     setErrorMessage(null);
 
-    const callNote = note.trim() ? note.trim().slice(0, 140) : undefined;
+    const callNote = note.trim()
+      ? note.trim().slice(0, MAX_CALL_NOTE_LENGTH)
+      : undefined;
 
     openCallMutation.mutate(
       { type, note: callNote },
@@ -257,7 +270,7 @@ export function CallActions({
                 placeholder={notePlaceholder}
                 value={note}
                 onChange={(e) => setNote(e.target.value)}
-                maxLength={140}
+                maxLength={MAX_CALL_NOTE_LENGTH}
                 showCount
                 className="min-h-[72px] resize-none border-zinc-200/80 bg-white/90 text-sm placeholder:text-xs dark:border-zinc-800 dark:bg-zinc-950/80"
               />
@@ -299,9 +312,17 @@ export function CallActions({
             }
             onClick={() => handleOpenCall("BILL")}
             className="w-full text-base sm:text-lg border-2 border-zinc-300/80 bg-white/90 text-zinc-900 shadow-sm hover:bg-zinc-100 hover:border-zinc-400 active:bg-zinc-200 dark:border-zinc-700 dark:bg-zinc-900/90 dark:text-zinc-100 dark:hover:bg-zinc-800 dark:hover:border-zinc-600"
+            style={billButtonStyle}
             aria-label={billButtonText}
           >
-            <Receipt className="h-5 w-5 sm:h-6 sm:w-6 shrink-0 text-emerald-600 dark:text-emerald-400" />
+            <Receipt
+              className={cn(
+                "h-5 w-5 sm:h-6 sm:w-6 shrink-0",
+                billButtonStyle
+                  ? "text-current"
+                  : "text-emerald-600 dark:text-emerald-400",
+              )}
+            />
             <span className="truncate">{billButtonText}</span>
           </Button>
         )}

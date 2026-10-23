@@ -48,16 +48,9 @@ export function TableScreen({
 }: TableScreenProps) {
   const [copiedWifi, setCopiedWifi] = React.useState(false);
 
-  const {
-    restaurantName,
-    name,
-    description,
-    logoUrl,
-    texts = {},
-    socials = {},
-  } = appearance;
+  const { name, description, logoUrl, texts, socials } = appearance;
 
-  const displayName = restaurantName || name || "Restaurante";
+  const displayName = name || "Restaurante";
 
   // Interpolate welcome title with table number: "Bem-vindo à Mesa {tableNumber}"
   const rawWelcome = texts.welcomeTitle || "Mesa {tableNumber}";
@@ -66,8 +59,8 @@ export function TableScreen({
     String(tableNumber),
   );
 
-  const wifiSsid = socials.wifiSsid || socials.wifi_ssid || socials.wifiName;
-  const wifiPassword = socials.wifiPassword || socials.wifi_password;
+  const wifiSsid = socials.wifiName;
+  const wifiPassword = socials.wifiPassword;
 
   const handleCopyWifi = async () => {
     if (!wifiPassword) return;

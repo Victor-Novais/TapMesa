@@ -45,18 +45,9 @@ export function TablesCards({
   const { toast } = useToast();
   const [copiedId, setCopiedId] = React.useState<string | null>(null);
 
-  const getTableUrl = (token: string) => {
-    const origin =
-      typeof window !== "undefined"
-        ? window.location.origin
-        : process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3001";
-    return `${origin}/m/${token}`;
-  };
-
   const handleCopyLink = async (table: TableDto) => {
-    const url = getTableUrl(table.token);
     try {
-      await navigator.clipboard.writeText(url);
+      await navigator.clipboard.writeText(table.url);
       triggerHaptic(25);
       setCopiedId(table.id);
       toast({
@@ -94,7 +85,6 @@ export function TablesCards({
       {tables.map((table) => {
         const isToggling = isTogglingId === table.id;
         const isCopied = copiedId === table.id;
-        const fullUrl = getTableUrl(table.token);
 
         return (
           <Card
@@ -154,7 +144,7 @@ export function TablesCards({
                   </DropdownMenuItem>
                   <DropdownMenuItem asChild>
                     <a
-                      href={fullUrl}
+                      href={table.url}
                       target="_blank"
                       rel="noopener noreferrer"
                       className="flex items-center"
@@ -194,7 +184,7 @@ export function TablesCards({
               <div className="flex items-center justify-between">
                 <span>Identificador:</span>
                 <span className="font-mono text-zinc-700 dark:text-zinc-300 truncate">
-                  /m/{table.token}
+                  {table.url}
                 </span>
               </div>
               <div className="flex items-center justify-between">

@@ -9,13 +9,14 @@ export function parseApiError(error: unknown): ProblemDetails {
       const code = data.code;
       const status = error.response.status;
 
+      // Sem `code` (ex.: 400 "Validation Error"), o `detail` da API é exibido
       let detail = data.detail || "";
       if (code) {
         detail = getErrorMessage(code, detail);
       } else if (status === 429) {
         detail = getErrorMessage("TOO_MANY_REQUESTS");
-      } else if (status === 409 && Array.isArray(data.duplicates)) {
-        detail = `Já existem mesas cadastradas com os seguintes números: ${data.duplicates.join(", ")}.`;
+      } else if (status === 403) {
+        detail = getErrorMessage("FORBIDDEN");
       } else if (!detail) {
         detail = getErrorMessage(undefined, error.message);
       }
@@ -29,7 +30,7 @@ export function parseApiError(error: unknown): ProblemDetails {
         requestId: data.requestId,
         code: code,
         duplicates: data.duplicates,
-        errors: data.errors,
+        retryAfter: data.retryAfter,
       };
     }
 

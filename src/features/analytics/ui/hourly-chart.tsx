@@ -51,7 +51,7 @@ function CustomTooltip({ active, payload, label }: CustomTooltipProps) {
     const totalCalls =
       payload.find((p) => p.dataKey === "totalCalls")?.value || 0;
     const waitSec =
-      payload.find((p) => p.dataKey === "averageWaitSec")?.value || 0;
+      payload.find((p) => p.dataKey === "averageResponseTimeSec")?.value || 0;
 
     return (
       <div className="rounded-xl border border-zinc-200 bg-white p-3 shadow-lg dark:border-zinc-800 dark:bg-zinc-900 text-xs">
@@ -83,7 +83,7 @@ export function HourlyChart({ hourly }: HourlyChartProps) {
       hour: h.hour,
       hourLabel: `${String(h.hour).padStart(2, "0")}h`,
       totalCalls: h.totalCalls,
-      averageWaitSec: h.averageWaitSec,
+      averageResponseTimeSec: h.averageResponseTimeSec,
     }));
   }, [hourly]);
 
@@ -160,7 +160,7 @@ export function HourlyChart({ hourly }: HourlyChartProps) {
                       {row.totalCalls}
                     </TableCell>
                     <TableCell className="text-right font-mono">
-                      {formatDurationSec(row.averageWaitSec)}
+                      {formatDurationSec(row.averageResponseTimeSec)}
                     </TableCell>
                   </TableRow>
                 ))}

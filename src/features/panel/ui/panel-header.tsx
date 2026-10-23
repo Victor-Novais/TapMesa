@@ -59,7 +59,7 @@ export function PanelHeader({
   const { impersonation } = useAuthStore();
   const now = useNow();
 
-  const hasRestaurant = Boolean(user?.restaurantId || user?.rid);
+  const hasRestaurant = Boolean(user?.rid);
 
   const { data: restaurant } = useQuery({
     queryKey: queryKeys.settings.currentRestaurant,

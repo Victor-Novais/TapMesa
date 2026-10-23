@@ -20,6 +20,9 @@ import {
 import { useAuth } from "@/features/auth";
 import { UserMenu } from "@/app/_components/user-menu";
 import { Button } from "@/shared/ui/button";
+import { useToast } from "@/shared/ui/toast";
+import { formatTimer } from "@/shared/lib/clock";
+import type { AlertRaisedEventData } from "@/shared/types/api";
 import { Card } from "@/shared/ui/card";
 import { SkipLink } from "@/shared/ui/skip-link";
 import { useNow } from "@/shared/lib/clock";
@@ -28,7 +31,7 @@ const emptySubscribe = () => () => {};
 
 export default function PanelOperationalPage() {
   const { user } = useAuth();
-  const currentUserId = user?.id || user?.sub;
+  const currentUserId = user?.sub;
 
   // Sincronização segura de montagem no cliente e verificação de gesto inicial
   const isClientReady = React.useSyncExternalStore(
@@ -87,8 +90,25 @@ export default function PanelOperationalPage() {
   // Suporte a PWA e Service Worker
   const { isInstallable, installApp } = usePwa();
 
+  // Alerta de urgência enviado pelo back (`alert.raised`)
+  const { toast } = useToast();
+  const { playUrgentAlert } = audio;
+  const handleAlertRaised = React.useCallback(
+    (alert: AlertRaisedEventData) => {
+      playUrgentAlert();
+      toast({
+        title: `Mesa ${alert.tableNumber}: espera urgente`,
+        description: `${alert.callType === "BILL" ? "Pedido de conta" : "Chamado de garçom"} aguardando há ${formatTimer(alert.waitDurationSec)}.`,
+        type: "error",
+      });
+    },
+    [playUrgentAlert, toast],
+  );
+
   // Conexão SSE em tempo real com ticket de uso único e fallback para polling
-  const { isPollingFallback, reconnect } = usePanelStream();
+  const { isPollingFallback, reconnect } = usePanelStream({
+    onAlertRaised: handleAlertRaised,
+  });
 
   const { calls, recent, counters, thresholds, connectionStatus } =
     usePanelStore();

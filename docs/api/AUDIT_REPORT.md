@@ -26,16 +26,16 @@ A presente auditoria técnica foi executada diretamente sobre o código-fonte, s
 
 ## 2. Comparativo: Código Real vs Documentação OpenAPI Antiga
 
-Durante a auditoria, realizou-se uma comparação minuciosa entre a especificação pré-existente em [`src/platform/openapi/openapi-document.ts`](file:///home/novais/Desktop/TapMesa-Back-End/src/platform/openapi/openapi-document.ts) e os controllers NestJS reais implementados na aplicação.
+Durante a auditoria, realizou-se uma comparação minuciosa entre a especificação pré-existente em [`src/platform/openapi/openapi-document.ts`](../../src/platform/openapi/openapi-document.ts) e os controllers NestJS reais implementados na aplicação.
 
 ### 2.1. Divergências de Nomenclatura de Rotas Identificadas
 
-| Funcionalidade                   | Rota no OpenAPI Antigo                   | Rota Real Comprovada no Código                 | Impacto / Resolução                                                                                                                                                                                                                                                                    |
-| :------------------------------- | :--------------------------------------- | :--------------------------------------------- | :------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| **Configurações de Atendimento** | `/restaurant/settings`                   | `/settings/service`                            | **Alto:** Frontend que consumisse o OpenAPI antigo receberia 404. O controller real é [`SettingsController`](file:///home/novais/Desktop/TapMesa-Back-End/src/modules/tenancy/presentation/SettingsController.ts) com base `settings`. Documentado corretamente em `API_REFERENCE.md`. |
-| **Aparência do Restaurante**     | `/restaurant/appearance`                 | `/settings/appearance`                         | **Alto:** Mapeado no mesmo `SettingsController`.                                                                                                                                                                                                                                       |
-| **Resumo do Dia (Analytics)**    | `/analytics/daily-summary`               | `/analytics/summary`                           | **Médio:** O método no [`AnalyticsController`](file:///home/novais/Desktop/TapMesa-Back-End/src/modules/analytics/presentation/AnalyticsController.ts) expõe `@Get('summary')`.                                                                                                        |
-| **Reset de Senha do Dono**       | `/admin/restaurants/{id}/reset-password` | `/admin/restaurants/{id}/reset-owner-password` | **Médio:** No [`AdminRestaurantsController`](file:///home/novais/Desktop/TapMesa-Back-End/src/modules/tenancy/presentation/AdminRestaurantsController.ts), a rota explícita é `reset-owner-password`.                                                                                  |
+| Funcionalidade                   | Rota no OpenAPI Antigo                   | Rota Real Comprovada no Código                 | Impacto / Resolução                                                                                                                                                                                                                             |
+| :------------------------------- | :--------------------------------------- | :--------------------------------------------- | :---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **Configurações de Atendimento** | `/restaurant/settings`                   | `/settings/service`                            | **Alto:** Frontend que consumisse o OpenAPI antigo receberia 404. O controller real é [`SettingsController`](../../src/modules/tenancy/presentation/SettingsController.ts) com base `settings`. Documentado corretamente em `API_REFERENCE.md`. |
+| **Aparência do Restaurante**     | `/restaurant/appearance`                 | `/settings/appearance`                         | **Alto:** Mapeado no mesmo `SettingsController`.                                                                                                                                                                                                |
+| **Resumo do Dia (Analytics)**    | `/analytics/daily-summary`               | `/analytics/summary`                           | **Médio:** O método no [`AnalyticsController`](../../src/modules/analytics/presentation/AnalyticsController.ts) expõe `@Get('summary')`.                                                                                                        |
+| **Reset de Senha do Dono**       | `/admin/restaurants/{id}/reset-password` | `/admin/restaurants/{id}/reset-owner-password` | **Médio:** No [`AdminRestaurantsController`](../../src/modules/tenancy/presentation/AdminRestaurantsController.ts), a rota explícita é `reset-owner-password`.                                                                                  |
 
 ### 2.2. Endpoints Reais Implementados Ausentes no OpenAPI Antigo
 
@@ -77,7 +77,7 @@ Os seguintes endpoints foram implementados com regras de negócio completas e te
 ### 3.2. Severidade Média (Observação para Produção em Escala)
 
 - **Achado 1: Persistência de Configurações de Notificação:**
-  - _Evidência:_ [`NotificationsModule`](file:///home/novais/Desktop/TapMesa-Back-End/src/modules/notifications/NotificationsModule.ts) utiliza `InMemoryNotificationSettingsRepository`.
+  - _Evidência:_ [`NotificationsModule`](../../src/modules/notifications/NotificationsModule.ts) utiliza `InMemoryNotificationSettingsRepository`.
   - _Impacto:_ Atualmente, caso o container da API seja reiniciado, as preferências de e-mail voltam ao padrão de memória.
   - _Recomendação para Fase 7:_ Criar uma tabela dedicada no Prisma (`notification_settings`) para persistir essas preferências de forma permanente no PostgreSQL, seguindo o padrão já utilizado em `appearances`.
 - **Achado 2: Conexões SSE Concorrentes em Múltiplas Instâncias:**
@@ -114,3 +114,15 @@ Os seguintes endpoints foram implementados com regras de negócio completas e te
 O backend do TapMesa apresenta **altíssimo rigor arquitetural, cobertura extensiva de testes e consistência lógica**. Todas as funcionalidades solicitadas pelas especificações do produto foram rigorosamente comprovadas no código-fonte.
 
 A suíte de documentação em `docs/api/` está pronta para uso imediato pela equipe ou agentes de IA encarregados da construção da interface frontend.
+
+---
+
+## 6. Adendo — Revisão de 22/10/2026
+
+Revisão feita comparando a documentação com a API em execução (respostas HTTP reais), não só com o código-fonte. Pontos que este relatório dava como resolvidos e não estavam:
+
+- **OpenAPI servido (`/api/v1/docs`, `docs/openapi.json`):** a divergência da seção 3.1 só tinha sido corrigida nos arquivos Markdown. O OpenAPI ainda tinha as rotas antigas (`/tables/batch`, `/restaurant/settings`, `/analytics/daily-summary` etc.) e omitia 33 rotas reais. Os paths foram regenerados (69 operações) e um teste unitário agora falha se o OpenAPI divergir das rotas dos controllers.
+- **Contratos de resposta:** `TYPESCRIPT_CONTRACTS.md`, os exemplos do `API_REFERENCE.md` e os schemas de resposta do `endpoint-inventory.json` descreviam campos que a API não devolve (`PanelStateDto`, analytics, métricas por garçom, impressão de mesas, entre outros). Todos foram reescritos a partir das respostas reais.
+- **`GET /admin/audit`:** qualquer parâmetro de query (`limit`, `cursor`, filtros) retornava `400`, porque o DTO não tinha decoradores de validação. Corrigido.
+- **Jobs de notificação:** o resumo "diário" era gerado a cada execução do job (30 s) e o alerta urgente usava 300 s fixos. Corrigidos. Continuam pendentes: adaptador real de e-mail, e-mail do OWNER no modelo de dados e a segunda regra do RF-R12 (ver `PROGRESS.md`, T25).
+- **Upload de imagens:** limite real de 2 MB, apenas JPEG/PNG/WebP (SVG é recusado), resposta com a aparência completa. Com `STORAGE_DRIVER=local`, a URL gerada (`{PUBLIC_APP_URL}/storage/...`) não é servida pela API.

@@ -7,6 +7,7 @@ import { Button } from "@/shared/ui/button";
 import { ConfirmDialog } from "@/shared/ui/confirm-dialog";
 import { useNow, calculateElapsedSec, formatTimer } from "@/shared/lib/clock";
 import { useCancelCallMutation } from "../api/use-table-mutations";
+import { parseApiError } from "@/shared/api/problem-details";
 import { UI_MESSAGES } from "@/shared/messages/ui";
 import { cn } from "@/shared/lib/cn";
 import type { PublicCallDto } from "@/shared/types/api";
@@ -46,8 +47,8 @@ export function PendingCallCard({
 
   const isWaiter = call.type === "WAITER";
   const title = isWaiter
-    ? texts.waiterCalled || UI_MESSAGES.calls.waiterCalled
-    : texts.billRequested || UI_MESSAGES.calls.billRequested;
+    ? UI_MESSAGES.calls.waiterCalled
+    : UI_MESSAGES.calls.billRequested;
 
   const cancelLabel = texts.cancelButton || UI_MESSAGES.calls.cancelCall;
   const pendingSubtitle =
@@ -186,6 +187,14 @@ export function PendingCallCard({
             {cancelLabel}
           </Button>
         </div>
+        {cancelMutation.error && (
+          <p
+            role="alert"
+            className="mt-2 text-xs text-red-600 dark:text-red-400"
+          >
+            {parseApiError(cancelMutation.error).detail}
+          </p>
+        )}
       </div>
 
       <ConfirmDialog

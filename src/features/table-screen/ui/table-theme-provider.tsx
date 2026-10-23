@@ -13,8 +13,8 @@ export function TableThemeProvider({
   appearance,
   children,
 }: TableThemeProviderProps) {
-  const colors = appearance?.colors || {};
-  const bgType = (appearance?.backgroundType || "color").toLowerCase();
+  const colors: Record<string, string | undefined> = appearance?.colors ?? {};
+  const bgType = appearance?.backgroundType ?? "color";
   const backgroundValue = appearance?.backgroundValue || "";
 
   // Default color palette
@@ -30,8 +30,7 @@ export function TableThemeProvider({
   const safeText = getAccessibleTextColor(rawText, rawBg);
   const safePrimaryText = getAccessibleTextColor(rawPrimaryText, rawPrimary);
 
-  const isImageBg =
-    (bgType === "image" || bgType === "preset") && Boolean(backgroundValue);
+  const isImageBg = bgType === "image" && Boolean(backgroundValue);
 
   const styleVariables: React.CSSProperties = {
     "--table-bg": rawBg,

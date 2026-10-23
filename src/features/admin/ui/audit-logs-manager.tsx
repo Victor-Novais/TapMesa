@@ -29,6 +29,11 @@ import {
 } from "lucide-react";
 import type { AdminAuditLogItem } from "@/shared/types/api";
 
+// O back recusa (400) filtros de ID que não sejam UUID.
+const UUID_PATTERN =
+  /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+const INVALID_UUID_MESSAGE = "Informe um UUID completo.";
+
 export function AuditLogsManager() {
   const [cursorHistory, setCursorHistory] = React.useState<(string | null)[]>([
     null,
@@ -40,6 +45,10 @@ export function AuditLogsManager() {
   const [restaurantIdFilter, setRestaurantIdFilter] = React.useState("");
   const [actorUserIdFilter, setActorUserIdFilter] = React.useState("");
   const [actionSearch, setActionSearch] = React.useState("");
+  const [filterErrors, setFilterErrors] = React.useState<{
+    restaurantId?: string;
+    actorUserId?: string;
+  }>({});
 
   // Applied filters for query
   const [appliedFilters, setAppliedFilters] = React.useState<{
@@ -65,36 +74,47 @@ export function AuditLogsManager() {
     return logs.filter(
       (l) =>
         l.action.toLowerCase().includes(q) ||
-        l.actorRole.toLowerCase().includes(q) ||
+        (l.target && l.target.toLowerCase().includes(q)) ||
         (l.restaurantId && l.restaurantId.toLowerCase().includes(q)),
     );
   }, [logs, actionSearch]);
 
   const handleApplyFilters = (e: React.FormEvent) => {
     e.preventDefault();
+    const restaurantId = restaurantIdFilter.trim() || undefined;
+    const actorUserId = actorUserIdFilter.trim() || undefined;
+    const errors = {
+      restaurantId:
+        restaurantId && !UUID_PATTERN.test(restaurantId)
+          ? INVALID_UUID_MESSAGE
+          : undefined,
+      actorUserId:
+        actorUserId && !UUID_PATTERN.test(actorUserId)
+          ? INVALID_UUID_MESSAGE
+          : undefined,
+    };
+    setFilterErrors(errors);
+    if (errors.restaurantId || errors.actorUserId) return;
+
     setCursorHistory([null]);
     setPageIndex(0);
-    setAppliedFilters({
-      restaurantId: restaurantIdFilter.trim() || undefined,
-      actorUserId: actorUserIdFilter.trim() || undefined,
-    });
+    setAppliedFilters({ restaurantId, actorUserId });
   };
 
   const handleClearFilters = () => {
     setRestaurantIdFilter("");
     setActorUserIdFilter("");
     setActionSearch("");
+    setFilterErrors({});
     setCursorHistory([null]);
     setPageIndex(0);
     setAppliedFilters({});
   };
 
   const handleNextPage = () => {
-    if (data?.nextCursor && data.hasMore) {
-      setCursorHistory((prev) => [
-        ...prev.slice(0, pageIndex + 1),
-        data.nextCursor,
-      ]);
+    const nextCursor = data?.nextCursor;
+    if (nextCursor) {
+      setCursorHistory((prev) => [...prev.slice(0, pageIndex + 1), nextCursor]);
       setPageIndex((prev) => prev + 1);
     }
   };
@@ -183,6 +203,7 @@ export function AuditLogsManager() {
               placeholder="Filtrar por restaurante..."
               value={restaurantIdFilter}
               onChange={(e) => setRestaurantIdFilter(e.target.value)}
+              error={filterErrors.restaurantId}
               className="h-10 text-xs"
             />
           </div>
@@ -194,6 +215,7 @@ export function AuditLogsManager() {
               placeholder="Filtrar por usuário..."
               value={actorUserIdFilter}
               onChange={(e) => setActorUserIdFilter(e.target.value)}
+              error={filterErrors.actorUserId}
               className="h-10 text-xs"
             />
           </div>
@@ -246,7 +268,7 @@ export function AuditLogsManager() {
               <TableHeader>
                 <TableRow>
                   <TableHead className="w-[180px]">Data & Hora</TableHead>
-                  <TableHead className="w-[160px]">Ator / Papel</TableHead>
+                  <TableHead className="w-[160px]">Ator / IP</TableHead>
                   <TableHead>Ação Realizada</TableHead>
                   <TableHead className="w-[180px]">Restaurante</TableHead>
                   <TableHead className="w-[110px] text-right">
@@ -262,18 +284,20 @@ export function AuditLogsManager() {
                     <TableRow key={log.id} className="group">
                       {/* Data / Hora */}
                       <TableCell className="font-mono text-xs text-zinc-600 dark:text-zinc-400">
-                        {formatDate(log.timestamp)}
+                        {formatDate(log.at)}
                       </TableCell>
 
                       {/* Ator */}
                       <TableCell>
                         <div className="flex flex-col">
                           <span className="font-mono text-xs font-semibold text-zinc-900 dark:text-zinc-100 truncate max-w-[140px]">
-                            {log.actorUserId}
+                            {log.actorUserId ?? "Sistema"}
                           </span>
-                          <span className="text-[11px] text-zinc-500">
-                            Papel: {log.actorRole}
-                          </span>
+                          {log.ip && (
+                            <span className="font-mono text-[11px] text-zinc-500">
+                              IP: {log.ip}
+                            </span>
+                          )}
                         </div>
                       </TableCell>
 
@@ -357,10 +381,10 @@ export function AuditLogsManager() {
                   <div className="grid grid-cols-2 gap-2 text-[11px] text-zinc-500 pt-1 border-t border-zinc-100 dark:border-zinc-800">
                     <div>
                       <span className="block font-semibold text-zinc-700 dark:text-zinc-300">
-                        Ator ({log.actorRole})
+                        Ator
                       </span>
                       <span className="font-mono truncate block">
-                        {log.actorUserId}
+                        {log.actorUserId ?? "Sistema"}
                       </span>
                     </div>
 
@@ -368,9 +392,7 @@ export function AuditLogsManager() {
                       <span className="block font-semibold text-zinc-700 dark:text-zinc-300">
                         Data
                       </span>
-                      <span className="font-mono">
-                        {formatDate(log.timestamp)}
-                      </span>
+                      <span className="font-mono">{formatDate(log.at)}</span>
                     </div>
                   </div>
                 </Card>
@@ -379,11 +401,11 @@ export function AuditLogsManager() {
           </div>
 
           {/* Paginação */}
-          {(pageIndex > 0 || Boolean(data?.hasMore)) && (
+          {(pageIndex > 0 || Boolean(data?.nextCursor)) && (
             <Pagination
               page={pageIndex + 1}
               hasPreviousPage={pageIndex > 0}
-              hasNextPage={Boolean(data?.hasMore)}
+              hasNextPage={Boolean(data?.nextCursor)}
               onPreviousPage={handlePreviousPage}
               onNextPage={handleNextPage}
             />
@@ -432,10 +454,10 @@ export function AuditLogsManager() {
 
                   <div>
                     <span className="font-bold uppercase tracking-wider text-zinc-400 text-[10px]">
-                      Papel do Ator
+                      Alvo
                     </span>
-                    <p className="font-semibold text-zinc-900 dark:text-zinc-100">
-                      {selectedLog.actorRole}
+                    <p className="font-mono text-zinc-900 dark:text-zinc-100 break-all">
+                      {selectedLog.target ?? "—"}
                     </p>
                   </div>
                 </div>
@@ -445,7 +467,7 @@ export function AuditLogsManager() {
                     ID do Ator
                   </span>
                   <p className="font-mono text-zinc-900 dark:text-zinc-100 select-all">
-                    {selectedLog.actorUserId}
+                    {selectedLog.actorUserId ?? "Sistema"}
                   </p>
                 </div>
 
@@ -461,10 +483,19 @@ export function AuditLogsManager() {
 
                 <div className="pt-2 border-t border-zinc-200/60 dark:border-zinc-700/40">
                   <span className="font-bold uppercase tracking-wider text-zinc-400 text-[10px]">
-                    Timestamp
+                    Data e hora
                   </span>
                   <p className="font-mono text-zinc-900 dark:text-zinc-100">
-                    {formatDate(selectedLog.timestamp)}
+                    {formatDate(selectedLog.at)}
+                  </p>
+                </div>
+
+                <div className="pt-2 border-t border-zinc-200/60 dark:border-zinc-700/40">
+                  <span className="font-bold uppercase tracking-wider text-zinc-400 text-[10px]">
+                    IP de origem
+                  </span>
+                  <p className="font-mono text-zinc-900 dark:text-zinc-100">
+                    {selectedLog.ip ?? "—"}
                   </p>
                 </div>
               </div>

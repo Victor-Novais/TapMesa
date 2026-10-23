@@ -56,15 +56,8 @@ export function TableQrDialog({
     staleTime: 60_000,
   });
 
-  // Deriva a URL pública do cliente para a mesa
-  const tableUrl = React.useMemo(() => {
-    if (!table) return "";
-    const origin =
-      typeof window !== "undefined"
-        ? window.location.origin
-        : process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3001";
-    return `${origin}/m/${table.token}`;
-  }, [table]);
+  // URL canônica do QR, enviada pela API (idêntica ao conteúdo do QR Code)
+  const tableUrl = table?.url ?? "";
 
   const handleCopyLink = async () => {
     if (!tableUrl) return;

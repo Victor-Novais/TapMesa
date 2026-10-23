@@ -22,13 +22,13 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 
 export function UserMenu() {
-  const { user, role, logout } = useAuth();
+  const { user, username, role, logout } = useAuth();
   const { theme, setTheme } = useTheme();
   const pathname = usePathname();
 
   if (!user) return null;
 
-  const displayName = user.username || user.sub.slice(0, 8);
+  const displayName = username || user.sub.slice(0, 8);
   const roleLabel = role ? UI_MESSAGES.roles[role] || role : "Usuário";
   const initial = displayName.charAt(0).toUpperCase();
 

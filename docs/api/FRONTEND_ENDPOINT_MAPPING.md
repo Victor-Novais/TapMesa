@@ -22,7 +22,7 @@ flowchart TD
     CallAction --> PostCall[POST /public/tables/:token/calls]
     PostCall --> PendingState[Estado PENDING: Exibe Card de Chamado em Aberto]
 
-    SSE -->|CALL_ATTENDED| AttendedState[Estado ATTENDED: Garçom esteve na mesa]
+    SSE -->|call.attended| AttendedState[Estado ATTENDED: Garçom esteve na mesa]
     AttendedState --> ConfirmAction[Cliente clica Confirmar Atendimento]
     ConfirmAction --> PostConfirm[POST /public/tables/:token/calls/:callId/confirm { rating: 1..3 }]
 
@@ -33,15 +33,15 @@ flowchart TD
 
 ### 1.1. Endpoints Utilizados na Tela da Mesa
 
-| Ação na Interface                           | Método & Endpoint                                         | Payload / Parâmetros                  | Resposta Esperada                                                        | Tratamento de Erro                                                                                                        |
-| :------------------------------------------ | :-------------------------------------------------------- | :------------------------------------ | :----------------------------------------------------------------------- | :------------------------------------------------------------------------------------------------------------------------ |
-| **Carregamento inicial da página**          | `GET /api/v1/public/tables/:token`                        | Parâmetro `:token` na rota            | `PublicTableDto` (nome, cores, logo, número da mesa e chamados em curso) | Se `404`, exibir tela de "Mesa não encontrada / QR Code inválido". Se `available: false`, exibir motivo (`TABLE_PAUSED`). |
-| **Conexão SSE em tempo real**               | `GET /api/v1/public/tables/:token/stream`                 | Stream contínuo                       | Eventos Server-Sent Events                                               | Reconexão automática com backoff exponencial se cair.                                                                     |
-| **Chamar Garçom**                           | `POST /api/v1/public/tables/:token/calls`                 | `{ "type": "WAITER", "note": "..." }` | `201 Created` ou `200 OK` (`alreadyPending: true`)                       | Se `400` com `TABLE_PAUSED`, notificar bloqueio temporário.                                                               |
-| **Pedir a Conta**                           | `POST /api/v1/public/tables/:token/calls`                 | `{ "type": "BILL", "note": "..." }`   | `201 Created` ou `200 OK`                                                | Mesma idempotência de chamada.                                                                                            |
-| **Cancelar Chamado**                        | `POST /api/v1/public/tables/:token/calls/:callId/cancel`  | `:token` e `:callId` na rota          | `200 OK`                                                                 | Se `400`, chamado já foi atendido.                                                                                        |
-| **Confirmar Atendimento + Avaliação (T26)** | `POST /api/v1/public/tables/:token/calls/:callId/confirm` | `{ "rating": 1 \| 2 \| 3 }`           | `200 OK`                                                                 | Avaliação de 1 (Ruim) a 3 (Bom).                                                                                          |
-| **Contestar Atendimento**                   | `POST /api/v1/public/tables/:token/calls/:callId/contest` | `:token` e `:callId` na rota          | `200 OK`                                                                 | Reverte status para PENDING.                                                                                              |
+| Ação na Interface                           | Método & Endpoint                                         | Payload / Parâmetros                            | Resposta Esperada                                                        | Tratamento de Erro                                                                                                        |
+| :------------------------------------------ | :-------------------------------------------------------- | :---------------------------------------------- | :----------------------------------------------------------------------- | :------------------------------------------------------------------------------------------------------------------------ |
+| **Carregamento inicial da página**          | `GET /api/v1/public/tables/:token`                        | Parâmetro `:token` na rota                      | `PublicTableDto` (nome, cores, logo, número da mesa e chamados em curso) | Se `404`, exibir tela de "Mesa não encontrada / QR Code inválido". Se `available: false`, exibir motivo (`TABLE_PAUSED`). |
+| **Conexão SSE em tempo real**               | `GET /api/v1/public/tables/:token/stream`                 | Stream contínuo                                 | Eventos Server-Sent Events                                               | Reconexão automática com backoff exponencial se cair.                                                                     |
+| **Chamar Garçom**                           | `POST /api/v1/public/tables/:token/calls`                 | `{ "type": "WAITER", "note": "... (até 150)" }` | `201 Created` ou `200 OK` (`alreadyPending: true`)                       | Se `400` com `TABLE_PAUSED`, notificar bloqueio temporário.                                                               |
+| **Pedir a Conta**                           | `POST /api/v1/public/tables/:token/calls`                 | `{ "type": "BILL", "note": "..." }`             | `201 Created` ou `200 OK`                                                | Mesma idempotência de chamada.                                                                                            |
+| **Cancelar Chamado**                        | `POST /api/v1/public/tables/:token/calls/:callId/cancel`  | `:token` e `:callId` na rota                    | `200 OK`                                                                 | Se `400`, chamado já foi atendido.                                                                                        |
+| **Confirmar Atendimento + Avaliação (T26)** | `POST /api/v1/public/tables/:token/calls/:callId/confirm` | `{ "rating": 1 \| 2 \| 3 }`                     | `200 OK`                                                                 | Avaliação de 1 (Ruim) a 3 (Bom).                                                                                          |
+| **Contestar Atendimento**                   | `POST /api/v1/public/tables/:token/calls/:callId/contest` | `:token` e `:callId` na rota                    | `200 OK`                                                                 | Reverte status para PENDING.                                                                                              |
 
 ---
 
@@ -58,8 +58,8 @@ flowchart TD
     OpenSSE --> ReceiveSnapshot[Recebe evento 'snapshot' com estado inicial]
     ReceiveSnapshot --> RenderGrid[Renderiza Grid de Mesas com Cronômetros Ativos]
 
-    OpenSSE -->|CALL_CREATED| Beep[Toca Alerta Sonoro e Adiciona Card]
-    OpenSSE -->|CALL_ACKNOWLEDGED| UpdateCard[Atualiza Card: Atendente a caminho]
+    OpenSSE -->|call.opened| Beep[Toca Alerta Sonoro e Adiciona Card]
+    OpenSSE -->|call.acknowledged| UpdateCard[Atualiza Card: Atendente a caminho]
 
     RenderGrid --> ClickAssume[Garçom clica 'Assumir Mesa']
     ClickAssume --> PostAssume[POST /panel/calls/:id/assume]
@@ -78,7 +78,7 @@ flowchart TD
 | **Fallback REST de Estado**         | `GET /api/v1/panel/state`                  | Utilizado caso a conexão SSE não possa ser estabelecida.                     |
 | **Assumir Chamado (T26)**           | `POST /api/v1/panel/calls/:id/assume`      | Garçom assume a responsabilidade. Registra tempo de reação.                  |
 | **Marcar como Atendido**            | `POST /api/v1/panel/calls/:id/attend`      | Transiciona para `ATTENDED`. Inicia a janela de tolerância de confirmação.   |
-| **Gaveta de Atendimentos Recentes** | `GET /api/v1/panel/calls/recent?limit=15`  | Exibe histórico dos últimos atendimentos concluídos no turno.                |
+| **Gaveta de Atendimentos Recentes** | `GET /api/v1/panel/calls/recent?limit=15`  | Últimos atendidos (máx. 50) com `confirmationStatus`.                        |
 
 ---
 
@@ -87,16 +87,16 @@ flowchart TD
 - **Rota no Frontend:** `/dashboard/tables`
 - **Perfis Permitidos:** `OWNER`, `ADMIN`.
 
-| Ação na Interface                    | Método & Endpoint                      | Descrição e Contrato                                                               |
-| :----------------------------------- | :------------------------------------- | :--------------------------------------------------------------------------------- |
-| **Listagem de Mesas**                | `GET /api/v1/tables`                   | Carrega todas as mesas, status de pausa e tokens.                                  |
-| **Sugestão de Próximo Número**       | `GET /api/v1/tables/next-number`       | Preenche automaticamente o campo no modal de "Nova Mesa".                          |
-| **Cadastrar Mesas em Lote**          | `POST /api/v1/tables`                  | Body: `{ "startNumber": 1, "count": 10 }`. Tratar `409` com lista de `duplicates`. |
-| **Pausar Mesa**                      | `PATCH /api/v1/tables/:id/pause`       | Mesa para de aceitar novos chamados.                                               |
-| **Reativar Mesa**                    | `PATCH /api/v1/tables/:id/resume`      | Mesa volta a aceitar chamados normalmente.                                         |
-| **Excluir Mesa**                     | `DELETE /api/v1/tables/:id`            | Modal de confirmação: encerra streams da mesa no cliente.                          |
-| **Visualização / Impressão em Lote** | `GET /api/v1/tables/print`             | Retorna lista de mesas com SVGs embutidos para impressão em folha A4.              |
-| **Download individual de QR**        | `GET /api/v1/tables/:id/qr?format=svg` | Baixa o arquivo vetorial para gráfica ou display acrílico.                         |
+| Ação na Interface                    | Método & Endpoint                      | Descrição e Contrato                                                                |
+| :----------------------------------- | :------------------------------------- | :---------------------------------------------------------------------------------- |
+| **Listagem de Mesas**                | `GET /api/v1/tables`                   | Mesas com pausa, token e `url` (link canônico do QR: use-o no "Copiar link").       |
+| **Sugestão de Próximo Número**       | `GET /api/v1/tables/next-number`       | Preenche automaticamente o campo no modal de "Nova Mesa".                           |
+| **Cadastrar Mesas em Lote**          | `POST /api/v1/tables`                  | Body: `{ "startNumber": 1, "count": 10 }`. Tratar `409` com lista de `duplicates`.  |
+| **Pausar Mesa**                      | `PATCH /api/v1/tables/:id/pause`       | Mesa para de aceitar novos chamados.                                                |
+| **Reativar Mesa**                    | `PATCH /api/v1/tables/:id/resume`      | Mesa volta a aceitar chamados normalmente.                                          |
+| **Excluir Mesa**                     | `DELETE /api/v1/tables/:id`            | Modal de confirmação: encerra streams da mesa no cliente.                           |
+| **Visualização / Impressão em Lote** | `GET /api/v1/tables/print`             | `{ restaurant: { name, logoUrl }, tables: [{ ..., url, qrSvg }] }` para a folha A4. |
+| **Download individual de QR**        | `GET /api/v1/tables/:id/qr?format=svg` | PNG (padrão) ou SVG; cabeçalho `X-Table-Url` com o link embutido.                   |
 
 ---
 
@@ -105,14 +105,14 @@ flowchart TD
 - **Rota no Frontend:** `/dashboard/analytics`
 - **Perfis Permitidos:** `OWNER`, `ADMIN`.
 
-| Componente na Tela                 | Endpoint Utilizado                                     | Dados Exibidos                                                                    |
-| :--------------------------------- | :----------------------------------------------------- | :-------------------------------------------------------------------------------- |
-| **Cards de Visão Geral (KPIs)**    | `GET /api/v1/analytics/summary?from=...&to=...`        | Total de chamados, % dentro da meta SLA, tempo médio de espera, satisfação média. |
-| **Gráfico de Picos por Hora**      | `GET /api/v1/analytics/by-hour?from=...&to=...`        | Gráfico de barras com volume de chamados por hora (0h às 23h).                    |
-| **Ranking de Mesas**               | `GET /api/v1/analytics/tables-ranking?from=...&to=...` | Mesas com mais chamados e mesas que mais esperaram.                               |
-| **Tabela Paginada de Chamados**    | `GET /api/v1/analytics/calls?cursor=...&limit=20`      | Tabela com filtros por tipo, status, mesa e paginação infinita por cursor.        |
-| **Card de Comparativo Diário**     | `GET /api/v1/analytics/summary/compare`                | Variação percentual de hoje em relação a ontem e à semana passada.                |
-| **Botão "Exportar Relatório CSV"** | `GET /api/v1/analytics/export.csv?from=...&to=...`     | Download direto do arquivo CSV formatado.                                         |
+| Componente na Tela                 | Endpoint Utilizado                                     | Dados Exibidos                                                                                                                 |
+| :--------------------------------- | :----------------------------------------------------- | :----------------------------------------------------------------------------------------------------------------------------- |
+| **Cards de Visão Geral (KPIs)**    | `GET /api/v1/analytics/summary?from=...&to=...`        | Total de chamados, % dentro da meta SLA, tempo médio de espera, satisfação média.                                              |
+| **Gráfico de Picos por Hora**      | `GET /api/v1/analytics/by-hour?from=...&to=...`        | `byHour[]` (0h às 23h): volume por tipo e `averageResponseTimeSec`.                                                            |
+| **Ranking de Mesas**               | `GET /api/v1/analytics/tables-ranking?from=...&to=...` | `ranking.all                                                                                                                   | waiter | bill`, cada um com `byVolume`e`byResponseTime`. |
+| **Tabela Paginada de Chamados**    | `GET /api/v1/analytics/calls?cursor=...&limit=20`      | Filtros `type`, `status`, `table`; há mais páginas enquanto `nextCursor !== null`.                                             |
+| **Card de Comparativo Diário**     | `GET /api/v1/analytics/summary/compare`                | `today`, `yesterday`, `sameDayLastWeek` com métricas completas e `delta` absoluto; a variação percentual é calculada no front. |
+| **Botão "Exportar Relatório CSV"** | `GET /api/v1/analytics/export.csv?from=...&to=...`     | Download direto do arquivo CSV formatado.                                                                                      |
 
 ---
 
@@ -121,14 +121,14 @@ flowchart TD
 - **Rota no Frontend:** `/dashboard/team`
 - **Perfis Permitidos:** `OWNER`, `ADMIN`.
 
-| Funcionalidade                  | Endpoint Utilizado                                 | Observações                                                              |
-| :------------------------------ | :------------------------------------------------- | :----------------------------------------------------------------------- |
-| **Listar Equipe**               | `GET /api/v1/restaurant/users`                     | Lista de membros com status ativo/inativo.                               |
-| **Novo Membro**                 | `POST /api/v1/restaurant/users`                    | Body: `{ username, role, password? }`. Exibir senha temporária em modal. |
-| **Ativar / Bloquear Atendente** | `PATCH /api/v1/restaurant/users/:id/status`        | Body: `{ active: boolean }`. Bloqueia o login imediatamente.             |
-| **Resetar Senha de Garçom**     | `POST /api/v1/restaurant/users/:id/reset-password` | Exibe nova senha temporária gerada pelo servidor.                        |
-| **Remover da Equipe**           | `DELETE /api/v1/restaurant/users/:id`              | Exclusão do usuário (não pode excluir a si próprio).                     |
-| **Desempenho por Garçom**       | `GET /api/v1/restaurant/users/metrics`             | Total atendido, tempo médio de reação e avaliação de cada um.            |
+| Funcionalidade                  | Endpoint Utilizado                                 | Observações                                                               |
+| :------------------------------ | :------------------------------------------------- | :------------------------------------------------------------------------ |
+| **Listar Equipe**               | `GET /api/v1/restaurant/users`                     | Lista de membros com status ativo/inativo.                                |
+| **Novo Membro**                 | `POST /api/v1/restaurant/users`                    | Body: `{ username, role, password? }`. Exibir senha temporária em modal.  |
+| **Ativar / Bloquear Atendente** | `PATCH /api/v1/restaurant/users/:id/status`        | Body: `{ active: boolean }`. Bloqueia o login imediatamente.              |
+| **Resetar Senha de Garçom**     | `POST /api/v1/restaurant/users/:id/reset-password` | Exibe nova senha temporária gerada pelo servidor.                         |
+| **Remover da Equipe**           | `DELETE /api/v1/restaurant/users/:id`              | Exclusão do usuário (não pode excluir a si próprio).                      |
+| **Desempenho por Garçom**       | `GET /api/v1/restaurant/users/metrics`             | `waiters[]`: atendidos, tempo médio, mais rápido e mais lento por garçom. |
 
 ---
 
@@ -137,13 +137,14 @@ flowchart TD
 - **Rota no Frontend:** `/dashboard/settings`
 - **Perfis Permitidos:** `OWNER`, `ADMIN`.
 
-| Aba de Configuração          | Endpoints Utilizados                                                                                                                    | Finalidade                                                                   |
-| :--------------------------- | :-------------------------------------------------------------------------------------------------------------------------------------- | :--------------------------------------------------------------------------- |
-| **Atendimento e SLA**        | `GET` e `PUT /api/v1/settings/service`                                                                                                  | Metas de resposta, tempo de alerta, tempo urgente e hora de virada do dia.   |
-| **Identidade Visual e Logo** | `GET` e `PUT /api/v1/settings/appearance`<br/>`POST /api/v1/settings/appearance/logo`<br/>`POST /api/v1/settings/appearance/background` | Cores da marca, upload de logotipo, imagem de fundo da mesa e redes sociais. |
-| **Restaurar Tema Padrão**    | `POST /api/v1/settings/appearance/reset`                                                                                                | Reseta layout para as cores padrão do TapMesa.                               |
-| **E-mails e Alertas**        | `GET` e `PATCH /api/v1/restaurant/notifications/settings`                                                                               | Ativa envio de Resumo Diário e alertas urgentes com cooldown.                |
-| **Testar E-mail Diário**     | `POST /api/v1/restaurant/notifications/send-daily-summary`                                                                              | Disparo manual imediato para validar entrega do e-mail.                      |
+| Aba de Configuração          | Endpoints Utilizados                                                                                                                    | Finalidade                                                                                                        |
+| :--------------------------- | :-------------------------------------------------------------------------------------------------------------------------------------- | :---------------------------------------------------------------------------------------------------------------- |
+| **Atendimento e SLA**        | `GET` e `PUT /api/v1/settings/service`                                                                                                  | Metas de resposta, tempo de alerta, tempo urgente e hora de virada do dia.                                        |
+| **Identidade Visual e Logo** | `GET` e `PUT /api/v1/settings/appearance`<br/>`POST /api/v1/settings/appearance/logo`<br/>`POST /api/v1/settings/appearance/background` | Cores, textos (chaves canônicas), links e Wi-Fi (`socials`, substituído inteiro). Upload: JPEG/PNG/WebP até 2 MB. |
+| **Restaurar Tema Padrão**    | `POST /api/v1/settings/appearance/reset`                                                                                                | Reseta layout para as cores padrão do TapMesa.                                                                    |
+| **E-mails e Alertas**        | `GET` e `PATCH /api/v1/restaurant/notifications/settings`                                                                               | Ativa envio de Resumo Diário e alertas urgentes com cooldown.                                                     |
+| **Testar E-mail Diário**     | `POST /api/v1/restaurant/notifications/send-daily-summary`                                                                              | `201 { sent, recipient, subject, operationalDay }`. Ainda não há provedor de e-mail: nada é entregue.             |
+| **Testar Alerta Urgente**    | `POST /api/v1/restaurant/notifications/send-urgent-alert`                                                                               | Corpo obrigatório `{ tableNumber, callType, waitDurationSec, urgentThresholdSec, force: true }`. `201`.           |
 
 ---
 
@@ -152,13 +153,13 @@ flowchart TD
 - **Rota no Frontend:** `/admin`
 - **Perfil Exclusivo:** `ADMIN`.
 
-| Tela / Modal                   | Endpoint Utilizado                                        | Finalidade                                                                 |
-| :----------------------------- | :-------------------------------------------------------- | :------------------------------------------------------------------------- |
-| **Lista de Restaurantes**      | `GET /api/v1/admin/restaurants?cursor=...`                | Visão geral dos estabelecimentos, quantidade de mesas e usuários.          |
-| **Cadastrar Restaurante**      | `POST /api/v1/admin/restaurants`                          | Cria restaurante e usuário `OWNER` com senha inicial.                      |
-| **Suspender Restaurante**      | `PATCH /api/v1/admin/restaurants/:id/suspend`             | Bloqueia logins e encerra chamados do estabelecimento.                     |
-| **Reativar Restaurante**       | `PATCH /api/v1/admin/restaurants/:id/reactivate`          | Restaura a operação do restaurante.                                        |
-| **Reset de Senha do Owner**    | `POST /api/v1/admin/restaurants/:id/reset-owner-password` | Gera nova senha para o dono do restaurante.                                |
-| **Impersonar Restaurante**     | `POST /api/v1/admin/restaurants/:id/impersonate`          | Retorna Access Token para o Admin operar como o restaurante com auditoria. |
-| **Excluir Restaurante**        | `DELETE /api/v1/admin/restaurants/:id`                    | Body: `{ "confirmName": "Nome Exato" }`. Exclusão em cascata.              |
-| **Trilha de Auditoria Global** | `GET /api/v1/admin/audit?limit=50`                        | Log imutável de todas as ações administrativas e impersonações.            |
+| Tela / Modal                   | Endpoint Utilizado                                        | Finalidade                                                                                                                                            |
+| :----------------------------- | :-------------------------------------------------------- | :---------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **Lista de Restaurantes**      | `GET /api/v1/admin/restaurants?cursor=...`                | Lista em `data` (`id`, `name`, `ownerUsername`, `createdAt`, `status`); `nextCursor` some na última página. Sem contagem de mesas/usuários.           |
+| **Cadastrar Restaurante**      | `POST /api/v1/admin/restaurants`                          | Cria restaurante e usuário `OWNER` com senha inicial.                                                                                                 |
+| **Suspender Restaurante**      | `PATCH /api/v1/admin/restaurants/:id/suspend`             | Bloqueia logins e encerra chamados do estabelecimento.                                                                                                |
+| **Reativar Restaurante**       | `PATCH /api/v1/admin/restaurants/:id/reactivate`          | Restaura a operação do restaurante.                                                                                                                   |
+| **Reset de Senha do Owner**    | `POST /api/v1/admin/restaurants/:id/reset-owner-password` | `201 { newPasswordPlain }`: exibir uma única vez.                                                                                                     |
+| **Impersonar Restaurante**     | `POST /api/v1/admin/restaurants/:id/impersonate`          | Retorna Access Token para o Admin operar como o restaurante com auditoria.                                                                            |
+| **Excluir Restaurante**        | `DELETE /api/v1/admin/restaurants/:id`                    | Body: `{ "confirmName": "Nome Exato" }`. Exclusão em cascata.                                                                                         |
+| **Trilha de Auditoria Global** | `GET /api/v1/admin/audit?limit=50`                        | `{ items: [{ at, action, actorUserId, restaurantId, target, ip, meta }], nextCursor, totalCount }`. Filtros: `restaurantId`, `action`, `actorUserId`. |

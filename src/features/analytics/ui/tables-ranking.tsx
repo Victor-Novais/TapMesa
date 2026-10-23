@@ -18,25 +18,22 @@ export interface TablesRankingProps {
 
 export function TablesRanking({ rankingData }: TablesRankingProps) {
   const byVolume = React.useMemo(
-    () => rankingData?.ranking?.byVolume || [],
-    [rankingData?.ranking?.byVolume],
+    () => rankingData?.ranking.all.byVolume ?? [],
+    [rankingData?.ranking.all.byVolume],
   );
-  const byWaitTime = React.useMemo(
-    () => rankingData?.ranking?.byWaitTime || [],
-    [rankingData?.ranking?.byWaitTime],
+  // Ordenado pela API do maior para o menor tempo médio de resposta
+  const byResponseTime = React.useMemo(
+    () => rankingData?.ranking.all.byResponseTime ?? [],
+    [rankingData?.ranking.all.byResponseTime],
   );
 
   const maxVolume = React.useMemo(() => {
-    return byVolume.length > 0
-      ? Math.max(...byVolume.map((t) => t.totalCalls))
-      : 1;
+    return Math.max(1, ...byVolume.map((t) => t.totalCalls));
   }, [byVolume]);
 
   const maxWait = React.useMemo(() => {
-    return byWaitTime.length > 0
-      ? Math.max(...byWaitTime.map((t) => t.averageWaitSec))
-      : 1;
-  }, [byWaitTime]);
+    return Math.max(1, ...byResponseTime.map((t) => t.averageResponseTimeSec));
+  }, [byResponseTime]);
 
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -92,7 +89,8 @@ export function TablesRanking({ rankingData }: TablesRankingProps) {
                         </span>
                       </span>
                       <span className="text-zinc-400 text-[11px]">
-                        (espera {formatDurationSec(item.averageWaitSec)})
+                        (espera {formatDurationSec(item.averageResponseTimeSec)}
+                        )
                       </span>
                     </div>
                   </div>
@@ -123,14 +121,14 @@ export function TablesRanking({ rankingData }: TablesRankingProps) {
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-3">
-          {byWaitTime.length === 0 ? (
+          {byResponseTime.length === 0 ? (
             <p className="text-xs text-zinc-400 py-6 text-center">
               Nenhuma mesa registrada no período.
             </p>
           ) : (
-            byWaitTime.slice(0, 5).map((item, index) => {
+            byResponseTime.slice(0, 5).map((item, index) => {
               const percentage = Math.round(
-                (item.averageWaitSec / maxWait) * 100,
+                (item.averageResponseTimeSec / maxWait) * 100,
               );
 
               return (
@@ -153,7 +151,7 @@ export function TablesRanking({ rankingData }: TablesRankingProps) {
 
                     <div className="flex items-center gap-3 font-mono">
                       <span className="text-red-600 dark:text-red-400 font-bold">
-                        {formatDurationSec(item.averageWaitSec)}
+                        {formatDurationSec(item.averageResponseTimeSec)}
                       </span>
                       <span className="text-zinc-400 text-[11px]">
                         ({item.totalCalls}{" "}

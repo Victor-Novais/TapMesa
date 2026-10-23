@@ -70,7 +70,7 @@ O `accessToken` é um JSON Web Token assinado com algoritmo **HMAC SHA-256** (HS
 
 ### 2.2. Rotação de Chaves de Assinatura (Key Rotation)
 
-O backend possui suporte a rotação de segredos sem desconectar usuários ativos (implementado em [`JwtAuthGuard`](file:///home/novais/Desktop/TapMesa-Back-End/src/modules/identity-access/presentation/guards/JwtAuthGuard.ts)). Se uma chave anterior estiver configurada em `JWT_PREVIOUS_ACCESS_SECRET` e `JWT_PREVIOUS_KEY_ID`, tokens emitidos com a chave anterior continuam válidos até expirarem naturalmente.
+O backend possui suporte a rotação de segredos sem desconectar usuários ativos (implementado em [`JwtAuthGuard`](../../src/modules/identity-access/presentation/guards/JwtAuthGuard.ts)). Se uma chave anterior estiver configurada em `JWT_PREVIOUS_ACCESS_SECRET` e `JWT_PREVIOUS_KEY_ID`, tokens emitidos com a chave anterior continuam válidos até expirarem naturalmente.
 
 ---
 
@@ -144,7 +144,7 @@ A arquitetura do TapMesa é estritamente **multi-tenant com isolamento lógico**
 ### 5.1. Regras de Isolamento no Backend
 
 1. **Contexto Obrigatório (`@RequireTenant()`):** Controllers de restaurante exigem a claim `rid` no token. Se um token `ADMIN` for usado sem restaurante definido, o backend rejeita com `403 Forbidden`.
-2. **Prevenção de Acesso Cruzado:** Caso um endpoint receba um parâmetro `:restaurantId` na URL, o [`TenantGuard`](file:///home/novais/Desktop/TapMesa-Back-End/src/modules/identity-access/presentation/guards/TenantGuard.ts) valida se o valor confere com o `rid` do token:
+2. **Prevenção de Acesso Cruzado:** Caso um endpoint receba um parâmetro `:restaurantId` na URL, o [`TenantGuard`](../../src/modules/identity-access/presentation/guards/TenantGuard.ts) valida se o valor confere com o `rid` do token:
    ```ts
    if (
      paramRestaurantId &&
@@ -174,7 +174,7 @@ Para permitir que o suporte ou o administrador da plataforma configure um restau
    - `rid`: ID do restaurante alvo.
    - `role`: `OWNER`.
    - `imp`: ID do usuário `ADMIN` que iniciou a impersonação.
-3. **Auditoria Automática de Ações:** O interceptor global [`ImpersonationAuditInterceptor`](file:///home/novais/Desktop/TapMesa-Back-End/src/shared/presentation/interceptors/ImpersonationAuditInterceptor.ts) detecta requisições de mutação (`POST`, `PUT`, `PATCH`, `DELETE`) executadas com a claim `imp` presente e grava um registro na tabela `AuditLog`:
+3. **Auditoria Automática de Ações:** O interceptor global [`ImpersonationAuditInterceptor`](../../src/shared/presentation/interceptors/ImpersonationAuditInterceptor.ts) detecta requisições de mutação (`POST`, `PUT`, `PATCH`, `DELETE`) executadas com a claim `imp` presente e grava um registro na tabela `AuditLog`:
    - `action`: `IMPERSONATED_ACTION`
    - `actorUserId`: ID do administrador
    - `target`: Método e URL executados
@@ -190,7 +190,7 @@ Para permitir que o suporte ou o administrador da plataforma configure um restau
 A API `EventSource` dos navegadores não permite a passagem de cabeçalhos customizados como `Authorization`. Para contornar essa limitação sem expor o JWT em query strings (que ficariam gravadas em logs de acesso e proxies):
 
 1. O frontend realiza um `POST /api/v1/panel/stream-ticket` enviando o JWT no header `Authorization`.
-2. O servidor gera um ticket UUID criptográfico com validade de **60 segundos** e de **uso único**.
+2. O servidor gera um ticket (JWT assinado contendo `rid`, `sub`, `role` e um `jti` UUID aleatório) com validade de **60 segundos** e de **uso único**: o `jti` é registrado no armazenamento de tickets e removido no primeiro uso.
 3. O frontend abre a conexão SSE fornecendo o ticket:
    ```ts
    const eventSource = new EventSource(`/api/v1/panel/stream?ticket=${ticket}`);

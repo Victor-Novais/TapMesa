@@ -17,7 +17,7 @@ export function DashboardHeader({ onOpenMobileMenu }: DashboardHeaderProps) {
   const { user } = useAuth();
   const { impersonation } = useAuthStore();
 
-  const hasRestaurant = Boolean(user?.restaurantId || user?.rid);
+  const hasRestaurant = Boolean(user?.rid);
 
   const { data: restaurant } = useQuery({
     queryKey: queryKeys.settings.currentRestaurant,

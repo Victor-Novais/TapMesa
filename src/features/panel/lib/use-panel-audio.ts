@@ -23,6 +23,7 @@ export interface UsePanelAudioResult {
   setUrgentInterval: (sec: number) => void;
   testSound: (type: "WAITER" | "BILL" | "URGENT") => void;
   testVoice: () => void;
+  playUrgentAlert: () => void;
 }
 
 export function usePanelAudio(isEnabled = true): UsePanelAudioResult {
@@ -96,6 +97,12 @@ export function usePanelAudio(isEnabled = true): UsePanelAudioResult {
   const testVoice = React.useCallback(() => {
     speakText("Teste de voz do painel TapMesa. Mesa 5 chama o garçom.");
   }, []);
+
+  // Alerta disparado pelo back (`alert.raised`); respeita o modo mudo
+  const playUrgentAlert = React.useCallback(() => {
+    if (!isEnabled || preferences.isMuted) return;
+    playUrgentSound(preferences.volume);
+  }, [isEnabled, preferences.isMuted, preferences.volume]);
 
   // Monitoramento de Novos Chamados (Detecção de delta para som e fala)
   React.useEffect(() => {
@@ -190,5 +197,6 @@ export function usePanelAudio(isEnabled = true): UsePanelAudioResult {
     setUrgentInterval,
     testSound,
     testVoice,
+    playUrgentAlert,
   };
 }

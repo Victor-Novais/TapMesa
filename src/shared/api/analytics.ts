@@ -5,6 +5,8 @@ import type {
   TablesRankingResponse,
   AnalyticsCallsResponse,
   AnalyticsCompareResponse,
+  CallStatus,
+  CallType,
 } from "@/shared/types/api";
 
 export async function getAnalyticsSummary(
@@ -47,9 +49,9 @@ export async function getTablesRanking(
 }
 
 export interface AnalyticsCallsFilters {
-  type?: string;
-  status?: string;
-  tableNumber?: number;
+  type?: CallType;
+  status?: CallStatus;
+  table?: number; // número da mesa
   from?: string;
   to?: string;
 }

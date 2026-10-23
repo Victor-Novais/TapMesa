@@ -20,9 +20,9 @@ export function TablePrintCard({
 }: TablePrintCardProps) {
   // Converte a string SVG do QR Code em Data URI seguro (regra D8: sem dangerouslySetInnerHTML)
   const qrDataUri = React.useMemo(() => {
-    if (!table.qrCodeSvg) return null;
-    return `data:image/svg+xml;utf8,${encodeURIComponent(table.qrCodeSvg)}`;
-  }, [table.qrCodeSvg]);
+    if (!table.qrSvg) return null;
+    return `data:image/svg+xml;utf8,${encodeURIComponent(table.qrSvg)}`;
+  }, [table.qrSvg]);
 
   const isLarge = layoutSize === "large";
 

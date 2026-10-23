@@ -162,11 +162,11 @@ Armazena os estabelecimentos cadastrados e suas regras operacionais.
 - `status` (`restaurant_status`, Default: `'ACTIVE'`): `ACTIVE` ou `SUSPENDED`.
 - `timezone` (`VARCHAR`, Default: `'America/Sao_Paulo'`): Fuso horário IANA para cálculo do dia operacional e agendamentos.
 - `day_cutoff_hour` (`INT`, Default: `5`): Hora de virada do dia operacional (ex: 5h da manhã).
-- `alertSec` (`INT`, Default: `180`): Tempo em segundos para sinalização de alerta de espera (_Warning_ / Laranja).
-- `urgentSec` (`INT`, Default: `300`): Tempo em segundos para sinalização de urgência (_Critical_ / Vermelho).
-- `responseGoalSec` (`INT`, Default: `180`): Meta de SLA para cálculo de taxa de sucesso nas métricas.
-- `confirmationWindowSec` (`INT`, Default: `180`): Janela de tolerância (em segundos) concedida ao cliente para confirmar ou contestar o atendimento antes do encerramento automático.
-- `showWaitTimeToCustomer` (`BOOLEAN`, Default: `false`): Determina se a tela do cliente na mesa exibe o cronômetro com o tempo de espera.
+- `alert_sec` (`INT`, Default: `180`): Tempo em segundos para sinalização de alerta de espera (_Warning_ / Laranja).
+- `urgent_sec` (`INT`, Default: `300`): Tempo em segundos para sinalização de urgência (_Critical_ / Vermelho).
+- `response_goal_sec` (`INT`, Default: `180`): Meta de SLA para cálculo de taxa de sucesso nas métricas.
+- `confirmation_window_sec` (`INT`, Default: `180`): Janela de tolerância (em segundos) concedida ao cliente para confirmar ou contestar o atendimento antes do encerramento automático.
+- `show_wait_time_to_customer` (`BOOLEAN`, Default: `false`): Determina se a tela do cliente na mesa exibe o cronômetro com o tempo de espera.
 - `created_at` (`TIMESTAMPTZ`): Data e hora de criação.
 
 ---
@@ -179,7 +179,7 @@ Customização de marca e layout da tela pública das mesas.
 - `name` (`VARCHAR`): Nome público exibido aos clientes.
 - `description` (`TEXT`, Opcional): Descrição ou slogan.
 - `logo_key` (`VARCHAR`, Opcional): Identificador do arquivo de logotipo no storage.
-- `background_type` (`VARCHAR`, Default: `'color'`): `'color'`, `'image'` ou `'preset'`.
+- `background_type` (`VARCHAR`, Default: `'color'`): `'color'` ou `'image'`.
 - `background_value` (`VARCHAR`, Opcional): Código HEX da cor ou URL da imagem de fundo.
 - `colors` (`JSONB`, Default: `{}`): Paleta de cores (`primary`, `secondary`, `background`, `text`).
 - `texts` (`JSONB`, Default: `{}`): Textos personalizados de boas-vindas e rótulos dos botões.
@@ -242,7 +242,7 @@ Histórico e estado atual de todos os atendimentos solicitados.
 - `table_number` (`INT`): Cópia denormalizada do número da mesa para leitura rápida e preservação histórica.
 - `type` (`call_type`): `WAITER` (Chamar Garçom) ou `BILL` (Pedir a Conta).
 - `status` (`call_status`): `PENDING`, `ATTENDED`, `CONFIRMED`, `CLOSED_UNCONFIRMED`, `CANCELLED` ou `EXPIRED`.
-- `note` (`VARCHAR(140)`, Opcional): Observação curta do cliente.
+- `note` (`TEXT`, Opcional): Observação curta do cliente, sanitizada e limitada a 150 caracteres no domínio (`CallNote`, RF-C04 / RN-09).
 - `created_at` (`TIMESTAMPTZ`): Momento da abertura do chamado pelo cliente.
 - `acknowledged_at` (`TIMESTAMPTZ`, Opcional): Momento em que o garçom clicou em "Estou a caminho" ou "Assumir".
 - `acknowledged_by_id` (`UUID`, Opcional): Atendente que reconheceu/assumiu o chamado.

@@ -8,6 +8,8 @@ import type {
   UpdateAppearanceRequest,
   NotificationSettingsDto,
   UpdateNotificationSettingsRequest,
+  SendDailySummaryResponse,
+  SendUrgentAlertResponse,
 } from "@/shared/types/api";
 
 export function useServiceSettingsQuery() {
@@ -130,13 +132,13 @@ export function useUpdateNotificationSettingsMutation() {
 }
 
 export function useSendDailySummaryTestMutation() {
-  return useMutation<{ success: boolean; message: string }, Error, void>({
+  return useMutation<SendDailySummaryResponse, Error, void>({
     mutationFn: () => notificationsApi.sendDailySummaryTest(),
   });
 }
 
 export function useSendUrgentAlertTestMutation() {
-  return useMutation<{ success: boolean; message: string }, Error, void>({
+  return useMutation<SendUrgentAlertResponse, Error, void>({
     mutationFn: () => notificationsApi.sendUrgentAlertTest(),
   });
 }

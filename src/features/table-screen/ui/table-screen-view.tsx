@@ -72,6 +72,7 @@ export function TableScreenView({ token }: TableScreenViewProps) {
           available={data.available}
           showWaitTimeToCustomer={data.showWaitTimeToCustomer}
           texts={data.appearance.texts}
+          colors={data.appearance.colors}
         />
       </TableScreen>
     </TableThemeProvider>

@@ -100,7 +100,7 @@ export function RestaurantsManager() {
     null,
   );
 
-  const restaurants = React.useMemo(() => data?.items ?? [], [data?.items]);
+  const restaurants = React.useMemo(() => data?.data ?? [], [data?.data]);
 
   // Filter restaurants by search query
   const filteredRestaurants = React.useMemo(() => {
@@ -109,17 +109,15 @@ export function RestaurantsManager() {
     return restaurants.filter(
       (r) =>
         r.name.toLowerCase().includes(q) ||
-        (r.ownerUsername && r.ownerUsername.toLowerCase().includes(q)),
+        r.ownerUsername.toLowerCase().includes(q),
     );
   }, [restaurants, search]);
 
   // Handlers
   const handleNextPage = () => {
-    if (data?.nextCursor && data.hasMore) {
-      setCursorHistory((prev) => [
-        ...prev.slice(0, pageIndex + 1),
-        data.nextCursor,
-      ]);
+    const nextCursor = data?.nextCursor;
+    if (nextCursor) {
+      setCursorHistory((prev) => [...prev.slice(0, pageIndex + 1), nextCursor]);
       setPageIndex((prev) => prev + 1);
     }
   };
@@ -137,17 +135,14 @@ export function RestaurantsManager() {
       startImpersonation({
         accessToken: res.accessToken,
         restaurantId: res.restaurantId,
-        restaurantName: res.restaurantName,
+        restaurantName: restaurant.name,
+        ownerUsername: res.ownerUsername,
       });
       queryClient.clear();
       router.push("/dashboard");
     } catch (err) {
       const parsed = parseApiError(err);
-      if (
-        parsed.code === "CANNOT_IMPERSONATE_SUSPENDED_RESTAURANT" ||
-        parsed.status === 409 ||
-        restaurant.status === "SUSPENDED"
-      ) {
+      if (parsed.code === "RESTAURANT_SUSPENDED") {
         toast({
           title: "Restaurante suspenso",
           description:
@@ -218,8 +213,8 @@ export function RestaurantsManager() {
       const target = resetPasswordTarget;
       setResetPasswordTarget(null);
       setOneTimeSecret({
-        username: target.ownerUsername || target.name,
-        secret: res.temporaryPassword,
+        username: target.ownerUsername,
+        secret: res.newPasswordPlain,
         title: "Nova Senha do Administrador",
       });
     } catch (err) {
@@ -263,14 +258,11 @@ export function RestaurantsManager() {
       type: "success",
     });
 
-    const secret = res.ownerPasswordPlain || res.temporaryPassword;
-    if (secret) {
-      setOneTimeSecret({
-        username: res.ownerUsername,
-        secret: secret,
-        title: "Credenciais de Acesso do Proprietário",
-      });
-    }
+    setOneTimeSecret({
+      username: res.ownerUsername,
+      secret: res.ownerPasswordPlain,
+      title: "Credenciais de Acesso do Proprietário",
+    });
   };
 
   const formatDate = (dateStr: string) => {
@@ -377,10 +369,6 @@ export function RestaurantsManager() {
                 <TableRow>
                   <TableHead className="w-[260px]">Estabelecimento</TableHead>
                   <TableHead className="w-[120px]">Status</TableHead>
-                  <TableHead className="w-[110px] text-center">Mesas</TableHead>
-                  <TableHead className="w-[110px] text-center">
-                    Equipe
-                  </TableHead>
                   <TableHead className="w-[140px]">Cadastrado em</TableHead>
                   <TableHead className="w-[260px] text-right">Ações</TableHead>
                 </TableRow>
@@ -403,14 +391,12 @@ export function RestaurantsManager() {
                             <p className="font-bold text-zinc-900 dark:text-zinc-100">
                               {restaurant.name}
                             </p>
-                            {restaurant.ownerUsername && (
-                              <p className="text-xs text-zinc-500 dark:text-zinc-400">
-                                Dono:{" "}
-                                <span className="font-mono text-zinc-700 dark:text-zinc-300">
-                                  {restaurant.ownerUsername}
-                                </span>
-                              </p>
-                            )}
+                            <p className="text-xs text-zinc-500 dark:text-zinc-400">
+                              Dono:{" "}
+                              <span className="font-mono text-zinc-700 dark:text-zinc-300">
+                                {restaurant.ownerUsername}
+                              </span>
+                            </p>
                           </div>
                         </div>
                       </TableCell>
@@ -432,20 +418,6 @@ export function RestaurantsManager() {
                             Ativo
                           </Badge>
                         )}
-                      </TableCell>
-
-                      {/* Contagem de Mesas */}
-                      <TableCell className="text-center font-mono text-xs">
-                        <span className="rounded-md bg-zinc-100 px-2 py-0.5 font-bold text-zinc-700 dark:bg-zinc-800 dark:text-zinc-300">
-                          {restaurant.tablesCount}
-                        </span>
-                      </TableCell>
-
-                      {/* Contagem de Usuários */}
-                      <TableCell className="text-center font-mono text-xs">
-                        <span className="rounded-md bg-zinc-100 px-2 py-0.5 font-bold text-zinc-700 dark:bg-zinc-800 dark:text-zinc-300">
-                          {restaurant.usersCount}
-                        </span>
                       </TableCell>
 
                       {/* Data de Criação */}
@@ -595,8 +567,8 @@ export function RestaurantsManager() {
                               Ativo
                             </Badge>
                           )}
-                          <span className="text-xs text-zinc-500">
-                            {restaurant.tablesCount} mesas
+                          <span className="font-mono text-xs text-zinc-500">
+                            {restaurant.ownerUsername}
                           </span>
                         </div>
                       </div>
@@ -684,11 +656,11 @@ export function RestaurantsManager() {
           </div>
 
           {/* Paginação */}
-          {(pageIndex > 0 || Boolean(data?.hasMore)) && (
+          {(pageIndex > 0 || Boolean(data?.nextCursor)) && (
             <Pagination
               page={pageIndex + 1}
               hasPreviousPage={pageIndex > 0}
-              hasNextPage={Boolean(data?.hasMore)}
+              hasNextPage={Boolean(data?.nextCursor)}
               onPreviousPage={handlePreviousPage}
               onNextPage={handleNextPage}
             />

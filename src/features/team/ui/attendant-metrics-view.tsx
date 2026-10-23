@@ -18,9 +18,9 @@ import {
   ArrowUpDown,
   ArrowUp,
   ArrowDown,
-  Star,
   Clock,
   Zap,
+  Hourglass,
   CheckCircle2,
   Users,
 } from "lucide-react";
@@ -28,10 +28,10 @@ import type { AttendantMetric } from "@/shared/types/api";
 
 type SortField =
   | "username"
-  | "totalAttended"
-  | "averageReactionTimeSec"
-  | "averageExecutionTimeSec"
-  | "averageRating";
+  | "totalCallsAttended"
+  | "avgResponseTimeSec"
+  | "fastestResponseSec"
+  | "slowestResponseSec";
 
 type SortDirection = "asc" | "desc";
 
@@ -45,7 +45,7 @@ function formatDuration(seconds: number | null | undefined): string {
     seconds === null ||
     seconds === undefined ||
     isNaN(seconds) ||
-    seconds <= 0
+    seconds < 0
   ) {
     return "—";
   }
@@ -57,18 +57,12 @@ function formatDuration(seconds: number | null | undefined): string {
   return `${mins}m ${secs.toString().padStart(2, "0")}s`;
 }
 
-function formatRating(rating: number | null | undefined): string {
-  if (rating === null || rating === undefined || isNaN(rating) || rating <= 0) {
-    return "—";
-  }
-  return rating.toFixed(1);
-}
-
 export function AttendantMetricsView({
   metrics,
   isLoading = false,
 }: AttendantMetricsViewProps) {
-  const [sortField, setSortField] = React.useState<SortField>("totalAttended");
+  const [sortField, setSortField] =
+    React.useState<SortField>("totalCallsAttended");
   const [sortDirection, setSortDirection] =
     React.useState<SortDirection>("desc");
 
@@ -77,11 +71,8 @@ export function AttendantMetricsView({
       setSortDirection((prev) => (prev === "asc" ? "desc" : "asc"));
     } else {
       setSortField(field);
-      // For reaction and execution time, ascending (faster) is usually the desired first direction
-      if (
-        field === "averageReactionTimeSec" ||
-        field === "averageExecutionTimeSec"
-      ) {
+      // Para tempos, o crescente (mais rápido primeiro) é a direção inicial desejada
+      if (field !== "username" && field !== "totalCallsAttended") {
         setSortDirection("asc");
       } else {
         setSortDirection("desc");
@@ -95,9 +86,7 @@ export function AttendantMetricsView({
       if (sortField === "username") {
         comparison = a.username.localeCompare(b.username, "pt-BR");
       } else {
-        const valA = a[sortField] ?? (sortDirection === "asc" ? Infinity : -1);
-        const valB = b[sortField] ?? (sortDirection === "asc" ? Infinity : -1);
-        comparison = (valA as number) - (valB as number);
+        comparison = a[sortField] - b[sortField];
       }
       return sortDirection === "asc" ? comparison : -comparison;
     });
@@ -168,9 +157,9 @@ export function AttendantMetricsView({
             <div className="flex flex-wrap gap-1.5">
               <button
                 type="button"
-                onClick={() => handleSort("totalAttended")}
+                onClick={() => handleSort("totalCallsAttended")}
                 className={`rounded-lg px-2.5 py-1 text-xs font-medium transition-colors ${
-                  sortField === "totalAttended"
+                  sortField === "totalCallsAttended"
                     ? "bg-orange-600 text-white"
                     : "bg-zinc-100 text-zinc-700 hover:bg-zinc-200 dark:bg-zinc-800 dark:text-zinc-300"
                 }`}
@@ -179,25 +168,25 @@ export function AttendantMetricsView({
               </button>
               <button
                 type="button"
-                onClick={() => handleSort("averageReactionTimeSec")}
+                onClick={() => handleSort("avgResponseTimeSec")}
                 className={`rounded-lg px-2.5 py-1 text-xs font-medium transition-colors ${
-                  sortField === "averageReactionTimeSec"
+                  sortField === "avgResponseTimeSec"
                     ? "bg-orange-600 text-white"
                     : "bg-zinc-100 text-zinc-700 hover:bg-zinc-200 dark:bg-zinc-800 dark:text-zinc-300"
                 }`}
               >
-                Reação Rápida
+                Resposta Rápida
               </button>
               <button
                 type="button"
-                onClick={() => handleSort("averageRating")}
+                onClick={() => handleSort("slowestResponseSec")}
                 className={`rounded-lg px-2.5 py-1 text-xs font-medium transition-colors ${
-                  sortField === "averageRating"
+                  sortField === "slowestResponseSec"
                     ? "bg-orange-600 text-white"
                     : "bg-zinc-100 text-zinc-700 hover:bg-zinc-200 dark:bg-zinc-800 dark:text-zinc-300"
                 }`}
               >
-                Melhor Nota
+                Maior Espera
               </button>
             </div>
           </div>
@@ -220,41 +209,41 @@ export function AttendantMetricsView({
                   <TableHead className="w-[160px] text-right">
                     <button
                       type="button"
-                      onClick={() => handleSort("totalAttended")}
+                      onClick={() => handleSort("totalCallsAttended")}
                       className="group ml-auto flex items-center font-semibold text-zinc-900 dark:text-zinc-100 hover:text-orange-600 dark:hover:text-orange-400"
                     >
                       <span>Atendimentos</span>
-                      {renderSortIcon("totalAttended")}
+                      {renderSortIcon("totalCallsAttended")}
                     </button>
                   </TableHead>
                   <TableHead className="w-[180px] text-right">
                     <button
                       type="button"
-                      onClick={() => handleSort("averageReactionTimeSec")}
+                      onClick={() => handleSort("avgResponseTimeSec")}
                       className="group ml-auto flex items-center font-semibold text-zinc-900 dark:text-zinc-100 hover:text-orange-600 dark:hover:text-orange-400"
                     >
-                      <span>Tempo de Reação</span>
-                      {renderSortIcon("averageReactionTimeSec")}
+                      <span>Tempo Médio</span>
+                      {renderSortIcon("avgResponseTimeSec")}
                     </button>
                   </TableHead>
                   <TableHead className="w-[180px] text-right">
                     <button
                       type="button"
-                      onClick={() => handleSort("averageExecutionTimeSec")}
+                      onClick={() => handleSort("fastestResponseSec")}
                       className="group ml-auto flex items-center font-semibold text-zinc-900 dark:text-zinc-100 hover:text-orange-600 dark:hover:text-orange-400"
                     >
-                      <span>Tempo de Execução</span>
-                      {renderSortIcon("averageExecutionTimeSec")}
+                      <span>Mais Rápido</span>
+                      {renderSortIcon("fastestResponseSec")}
                     </button>
                   </TableHead>
                   <TableHead className="w-[150px] text-right">
                     <button
                       type="button"
-                      onClick={() => handleSort("averageRating")}
+                      onClick={() => handleSort("slowestResponseSec")}
                       className="group ml-auto flex items-center font-semibold text-zinc-900 dark:text-zinc-100 hover:text-orange-600 dark:hover:text-orange-400"
                     >
-                      <span>Avaliação Média</span>
-                      {renderSortIcon("averageRating")}
+                      <span>Mais Lento</span>
+                      {renderSortIcon("slowestResponseSec")}
                     </button>
                   </TableHead>
                 </TableRow>
@@ -271,26 +260,17 @@ export function AttendantMetricsView({
                     </TableCell>
                     <TableCell className="text-right">
                       <Badge variant="neutral" size="sm" className="font-mono">
-                        {attendant.totalAttended} chamados
+                        {attendant.totalCallsAttended} chamados
                       </Badge>
                     </TableCell>
                     <TableCell className="text-right font-mono text-xs text-zinc-700 dark:text-zinc-300">
-                      {formatDuration(attendant.averageReactionTimeSec)}
+                      {formatDuration(attendant.avgResponseTimeSec)}
                     </TableCell>
                     <TableCell className="text-right font-mono text-xs text-zinc-700 dark:text-zinc-300">
-                      {formatDuration(attendant.averageExecutionTimeSec)}
+                      {formatDuration(attendant.fastestResponseSec)}
                     </TableCell>
-                    <TableCell className="text-right">
-                      {attendant.averageRating ? (
-                        <div className="inline-flex items-center gap-1 font-mono text-xs font-semibold text-amber-600 dark:text-amber-400">
-                          <Star className="h-3.5 w-3.5 fill-amber-500 text-amber-500" />
-                          <span>{formatRating(attendant.averageRating)}</span>
-                        </div>
-                      ) : (
-                        <span className="text-xs text-zinc-400 dark:text-zinc-600">
-                          —
-                        </span>
-                      )}
+                    <TableCell className="text-right font-mono text-xs text-zinc-700 dark:text-zinc-300">
+                      {formatDuration(attendant.slowestResponseSec)}
                     </TableCell>
                   </TableRow>
                 ))}
@@ -308,38 +288,38 @@ export function AttendantMetricsView({
                   </h4>
                   <Badge variant="neutral" size="sm" className="font-mono">
                     <CheckCircle2 className="mr-1 h-3 w-3 text-emerald-600" />
-                    {attendant.totalAttended} atendidos
+                    {attendant.totalCallsAttended} atendidos
                   </Badge>
                 </div>
 
                 <div className="grid grid-cols-3 gap-2 pt-2 border-t border-zinc-100 dark:border-zinc-800 text-center">
                   <div className="rounded-xl bg-zinc-50 dark:bg-zinc-800/50 p-2">
                     <div className="flex items-center justify-center gap-1 text-[10px] text-zinc-500">
-                      <Zap className="h-3 w-3 text-amber-500" />
-                      <span>Reação</span>
-                    </div>
-                    <p className="mt-1 font-mono text-xs font-bold text-zinc-900 dark:text-zinc-100">
-                      {formatDuration(attendant.averageReactionTimeSec)}
-                    </p>
-                  </div>
-
-                  <div className="rounded-xl bg-zinc-50 dark:bg-zinc-800/50 p-2">
-                    <div className="flex items-center justify-center gap-1 text-[10px] text-zinc-500">
                       <Clock className="h-3 w-3 text-blue-500" />
-                      <span>Execução</span>
+                      <span>Média</span>
                     </div>
                     <p className="mt-1 font-mono text-xs font-bold text-zinc-900 dark:text-zinc-100">
-                      {formatDuration(attendant.averageExecutionTimeSec)}
+                      {formatDuration(attendant.avgResponseTimeSec)}
                     </p>
                   </div>
 
                   <div className="rounded-xl bg-zinc-50 dark:bg-zinc-800/50 p-2">
                     <div className="flex items-center justify-center gap-1 text-[10px] text-zinc-500">
-                      <Star className="h-3 w-3 text-amber-500" />
-                      <span>Nota</span>
+                      <Zap className="h-3 w-3 text-amber-500" />
+                      <span>Mais rápido</span>
                     </div>
                     <p className="mt-1 font-mono text-xs font-bold text-zinc-900 dark:text-zinc-100">
-                      {formatRating(attendant.averageRating)}
+                      {formatDuration(attendant.fastestResponseSec)}
+                    </p>
+                  </div>
+
+                  <div className="rounded-xl bg-zinc-50 dark:bg-zinc-800/50 p-2">
+                    <div className="flex items-center justify-center gap-1 text-[10px] text-zinc-500">
+                      <Hourglass className="h-3 w-3 text-red-500" />
+                      <span>Mais lento</span>
+                    </div>
+                    <p className="mt-1 font-mono text-xs font-bold text-zinc-900 dark:text-zinc-100">
+                      {formatDuration(attendant.slowestResponseSec)}
                     </p>
                   </div>
                 </div>

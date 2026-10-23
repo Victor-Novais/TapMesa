@@ -34,7 +34,7 @@ export function usePanelActions() {
       if (!call) return;
 
       const previousCall = { ...call };
-      const currentUserId = user?.id || user?.sub || "staff";
+      const currentUserId = user?.sub || "staff";
 
       setSubmittingIds((prev) => new Set(prev).add(callId));
 
@@ -77,15 +77,34 @@ export function usePanelActions() {
 
       // Optimistic update: move to recent queue
       removeCall(callId);
+      const attendedAt = new Date().toISOString();
       const optimisticRecent: RecentAttendedCallDto = {
         id: call.id,
+        restaurantId: call.restaurantId,
+        tableId: call.tableId,
         tableNumber: call.tableNumber,
         type: call.type,
         status: "ATTENDED",
-        attendedAt: new Date().toISOString(),
+        confirmationStatus: "AWAITING_CONFIRMATION",
+        note: call.note,
+        createdAt: call.createdAt,
+        originalCreatedAt: call.originalCreatedAt,
+        acknowledgedAt: call.acknowledgedAt,
+        acknowledgedById: call.acknowledgedById,
+        firstAttendedAt: call.firstAttendedAt ?? attendedAt,
+        attendedAt,
+        confirmedAt: null,
+        closedAt: null,
+        attendedById: user?.sub ?? null,
         rating: null,
-        executionTimeSec: 0,
-        serverNow: new Date().toISOString(),
+        reopenCount: call.reopenCount,
+        reopened: call.reopened,
+        contested: call.contested,
+        reactionTimeSec: call.reactionTimeSec,
+        executionTimeSec: null,
+        responseTimeSec: null,
+        resolutionTimeSec: null,
+        serverNow: attendedAt,
       };
       addRecent(optimisticRecent);
       triggerHaptic(25);
@@ -94,14 +113,16 @@ export function usePanelActions() {
         const result = await attendPanelCall(callId);
         // Atualiza item recente com os tempos e dados consolidados
         addRecent({
-          id: result.id,
-          tableNumber: result.tableNumber,
-          type: result.type,
-          status: "ATTENDED",
-          attendedAt: result.attendedAt,
-          rating: result.rating ?? null,
-          executionTimeSec: result.executionTimeSec ?? 0,
-          serverNow: result.serverNow,
+          ...optimisticRecent,
+          ...result,
+          confirmationStatus: "AWAITING_CONFIRMATION",
+          responseTimeSec: Math.max(
+            0,
+            Math.round(
+              (Date.parse(result.attendedAt) - Date.parse(result.createdAt)) /
+                1000,
+            ),
+          ),
         });
       } catch (err: unknown) {
         // Rollback: remove from recent and restore to active calls
@@ -116,7 +137,7 @@ export function usePanelActions() {
         });
       }
     },
-    [calls, recent, removeCall, addRecent, setRecent, addCall],
+    [calls, recent, user, removeCall, addRecent, setRecent, addCall],
   );
 
   const loadRecent = React.useCallback(

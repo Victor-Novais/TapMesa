@@ -6,20 +6,33 @@ import {
   getPanelStreamTicket,
   getPanelState,
   getPanelCalls,
+  getRecentCalls,
 } from "@/shared/api/panel";
-import type { PanelCallDto, RecentAttendedCallDto } from "@/shared/types/api";
+import type {
+  AlertRaisedEventData,
+  PanelCallDto,
+  PanelCallEventData,
+  PanelRealtimeEventMap,
+  RecentAttendedCallDto,
+} from "@/shared/types/api";
 
 const API_BASE_URL =
   process.env.NEXT_PUBLIC_API_URL || "http://localhost:3000/api/v1";
 
 export interface UsePanelStreamOptions {
   enabled?: boolean;
-  onCallCreated?: (call: Partial<PanelCallDto>) => void;
-  onCallReopened?: (call: Partial<PanelCallDto>) => void;
+  onCallCreated?: (call: PanelCallDto) => void;
+  onCallReopened?: (event: PanelCallEventData) => void;
+  onAlertRaised?: (alert: AlertRaisedEventData) => void;
 }
 
 export function usePanelStream(options: UsePanelStreamOptions = {}) {
-  const { enabled = true, onCallCreated, onCallReopened } = options;
+  const {
+    enabled = true,
+    onCallCreated,
+    onCallReopened,
+    onAlertRaised,
+  } = options;
 
   const {
     setSnapshot,
@@ -28,6 +41,7 @@ export function usePanelStream(options: UsePanelStreamOptions = {}) {
     removeCall,
     addRecent,
     updateRecent,
+    setRecent,
     setConnectionStatus,
     setIsPollingFallback,
     connectionStatus,
@@ -40,7 +54,11 @@ export function usePanelStream(options: UsePanelStreamOptions = {}) {
     typeof setTimeout
   > | null>(null);
 
-  // Debounced fetch de calls completas para enriquecer chamados parciais
+  const debounceRecentTimerRef = React.useRef<ReturnType<
+    typeof setTimeout
+  > | null>(null);
+
+  // Debounced fetch da fila (ex.: chamado contestado volta para a fila)
   const triggerDebouncedCallsRefresh = React.useCallback(() => {
     if (debounceCallsTimerRef.current) {
       clearTimeout(debounceCallsTimerRef.current);
@@ -54,6 +72,20 @@ export function usePanelStream(options: UsePanelStreamOptions = {}) {
       }
     }, 300);
   }, [addCall]);
+
+  // Debounced fetch da gaveta de atendidos recentes
+  const triggerDebouncedRecentRefresh = React.useCallback(() => {
+    if (debounceRecentTimerRef.current) {
+      clearTimeout(debounceRecentTimerRef.current);
+    }
+    debounceRecentTimerRef.current = setTimeout(async () => {
+      try {
+        setRecent(await getRecentCalls());
+      } catch {
+        // Ignora erro de refresh em background
+      }
+    }, 300);
+  }, [setRecent]);
 
   React.useEffect(() => {
     if (!enabled || typeof window === "undefined") {
@@ -129,160 +161,190 @@ export function usePanelStream(options: UsePanelStreamOptions = {}) {
           }
         });
 
-        // 3. CALL_CREATED / call.opened
-        const handleCreated = (e: MessageEvent) => {
-          if (isClosed) return;
-          try {
-            const data = JSON.parse(e.data);
-            const newCall: PanelCallDto = {
-              id: data.callId || data.id,
-              tableNumber: data.tableNumber ?? 0,
-              type: data.type || "WAITER",
-              status: "PENDING",
-              note: data.note || null,
-              createdAt:
-                data.occurredAt || data.createdAt || new Date().toISOString(),
-              acknowledgedAt: null,
-              acknowledgedById: null,
-              firstAttendedAt: null,
-              attendedAt: null,
-              reopenCount: data.reopenCount ?? 0,
-              serverNow: new Date().toISOString(),
-            };
-
-            addCall(newCall);
-            onCallCreated?.(newCall);
-
-            triggerDebouncedCallsRefresh();
-          } catch {
-            triggerDebouncedCallsRefresh();
-          }
-        };
-
-        es.addEventListener("CALL_CREATED", handleCreated);
-        es.addEventListener("call.opened", handleCreated);
-
-        // 4. CALL_ACKNOWLEDGED / CALL_ASSUMED / call.acknowledged
-        const handleAssumed = (e: MessageEvent) => {
-          if (isClosed) return;
-          try {
-            const data = JSON.parse(e.data);
-            const callId = data.callId || data.id;
-            if (callId) {
-              updateCall(callId, {
-                acknowledgedAt: data.occurredAt || new Date().toISOString(),
-                acknowledgedById: data.actorUserId || data.acknowledgedById,
-              });
-            }
-          } catch {
-            // Ignora erro
-          }
-        };
-
-        es.addEventListener("CALL_ACKNOWLEDGED", handleAssumed);
-        es.addEventListener("CALL_ASSUMED", handleAssumed);
-        es.addEventListener("call.acknowledged", handleAssumed);
-
-        // 5. CALL_ATTENDED / call.attended
-        const handleAttended = (e: MessageEvent) => {
-          if (isClosed) return;
-          try {
-            const data = JSON.parse(e.data);
-            const callId = data.callId || data.id;
-            if (callId) {
-              removeCall(callId);
-              const recentItem: RecentAttendedCallDto = {
-                id: callId,
-                tableNumber: data.tableNumber ?? 0,
-                type: data.type || "WAITER",
-                status: "ATTENDED",
-                attendedAt: data.occurredAt || new Date().toISOString(),
-                rating: null,
-                executionTimeSec: data.executionTimeSec ?? 0,
-                serverNow: new Date().toISOString(),
-              };
-              addRecent(recentItem);
-            }
-          } catch {
-            // Ignora erro
-          }
-        };
-
-        es.addEventListener("CALL_ATTENDED", handleAttended);
-        es.addEventListener("call.attended", handleAttended);
-
-        // 6. CALL_CONFIRMED / call.confirmed / CALL_CLOSED_UNCONFIRMED / call.closed
-        const handleClosed = (
+        // Payloads do canal do painel (docs/api/FRONTEND_INTEGRATION.md, seção 6)
+        const parse = <K extends keyof PanelRealtimeEventMap>(
           e: MessageEvent,
-          status: "CONFIRMED" | "CLOSED_UNCONFIRMED",
-        ) => {
-          if (isClosed) return;
+        ): PanelRealtimeEventMap[K] | null => {
           try {
-            const data = JSON.parse(e.data);
-            const callId = data.callId || data.id;
-            if (callId) {
-              updateRecent(callId, {
-                status,
-                rating: data.rating ?? null,
-              });
-            }
+            return JSON.parse(e.data) as PanelRealtimeEventMap[K];
           } catch {
-            // Ignora erro
+            return null;
           }
         };
 
-        es.addEventListener("CALL_CONFIRMED", (e) =>
-          handleClosed(e, "CONFIRMED"),
-        );
-        es.addEventListener("call.confirmed", (e) =>
-          handleClosed(e, "CONFIRMED"),
-        );
-        es.addEventListener("CALL_CLOSED_UNCONFIRMED", (e) =>
-          handleClosed(e, "CLOSED_UNCONFIRMED"),
-        );
-        es.addEventListener("call.closed", (e) =>
-          handleClosed(e, "CLOSED_UNCONFIRMED"),
-        );
-
-        // 7. CALL_REOPENED / call.reopened
-        const handleReopened = (e: MessageEvent) => {
+        // 3. call.opened: em call.opened, `type` é o tipo do chamado (WAITER | BILL)
+        es.addEventListener("call.opened", (e: MessageEvent) => {
           if (isClosed) return;
-          try {
-            const data = JSON.parse(e.data);
-            const callId = data.callId || data.id;
-            if (callId) {
-              updateCall(callId, {
-                status: "PENDING",
-                reopenCount: (data.reopenCount ?? 0) + 1,
-              });
-              onCallReopened?.(data);
-            }
-          } catch {
-            triggerDebouncedCallsRefresh();
+          const data = parse<"call.opened">(e);
+          if (!data) return;
+          const newCall: PanelCallDto = {
+            id: data.callId,
+            restaurantId: data.restaurantId,
+            tableId: data.tableId,
+            tableNumber: data.tableNumber ?? 0,
+            type: data.type === "BILL" ? "BILL" : "WAITER",
+            status: "PENDING",
+            note: data.note ?? null,
+            createdAt: data.occurredAt,
+            originalCreatedAt: data.occurredAt,
+            acknowledgedAt: null,
+            acknowledgedById: null,
+            firstAttendedAt: null,
+            reopenCount: 0,
+            reopened: false,
+            contested: false,
+            reactionTimeSec: null,
+            serverNow: data.occurredAt,
+          };
+
+          addCall(newCall);
+          onCallCreated?.(newCall);
+        });
+
+        // 4. call.acknowledged (assume/acknowledge)
+        es.addEventListener("call.acknowledged", (e: MessageEvent) => {
+          if (isClosed) return;
+          const data = parse<"call.acknowledged">(e);
+          if (!data) return;
+          updateCall(data.callId, {
+            acknowledgedAt: data.occurredAt,
+            acknowledgedById: data.actorUserId,
+          });
+        });
+
+        // 5. call.attended: o payload não traz mesa nem tipo; copiamos do item da fila
+        es.addEventListener("call.attended", (e: MessageEvent) => {
+          if (isClosed) return;
+          const data = parse<"call.attended">(e);
+          if (!data) return;
+          const queued = usePanelStore
+            .getState()
+            .calls.find((c) => c.id === data.callId);
+          removeCall(data.callId);
+          if (!queued) {
+            // Já atendido por este painel (item otimista na gaveta) ou fora da
+            // fila local: só busca a gaveta completa no segundo caso
+            const inRecent = usePanelStore
+              .getState()
+              .recent.some((r) => r.id === data.callId);
+            if (!inRecent) triggerDebouncedRecentRefresh();
+            return;
           }
-        };
+          const executionTimeSec = queued.acknowledgedAt
+            ? Math.max(
+                0,
+                Math.round(
+                  (Date.parse(data.occurredAt) -
+                    Date.parse(queued.acknowledgedAt)) /
+                    1000,
+                ),
+              )
+            : null;
+          const recentItem: RecentAttendedCallDto = {
+            id: queued.id,
+            restaurantId: queued.restaurantId,
+            tableId: queued.tableId,
+            tableNumber: queued.tableNumber,
+            type: queued.type,
+            status: "ATTENDED",
+            confirmationStatus: "AWAITING_CONFIRMATION",
+            note: queued.note,
+            createdAt: queued.createdAt,
+            originalCreatedAt: queued.originalCreatedAt,
+            acknowledgedAt: queued.acknowledgedAt,
+            acknowledgedById: queued.acknowledgedById,
+            firstAttendedAt: queued.firstAttendedAt ?? data.occurredAt,
+            attendedAt: data.occurredAt,
+            confirmedAt: null,
+            closedAt: null,
+            attendedById: data.actorUserId,
+            rating: null,
+            reopenCount: queued.reopenCount,
+            reopened: queued.reopened,
+            contested: queued.contested,
+            reactionTimeSec: queued.reactionTimeSec,
+            executionTimeSec,
+            responseTimeSec: Math.max(
+              0,
+              Math.round(
+                (Date.parse(data.occurredAt) - Date.parse(queued.createdAt)) /
+                  1000,
+              ),
+            ),
+            resolutionTimeSec: null,
+            serverNow: data.occurredAt,
+          };
+          addRecent(recentItem);
+        });
 
-        es.addEventListener("CALL_REOPENED", handleReopened);
-        es.addEventListener("call.reopened", handleReopened);
+        // 6. call.confirmed / call.closed: atualizam o item da gaveta
+        es.addEventListener("call.confirmed", (e: MessageEvent) => {
+          if (isClosed) return;
+          const data = parse<"call.confirmed">(e);
+          if (!data) return;
+          updateRecent(data.callId, {
+            status: "CONFIRMED",
+            confirmationStatus: "CONFIRMED",
+            confirmedAt: data.occurredAt,
+            rating: data.rating ?? null,
+          });
+        });
 
-        // 8. CALL_CANCELLED / call.cancelled / CALL_EXPIRED / call.expired
+        es.addEventListener("call.closed", (e: MessageEvent) => {
+          if (isClosed) return;
+          const data = parse<"call.closed">(e);
+          if (!data) return;
+          updateRecent(data.callId, {
+            status: "CLOSED_UNCONFIRMED",
+            confirmationStatus: "CLOSED_UNCONFIRMED",
+            closedAt: data.occurredAt,
+          });
+        });
+
+        // 7. call.reopened: o chamado saiu da fila ao ser atendido; a fila é
+        // recarregada (GET /panel/calls traz `reopened: true` e o reopenCount atual)
+        es.addEventListener("call.reopened", (e: MessageEvent) => {
+          if (isClosed) return;
+          const data = parse<"call.reopened">(e);
+          if (!data) return;
+          updateRecent(data.callId, {
+            status: "PENDING",
+            confirmationStatus: "CONTESTED",
+            reopened: true,
+            ...(data.reopenCount !== undefined
+              ? { reopenCount: data.reopenCount }
+              : {}),
+          });
+          triggerDebouncedCallsRefresh();
+          onCallReopened?.(data);
+        });
+
+        // 8. call.cancelled / call.expired: saem da fila
         const handleRemoved = (e: MessageEvent) => {
           if (isClosed) return;
-          try {
-            const data = JSON.parse(e.data);
-            const callId = data.callId || data.id;
-            if (callId) {
-              removeCall(callId);
-            }
-          } catch {
-            // Ignora erro
-          }
+          const data = parse<"call.cancelled">(e);
+          if (data) removeCall(data.callId);
         };
-
-        es.addEventListener("CALL_CANCELLED", handleRemoved);
         es.addEventListener("call.cancelled", handleRemoved);
-        es.addEventListener("CALL_EXPIRED", handleRemoved);
         es.addEventListener("call.expired", handleRemoved);
+
+        // 9. table.removed: remove da fila os chamados da mesa excluída
+        es.addEventListener("table.removed", (e: MessageEvent) => {
+          if (isClosed) return;
+          const data = parse<"table.removed">(e);
+          if (!data) return;
+          usePanelStore
+            .getState()
+            .calls.filter((c) => c.tableId === data.tableId)
+            .forEach((c) => removeCall(c.id));
+        });
+
+        // 10. alert.raised: alerta de urgência (job do back ou envio manual)
+        es.addEventListener("alert.raised", (e: MessageEvent) => {
+          if (isClosed) return;
+          const data = parse<"alert.raised">(e);
+          if (data) onAlertRaised?.(data);
+        });
 
         // Tratamento de queda do EventSource
         es.onerror = () => {
@@ -354,6 +416,9 @@ export function usePanelStream(options: UsePanelStreamOptions = {}) {
       if (debounceCallsTimerRef.current) {
         clearTimeout(debounceCallsTimerRef.current);
       }
+      if (debounceRecentTimerRef.current) {
+        clearTimeout(debounceRecentTimerRef.current);
+      }
       if (eventSource) {
         eventSource.close();
         eventSource = null;
@@ -373,8 +438,10 @@ export function usePanelStream(options: UsePanelStreamOptions = {}) {
     setConnectionStatus,
     setIsPollingFallback,
     triggerDebouncedCallsRefresh,
+    triggerDebouncedRecentRefresh,
     onCallCreated,
     onCallReopened,
+    onAlertRaised,
   ]);
 
   const reconnect = React.useCallback(() => {

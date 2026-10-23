@@ -4,6 +4,7 @@ import type {
   CreateTeamUserRequest,
   CreateTeamUserResponse,
   UpdateTeamUserStatusRequest,
+  UpdateTeamUserStatusResponse,
   ResetTeamUserPasswordResponse,
   AttendantMetricsResponse,
 } from "@/shared/types/api";
@@ -26,8 +27,8 @@ export async function createTeamUser(
 export async function updateTeamUserStatus(
   id: string,
   data: UpdateTeamUserStatusRequest,
-): Promise<TeamUser> {
-  const response = await api.patch<TeamUser>(
+): Promise<UpdateTeamUserStatusResponse> {
+  const response = await api.patch<UpdateTeamUserStatusResponse>(
     `/restaurant/users/${id}/status`,
     data,
   );

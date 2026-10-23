@@ -5,11 +5,12 @@ import { useRouter } from "next/navigation";
 import { useQueryClient } from "@tanstack/react-query";
 import { refresh, getMe, logout as apiLogout } from "@/shared/api/auth";
 import { setAccessToken } from "@/shared/api/client";
-import { useAuthStore } from "../model/auth-store";
+import { readStoredUsername, useAuthStore } from "../model/auth-store";
 import type { AuthUser, Role } from "@/shared/types/api";
 
 interface AuthContextValue {
   user: AuthUser | null;
+  username: string | null;
   role: Role | null;
   status: "loading" | "authenticated" | "anonymous";
   isAuthenticated: boolean;
@@ -21,7 +22,7 @@ const AuthContext = createContext<AuthContextValue | null>(null);
 export function AuthProvider({ children }: { children: React.ReactNode }) {
   const router = useRouter();
   const queryClient = useQueryClient();
-  const { user, status, setAuth, clearAuth } = useAuthStore();
+  const { user, username, status, setAuth, clearAuth } = useAuthStore();
 
   const handleLogout = useCallback(async () => {
     try {
@@ -45,7 +46,11 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         const currentUser = await getMe();
 
         if (isMounted) {
-          setAuth(refreshResponse.accessToken, currentUser);
+          setAuth(
+            refreshResponse.accessToken,
+            currentUser,
+            readStoredUsername(currentUser.sub),
+          );
         }
       } catch {
         if (isMounted) {
@@ -63,6 +68,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   const value: AuthContextValue = {
     user,
+    username,
     role: user?.role ?? null,
     status,
     isAuthenticated: status === "authenticated",

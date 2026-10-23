@@ -10,6 +10,7 @@ import {
   RefreshCw,
   Bell,
   Receipt,
+  RotateCcw,
 } from "lucide-react";
 import { Drawer, DrawerContent } from "@/shared/ui/drawer";
 import { Badge } from "@/shared/ui/badge";
@@ -38,7 +39,7 @@ function formatAttendedTime(isoString: string): string {
   }
 }
 
-function formatDurationSec(seconds: number): string {
+function formatDurationSec(seconds: number | null): string {
   if (!seconds || seconds <= 0) return "< 1 min";
   const mins = Math.floor(seconds / 60);
   const secs = seconds % 60;
@@ -113,8 +114,9 @@ export function RecentCallsDrawer({
               const formattedTime = formatAttendedTime(call.attendedAt);
               const durationStr = formatDurationSec(call.executionTimeSec);
 
-              const isConfirmed = call.status === "CONFIRMED";
-              const isClosed = call.status === "CLOSED_UNCONFIRMED";
+              const isConfirmed = call.confirmationStatus === "CONFIRMED";
+              const isClosed = call.confirmationStatus === "CLOSED_UNCONFIRMED";
+              const isContested = call.confirmationStatus === "CONTESTED";
 
               return (
                 <div
@@ -158,6 +160,14 @@ export function RecentCallsDrawer({
                         >
                           <CheckCircle2 className="h-3 w-3" />
                           <span>Confirmado</span>
+                        </Badge>
+                      ) : isContested ? (
+                        <Badge
+                          variant="danger"
+                          className="flex items-center gap-1 text-[11px] font-semibold"
+                        >
+                          <RotateCcw className="h-3 w-3" />
+                          <span>Contestado</span>
                         </Badge>
                       ) : isClosed ? (
                         <Badge

@@ -35,7 +35,7 @@ import {
   Type,
   ImageIcon,
 } from "lucide-react";
-import type { RestaurantAppearance, BackgroundType } from "@/shared/types/api";
+import type { RestaurantAppearance } from "@/shared/types/api";
 
 const BACKGROUND_PRESETS = [
   {
@@ -62,6 +62,14 @@ const BACKGROUND_PRESETS = [
 
 const DEFAULT_PRESET_URL = BACKGROUND_PRESETS[0]?.url || "";
 
+// Presets são imagens externas salvas como backgroundType "image" (a API só aceita "color" | "image")
+const isPresetUrl = (value: string | null | undefined) =>
+  BACKGROUND_PRESETS.some((preset) => preset.url === value);
+
+// Limite e formatos aceitos pelo back nos uploads de logo e fundo
+const MAX_UPLOAD_BYTES = 2 * 1024 * 1024;
+const ACCEPTED_IMAGE_TYPES = ["image/png", "image/jpeg", "image/webp"];
+
 const HEX_REGEX = /^#([A-Fa-f0-9]{6}|[A-Fa-f0-9]{3})$/;
 
 const appearanceFormSchema = z.object({
@@ -73,7 +81,7 @@ const appearanceFormSchema = z.object({
     .string()
     .max(255, "A descrição deve ter no máximo 255 caracteres")
     .optional(),
-  backgroundType: z.enum(["color", "image", "preset"] as const),
+  backgroundType: z.enum(["color", "image"] as const),
   backgroundValue: z.string().nullable().optional(),
   colors: z.object({
     primary: z
@@ -88,18 +96,9 @@ const appearanceFormSchema = z.object({
     text: z.string().regex(HEX_REGEX, "Cor hexadecimal inválida (ex: #09090b)"),
   }),
   texts: z.object({
-    welcomeTitle: z
-      .string()
-      .min(1, "O título de boas-vindas não pode ficar vazio")
-      .max(100, "Máximo de 100 caracteres"),
-    waiterButton: z
-      .string()
-      .min(1, "O texto do botão não pode ficar vazio")
-      .max(50, "Máximo de 50 caracteres"),
-    billButton: z
-      .string()
-      .min(1, "O texto do botão não pode ficar vazio")
-      .max(50, "Máximo de 50 caracteres"),
+    welcomeTitle: z.string().max(100, "Máximo de 100 caracteres"),
+    callWaiterButton: z.string().max(50, "Máximo de 50 caracteres"),
+    requestBillButton: z.string().max(50, "Máximo de 50 caracteres"),
   }),
   socials: z.object({
     instagram: z.string().optional(),
@@ -110,354 +109,48 @@ const appearanceFormSchema = z.object({
 
 type AppearanceFormData = z.infer<typeof appearanceFormSchema>;
 
-function sanitizeSocialLink(val: string | undefined): string | null {
-  if (!val) return null;
+function toFormValues(appearance: RestaurantAppearance): AppearanceFormData {
+  return {
+    name: appearance.name || "",
+    description: appearance.description || "",
+    backgroundType: appearance.backgroundType,
+    backgroundValue: appearance.backgroundValue || "",
+    colors: {
+      primary: appearance.colors.primary || "#ea580c",
+      secondary: appearance.colors.secondary || "#18181b",
+      background: appearance.colors.background || "#fafafa",
+      text: appearance.colors.text || "#09090b",
+    },
+    texts: {
+      welcomeTitle: appearance.texts.welcomeTitle || "",
+      callWaiterButton: appearance.texts.callWaiterButton || "",
+      requestBillButton: appearance.texts.requestBillButton || "",
+    },
+    socials: {
+      instagram: appearance.socials.instagram || "",
+      wifiName: appearance.socials.wifiName || "",
+      wifiPassword: appearance.socials.wifiPassword || "",
+    },
+  };
+}
+
+// String vazia remove o link no back (o PUT substitui o objeto `socials` inteiro)
+function sanitizeSocialLink(val: string | undefined): string {
+  if (!val) return "";
   const clean = val.trim();
-  if (!clean) return null;
+  if (!clean) return "";
   if (clean.startsWith("http://") || clean.startsWith("https://")) {
     return clean;
   }
-  if (clean.startsWith("@")) {
+  // "@perfil" ou "perfil" (sem domínio): o back recusa "https://perfil"
+  if (clean.startsWith("@") || !clean.includes(".")) {
     return `https://instagram.com/${clean.replace("@", "")}`;
   }
   return `https://${clean}`;
 }
 
 export function AppearanceSettingsForm() {
-  const { toast } = useToast();
   const { data: appearance, isLoading, isError } = useAppearanceQuery();
-
-  const updateMutation = useUpdateAppearanceMutation();
-  const resetMutation = useResetAppearanceMutation();
-  const uploadLogoMutation = useUploadLogoMutation();
-  const uploadBackgroundMutation = useUploadBackgroundMutation();
-
-  const [mobileTab, setMobileTab] = React.useState<"form" | "preview">("form");
-  const [showResetConfirm, setShowResetConfirm] = React.useState(false);
-  const [localLogoPreview, setLocalLogoPreview] = React.useState<string | null>(
-    null,
-  );
-  const [localBgPreview, setLocalBgPreview] = React.useState<string | null>(
-    null,
-  );
-
-  const fileLogoRef = React.useRef<HTMLInputElement | null>(null);
-  const fileBgRef = React.useRef<HTMLInputElement | null>(null);
-
-  const {
-    register,
-    handleSubmit,
-    control,
-    reset,
-    setValue,
-    formState: { errors, isDirty },
-  } = useForm<AppearanceFormData>({
-    resolver: zodResolver(appearanceFormSchema),
-    values: appearance
-      ? {
-          name: appearance.name || "",
-          description: appearance.description || "",
-          backgroundType:
-            (appearance.backgroundType as "color" | "image" | "preset") ||
-            "color",
-          backgroundValue: appearance.backgroundValue || "",
-          colors: {
-            primary: appearance.colors?.primary || "#ea580c",
-            secondary: appearance.colors?.secondary || "#18181b",
-            background: appearance.colors?.background || "#fafafa",
-            text: appearance.colors?.text || "#09090b",
-          },
-          texts: {
-            welcomeTitle:
-              appearance.texts?.welcomeTitle ||
-              "Bem-vindo à Mesa {tableNumber}",
-            waiterButton: appearance.texts?.waiterButton || "Chamar Garçom",
-            billButton: appearance.texts?.billButton || "Pedir a Conta",
-          },
-          socials: {
-            instagram: appearance.socials?.instagram || "",
-            wifiName: appearance.socials?.wifiName || "",
-            wifiPassword: appearance.socials?.wifiPassword || "",
-          },
-        }
-      : undefined,
-  });
-
-  // Watch form values for real-time live preview
-  const watchedName = useWatch({ control, name: "name" });
-  const watchedDescription = useWatch({ control, name: "description" });
-  const watchedBgType = useWatch({ control, name: "backgroundType" });
-  const watchedBgValue = useWatch({ control, name: "backgroundValue" });
-  const watchedColors = useWatch({ control, name: "colors" });
-  const watchedTexts = useWatch({ control, name: "texts" });
-  const watchedSocials = useWatch({ control, name: "socials" });
-
-  // Calculate live contrast ratios (WCAG 2.1 AA)
-  const textBgRatio =
-    !watchedColors?.text || !watchedColors?.background
-      ? 21
-      : getContrastRatio(watchedColors.text, watchedColors.background);
-
-  const buttonContrastRatio = !watchedColors?.primary
-    ? 21
-    : getContrastRatio("#ffffff", watchedColors.primary);
-
-  // Construct dynamic live appearance object for the preview smartphone
-  const currentLogo = localLogoPreview || appearance?.logoUrl || null;
-  const currentBg =
-    watchedBgType === "image"
-      ? localBgPreview || watchedBgValue || null
-      : watchedBgType === "preset"
-        ? watchedBgValue || DEFAULT_PRESET_URL
-        : null;
-
-  const liveAppearance: RestaurantAppearance = {
-    restaurantId: appearance?.restaurantId || "preview",
-    name: watchedName || "Meu Restaurante",
-    description: watchedDescription || null,
-    logoUrl: currentLogo,
-    backgroundType: (watchedBgType || "color") as BackgroundType,
-    backgroundValue: currentBg,
-    colors: {
-      primary: watchedColors?.primary || "#ea580c",
-      secondary: watchedColors?.secondary || "#18181b",
-      background: watchedColors?.background || "#fafafa",
-      text: watchedColors?.text || "#09090b",
-    },
-    texts: {
-      welcomeTitle:
-        watchedTexts?.welcomeTitle || "Bem-vindo à Mesa {tableNumber}",
-      waiterButton: watchedTexts?.waiterButton || "Chamar Garçom",
-      billButton: watchedTexts?.billButton || "Pedir a Conta",
-    },
-    socials: {
-      instagram: watchedSocials?.instagram || undefined,
-      wifiName: watchedSocials?.wifiName || undefined,
-      wifiPassword: watchedSocials?.wifiPassword || undefined,
-    },
-  };
-
-  // Handle Logo Upload
-  const handleLogoFileChange = async (
-    e: React.ChangeEvent<HTMLInputElement>,
-  ) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
-
-    if (!["image/png", "image/jpeg", "image/webp"].includes(file.type)) {
-      toast({
-        title: "Formato inválido",
-        description: "Envie apenas imagens nos formatos PNG, JPEG ou WebP.",
-        type: "error",
-      });
-      return;
-    }
-
-    if (file.size > 10 * 1024 * 1024) {
-      toast({
-        title: "Arquivo muito grande",
-        description: "O logotipo deve ter no máximo 10 MB.",
-        type: "error",
-      });
-      return;
-    }
-
-    // Instant local preview
-    const tempUrl = URL.createObjectURL(file);
-    setLocalLogoPreview(tempUrl);
-
-    try {
-      await uploadLogoMutation.mutateAsync(file);
-      toast({
-        title: "Logotipo atualizado",
-        description: "O logotipo do restaurante foi carregado com sucesso.",
-        type: "success",
-      });
-    } catch (err) {
-      toast({
-        title: "Erro no envio do logotipo",
-        description:
-          parseApiError(err).detail || "Tente novamente em instantes.",
-        type: "error",
-      });
-      setLocalLogoPreview(null);
-    }
-  };
-
-  // Handle Background Image Upload
-  const handleBgFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
-
-    if (!["image/png", "image/jpeg", "image/webp"].includes(file.type)) {
-      toast({
-        title: "Formato inválido",
-        description: "Envie apenas imagens nos formatos PNG, JPEG ou WebP.",
-        type: "error",
-      });
-      return;
-    }
-
-    if (file.size > 10 * 1024 * 1024) {
-      toast({
-        title: "Arquivo muito grande",
-        description: "A imagem de fundo deve ter no máximo 10 MB.",
-        type: "error",
-      });
-      return;
-    }
-
-    const tempUrl = URL.createObjectURL(file);
-    setLocalBgPreview(tempUrl);
-    setValue("backgroundType", "image", { shouldDirty: true });
-    setValue("backgroundValue", tempUrl, { shouldDirty: true });
-
-    try {
-      const updated = await uploadBackgroundMutation.mutateAsync(file);
-      setValue("backgroundValue", updated.backgroundValue, {
-        shouldDirty: false,
-      });
-      toast({
-        title: "Fundo atualizado",
-        description: "A imagem de fundo foi enviada com sucesso.",
-        type: "success",
-      });
-    } catch (err) {
-      toast({
-        title: "Erro no envio da imagem de fundo",
-        description:
-          parseApiError(err).detail || "Tente novamente em instantes.",
-        type: "error",
-      });
-      setLocalBgPreview(null);
-    }
-  };
-
-  const onSubmit = async (data: AppearanceFormData) => {
-    try {
-      const payload = {
-        name: data.name.trim(),
-        description: data.description?.trim() || null,
-        backgroundType: data.backgroundType,
-        backgroundValue:
-          data.backgroundType === "color" ? null : data.backgroundValue || null,
-        colors: {
-          primary: data.colors.primary,
-          secondary: data.colors.secondary,
-          background: data.colors.background,
-          text: data.colors.text,
-        },
-        texts: {
-          welcomeTitle: data.texts.welcomeTitle.trim(),
-          waiterButton: data.texts.waiterButton.trim(),
-          billButton: data.texts.billButton.trim(),
-        },
-        socials: {
-          instagram: sanitizeSocialLink(data.socials.instagram),
-          wifiName: data.socials.wifiName?.trim() || null,
-          wifiPassword: data.socials.wifiPassword || null,
-        },
-      };
-
-      await updateMutation.mutateAsync(payload);
-      toast({
-        title: "Aparência salva",
-        description:
-          "A identidade visual da tela da mesa foi atualizada com sucesso.",
-        type: "success",
-      });
-      reset(data);
-    } catch (err) {
-      toast({
-        title: "Erro ao salvar aparência",
-        description:
-          parseApiError(err).detail || "Verifique os campos e tente novamente.",
-        type: "error",
-      });
-    }
-  };
-
-  const handleDiscard = () => {
-    if (appearance) {
-      reset({
-        name: appearance.name || "",
-        description: appearance.description || "",
-        backgroundType:
-          (appearance.backgroundType as "color" | "image" | "preset") ||
-          "color",
-        backgroundValue: appearance.backgroundValue || "",
-        colors: {
-          primary: appearance.colors?.primary || "#ea580c",
-          secondary: appearance.colors?.secondary || "#18181b",
-          background: appearance.colors?.background || "#fafafa",
-          text: appearance.colors?.text || "#09090b",
-        },
-        texts: {
-          welcomeTitle:
-            appearance.texts?.welcomeTitle || "Bem-vindo à Mesa {tableNumber}",
-          waiterButton: appearance.texts?.waiterButton || "Chamar Garçom",
-          billButton: appearance.texts?.billButton || "Pedir a Conta",
-        },
-        socials: {
-          instagram: appearance.socials?.instagram || "",
-          wifiName: appearance.socials?.wifiName || "",
-          wifiPassword: appearance.socials?.wifiPassword || "",
-        },
-      });
-      setLocalLogoPreview(null);
-      setLocalBgPreview(null);
-      toast({
-        title: "Alterações descartadas",
-        description: "Os campos retornaram aos valores salvos.",
-        type: "info",
-      });
-    }
-  };
-
-  const handleConfirmReset = async () => {
-    try {
-      const resetData = await resetMutation.mutateAsync();
-      setLocalLogoPreview(null);
-      setLocalBgPreview(null);
-      setShowResetConfirm(false);
-      reset({
-        name: resetData.name,
-        description: resetData.description || "",
-        backgroundType: resetData.backgroundType,
-        backgroundValue: resetData.backgroundValue || "",
-        colors: {
-          primary: resetData.colors?.primary || "#ea580c",
-          secondary: resetData.colors?.secondary || "#18181b",
-          background: resetData.colors?.background || "#fafafa",
-          text: resetData.colors?.text || "#09090b",
-        },
-        texts: {
-          welcomeTitle:
-            resetData.texts?.welcomeTitle || "Bem-vindo à Mesa {tableNumber}",
-          waiterButton: resetData.texts?.waiterButton || "Chamar Garçom",
-          billButton: resetData.texts?.billButton || "Pedir a Conta",
-        },
-        socials: {
-          instagram: resetData.socials?.instagram || "",
-          wifiName: resetData.socials?.wifiName || "",
-          wifiPassword: resetData.socials?.wifiPassword || "",
-        },
-      });
-      toast({
-        title: "Padrão restaurado",
-        description:
-          "As cores e textos voltaram para o padrão oficial do TapMesa.",
-        type: "success",
-      });
-    } catch (err) {
-      toast({
-        title: "Erro ao restaurar padrão",
-        description:
-          parseApiError(err).detail || "Não foi possível resetar a aparência.",
-        type: "error",
-      });
-    }
-  };
 
   if (isLoading) {
     return (
@@ -491,6 +184,309 @@ export function AppearanceSettingsForm() {
       </Card>
     );
   }
+
+  // O formulário só é montado com os dados carregados: assim os campos nunca
+  // renderizam sem valor (o `values` do useForm só é aplicado após um efeito)
+  return <AppearanceSettingsEditor appearance={appearance} />;
+}
+
+function AppearanceSettingsEditor({
+  appearance,
+}: {
+  appearance: RestaurantAppearance;
+}) {
+  const { toast } = useToast();
+
+  const updateMutation = useUpdateAppearanceMutation();
+  const resetMutation = useResetAppearanceMutation();
+  const uploadLogoMutation = useUploadLogoMutation();
+  const uploadBackgroundMutation = useUploadBackgroundMutation();
+
+  const [mobileTab, setMobileTab] = React.useState<"form" | "preview">("form");
+  const [showResetConfirm, setShowResetConfirm] = React.useState(false);
+  const [localLogoPreview, setLocalLogoPreview] = React.useState<string | null>(
+    null,
+  );
+  const [localBgPreview, setLocalBgPreview] = React.useState<string | null>(
+    null,
+  );
+
+  const fileLogoRef = React.useRef<HTMLInputElement | null>(null);
+  const fileBgRef = React.useRef<HTMLInputElement | null>(null);
+
+  const {
+    register,
+    handleSubmit,
+    control,
+    reset,
+    setValue,
+    formState: { errors, isDirty },
+  } = useForm<AppearanceFormData>({
+    resolver: zodResolver(appearanceFormSchema),
+    defaultValues: toFormValues(appearance),
+    values: toFormValues(appearance),
+  });
+
+  // Watch form values for real-time live preview
+  const watchedName = useWatch({ control, name: "name" });
+  const watchedDescription = useWatch({ control, name: "description" });
+  const watchedBgType = useWatch({ control, name: "backgroundType" });
+  const watchedBgValue = useWatch({ control, name: "backgroundValue" });
+  const watchedColors = useWatch({ control, name: "colors" });
+  const watchedTexts = useWatch({ control, name: "texts" });
+  const watchedSocials = useWatch({ control, name: "socials" });
+
+  // Calculate live contrast ratios (WCAG 2.1 AA)
+  const textBgRatio =
+    !watchedColors?.text || !watchedColors?.background
+      ? 21
+      : getContrastRatio(watchedColors.text, watchedColors.background);
+
+  const buttonContrastRatio = !watchedColors?.primary
+    ? 21
+    : getContrastRatio("#ffffff", watchedColors.primary);
+
+  // Construct dynamic live appearance object for the preview smartphone
+  const currentLogo = localLogoPreview || appearance?.logoUrl || null;
+  const currentBg =
+    watchedBgType === "image" ? localBgPreview || watchedBgValue || null : null;
+
+  // Modo do seletor de fundo: "preset" é uma imagem cuja URL é um dos presets
+  const [bgModeOverride, setBgModeOverride] = React.useState<
+    "preset" | "image" | null
+  >(null);
+  const bgMode =
+    watchedBgType === "color"
+      ? "color"
+      : (bgModeOverride ?? (isPresetUrl(watchedBgValue) ? "preset" : "image"));
+
+  // Campos vazios não são enviados: a tela do cliente usa o texto salvo/padrão do back
+  const savedTexts = appearance?.texts;
+  const liveAppearance: RestaurantAppearance = {
+    name: watchedName || "Meu Restaurante",
+    description: watchedDescription || null,
+    logoUrl: currentLogo,
+    backgroundType: watchedBgType || "color",
+    backgroundValue: currentBg,
+    colors: {
+      primary: watchedColors?.primary || "#ea580c",
+      secondary: watchedColors?.secondary || "#18181b",
+      background: watchedColors?.background || "#fafafa",
+      surface: appearance?.colors.surface || "#1e293b",
+      text: watchedColors?.text || "#09090b",
+    },
+    texts: {
+      ...(savedTexts ?? {
+        welcomeTitle: "",
+        callWaiterButton: "",
+        requestBillButton: "",
+        notePlaceholder: "",
+        pendingMessage: "",
+        attendedPrompt: "",
+        confirmButton: "",
+        contestButton: "",
+        cancelButton: "",
+      }),
+      welcomeTitle:
+        watchedTexts?.welcomeTitle?.trim() || savedTexts?.welcomeTitle || "",
+      callWaiterButton:
+        watchedTexts?.callWaiterButton?.trim() ||
+        savedTexts?.callWaiterButton ||
+        "",
+      requestBillButton:
+        watchedTexts?.requestBillButton?.trim() ||
+        savedTexts?.requestBillButton ||
+        "",
+    },
+    socials: {
+      ...(appearance?.socials ?? {}),
+      instagram: watchedSocials?.instagram || "",
+      wifiName: watchedSocials?.wifiName || "",
+      wifiPassword: watchedSocials?.wifiPassword || "",
+    },
+  };
+
+  // Handle Logo Upload
+  const handleLogoFileChange = async (
+    e: React.ChangeEvent<HTMLInputElement>,
+  ) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    if (!ACCEPTED_IMAGE_TYPES.includes(file.type)) {
+      toast({
+        title: "Formato inválido",
+        description: "Envie apenas imagens nos formatos PNG, JPEG ou WebP.",
+        type: "error",
+      });
+      return;
+    }
+
+    if (file.size > MAX_UPLOAD_BYTES) {
+      toast({
+        title: "Arquivo muito grande",
+        description: "O logotipo deve ter no máximo 2 MB.",
+        type: "error",
+      });
+      return;
+    }
+
+    // Instant local preview
+    const tempUrl = URL.createObjectURL(file);
+    setLocalLogoPreview(tempUrl);
+
+    try {
+      await uploadLogoMutation.mutateAsync(file);
+      toast({
+        title: "Logotipo atualizado",
+        description: "O logotipo do restaurante foi carregado com sucesso.",
+        type: "success",
+      });
+    } catch (err) {
+      toast({
+        title: "Erro no envio do logotipo",
+        description:
+          parseApiError(err).detail || "Tente novamente em instantes.",
+        type: "error",
+      });
+      setLocalLogoPreview(null);
+    }
+  };
+
+  // Handle Background Image Upload
+  const handleBgFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    if (!ACCEPTED_IMAGE_TYPES.includes(file.type)) {
+      toast({
+        title: "Formato inválido",
+        description: "Envie apenas imagens nos formatos PNG, JPEG ou WebP.",
+        type: "error",
+      });
+      return;
+    }
+
+    if (file.size > MAX_UPLOAD_BYTES) {
+      toast({
+        title: "Arquivo muito grande",
+        description: "A imagem de fundo deve ter no máximo 2 MB.",
+        type: "error",
+      });
+      return;
+    }
+
+    const tempUrl = URL.createObjectURL(file);
+    setLocalBgPreview(tempUrl);
+    setValue("backgroundType", "image", { shouldDirty: true });
+    setValue("backgroundValue", tempUrl, { shouldDirty: true });
+
+    try {
+      const updated = await uploadBackgroundMutation.mutateAsync(file);
+      setValue("backgroundValue", updated.backgroundValue, {
+        shouldDirty: false,
+      });
+      toast({
+        title: "Fundo atualizado",
+        description: "A imagem de fundo foi enviada com sucesso.",
+        type: "success",
+      });
+    } catch (err) {
+      toast({
+        title: "Erro no envio da imagem de fundo",
+        description:
+          parseApiError(err).detail || "Tente novamente em instantes.",
+        type: "error",
+      });
+      setLocalBgPreview(null);
+    }
+  };
+
+  const onSubmit = async (data: AppearanceFormData) => {
+    try {
+      // O back recusa textos vazios: só enviamos os preenchidos
+      const texts = Object.fromEntries(
+        Object.entries(data.texts)
+          .map(([key, value]): [string, string] => [key, value.trim()])
+          .filter(([, value]) => value.length > 0),
+      );
+      const payload = {
+        name: data.name.trim(),
+        description: data.description?.trim() || null,
+        backgroundType: data.backgroundType,
+        backgroundValue:
+          data.backgroundType === "color" ? null : data.backgroundValue || null,
+        colors: {
+          primary: data.colors.primary,
+          secondary: data.colors.secondary,
+          background: data.colors.background,
+          text: data.colors.text,
+        },
+        texts,
+        // `socials` é substituído inteiro: preserva os links que o formulário não edita
+        socials: {
+          ...appearance?.socials,
+          instagram: sanitizeSocialLink(data.socials.instagram),
+          wifiName: data.socials.wifiName?.trim() || "",
+          wifiPassword: data.socials.wifiPassword || "",
+        },
+      };
+
+      await updateMutation.mutateAsync(payload);
+      toast({
+        title: "Aparência salva",
+        description:
+          "A identidade visual da tela da mesa foi atualizada com sucesso.",
+        type: "success",
+      });
+      reset(data);
+    } catch (err) {
+      toast({
+        title: "Erro ao salvar aparência",
+        description:
+          parseApiError(err).detail || "Verifique os campos e tente novamente.",
+        type: "error",
+      });
+    }
+  };
+
+  const handleDiscard = () => {
+    if (appearance) {
+      reset(toFormValues(appearance));
+      setBgModeOverride(null);
+      setLocalLogoPreview(null);
+      setLocalBgPreview(null);
+      toast({
+        title: "Alterações descartadas",
+        description: "Os campos retornaram aos valores salvos.",
+        type: "info",
+      });
+    }
+  };
+
+  const handleConfirmReset = async () => {
+    try {
+      const resetData = await resetMutation.mutateAsync();
+      setLocalLogoPreview(null);
+      setLocalBgPreview(null);
+      setShowResetConfirm(false);
+      setBgModeOverride(null);
+      reset(toFormValues(resetData));
+      toast({
+        title: "Padrão restaurado",
+        description:
+          "As cores e textos voltaram para o padrão oficial do TapMesa.",
+        type: "success",
+      });
+    } catch (err) {
+      toast({
+        title: "Erro ao restaurar padrão",
+        description:
+          parseApiError(err).detail || "Não foi possível resetar a aparência.",
+        type: "error",
+      });
+    }
+  };
 
   return (
     <div className="space-y-6 pb-24">
@@ -594,7 +590,7 @@ export function AppearanceSettingsForm() {
                     Logotipo do Restaurante
                   </p>
                   <p className="text-xs text-zinc-500">
-                    PNG, JPG ou WebP de até 10 MB. Proporção quadrada ou redonda
+                    PNG, JPG ou WebP de até 2 MB. Proporção quadrada ou redonda
                     recomendada.
                   </p>
                 </div>
@@ -780,11 +776,12 @@ export function AppearanceSettingsForm() {
                 <button
                   type="button"
                   onClick={() => {
+                    setBgModeOverride(null);
                     setValue("backgroundType", "color", { shouldDirty: true });
                     setValue("backgroundValue", null, { shouldDirty: true });
                   }}
                   className={`flex flex-col items-center justify-center p-3 rounded-xl border text-xs font-bold transition-all ${
-                    watchedBgType === "color"
+                    bgMode === "color"
                       ? "border-orange-500 bg-orange-50/50 text-orange-950 dark:border-orange-500 dark:bg-orange-950/30 dark:text-orange-200 ring-2 ring-orange-500/20"
                       : "border-zinc-200 bg-white text-zinc-700 hover:bg-zinc-50 dark:border-zinc-800 dark:bg-zinc-900 dark:text-zinc-300"
                   }`}
@@ -796,15 +793,16 @@ export function AppearanceSettingsForm() {
                 <button
                   type="button"
                   onClick={() => {
-                    setValue("backgroundType", "preset", { shouldDirty: true });
-                    if (!watchedBgValue?.startsWith("http")) {
+                    setBgModeOverride("preset");
+                    setValue("backgroundType", "image", { shouldDirty: true });
+                    if (!isPresetUrl(watchedBgValue)) {
                       setValue("backgroundValue", DEFAULT_PRESET_URL, {
                         shouldDirty: true,
                       });
                     }
                   }}
                   className={`flex flex-col items-center justify-center p-3 rounded-xl border text-xs font-bold transition-all ${
-                    watchedBgType === "preset"
+                    bgMode === "preset"
                       ? "border-orange-500 bg-orange-50/50 text-orange-950 dark:border-orange-500 dark:bg-orange-950/30 dark:text-orange-200 ring-2 ring-orange-500/20"
                       : "border-zinc-200 bg-white text-zinc-700 hover:bg-zinc-50 dark:border-zinc-800 dark:bg-zinc-900 dark:text-zinc-300"
                   }`}
@@ -816,10 +814,11 @@ export function AppearanceSettingsForm() {
                 <button
                   type="button"
                   onClick={() => {
+                    setBgModeOverride("image");
                     setValue("backgroundType", "image", { shouldDirty: true });
                   }}
                   className={`flex flex-col items-center justify-center p-3 rounded-xl border text-xs font-bold transition-all ${
-                    watchedBgType === "image"
+                    bgMode === "image"
                       ? "border-orange-500 bg-orange-50/50 text-orange-950 dark:border-orange-500 dark:bg-orange-950/30 dark:text-orange-200 ring-2 ring-orange-500/20"
                       : "border-zinc-200 bg-white text-zinc-700 hover:bg-zinc-50 dark:border-zinc-800 dark:bg-zinc-900 dark:text-zinc-300"
                   }`}
@@ -830,7 +829,7 @@ export function AppearanceSettingsForm() {
               </div>
 
               {/* Opções de Presets */}
-              {watchedBgType === "preset" && (
+              {bgMode === "preset" && (
                 <div className="space-y-3 pt-2">
                   <label className="block text-xs font-bold uppercase tracking-wider text-zinc-500">
                     Selecione o Preset de Textura:
@@ -880,7 +879,7 @@ export function AppearanceSettingsForm() {
               )}
 
               {/* Upload de Foto Própria */}
-              {watchedBgType === "image" && (
+              {bgMode === "image" && (
                 <div className="space-y-4 pt-2">
                   <div className="flex flex-col sm:flex-row items-center gap-4 p-4 rounded-2xl bg-zinc-50 dark:bg-zinc-800/40 border border-zinc-200/70 dark:border-zinc-800">
                     <input
@@ -946,19 +945,19 @@ export function AppearanceSettingsForm() {
 
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <Input
-                    id="waiterButton"
+                    id="callWaiterButton"
                     label="Rótulo: Chamar Garçom"
                     placeholder="Chamar Garçom"
-                    error={errors.texts?.waiterButton?.message}
-                    {...register("texts.waiterButton")}
+                    error={errors.texts?.callWaiterButton?.message}
+                    {...register("texts.callWaiterButton")}
                   />
 
                   <Input
-                    id="billButton"
+                    id="requestBillButton"
                     label="Rótulo: Pedir a Conta"
                     placeholder="Pedir a Conta"
-                    error={errors.texts?.billButton?.message}
-                    {...register("texts.billButton")}
+                    error={errors.texts?.requestBillButton?.message}
+                    {...register("texts.requestBillButton")}
                   />
                 </div>
               </div>

@@ -72,7 +72,7 @@ Exemplo com dayCutoffHour = 5 (Fuso America/Sao_Paulo):
 - Chamado criado em 22/10/2026 às 05:01 -> Dia Operacional: 2026-10-22 (novo dia operacional iniciado)
 ```
 
-O cálculo é executado deterministicamente pela classe de domínio [`OperationalDayCalculator`](file:///home/novais/Desktop/TapMesa-Back-End/src/modules/analytics/domain/OperationalDayCalculator.ts).
+O cálculo é executado deterministicamente pela classe de domínio [`OperationalDayCalculator`](../../src/modules/analytics/domain/OperationalDayCalculator.ts).
 
 ---
 
@@ -104,22 +104,26 @@ O painel classifica os chamados pendentes em três estados visuais baseados nas 
 
 ## 5. Jobs Agendados em Segundo Plano (`Scheduled Jobs`)
 
-A aplicação executa 6 tarefas periódicas automáticas para manter a integridade operacional:
+A aplicação executa 6 tarefas periódicas. Todas disparam a cada `JOBS_SCHEDULE_INTERVAL_SEC` (padrão **30 s**; desligáveis com `JOBS_ENABLED=false`) e usam um advisory lock do PostgreSQL para que só uma instância execute cada job por vez. A frequência efetiva de cada regra é controlada dentro do job:
 
-1. **`ExpirePendingCallsJob` (Execução a cada 1 minuto):**
+1. **`ExpirePendingCallsJob`:**
    - Varre o banco em busca de chamados com `status = 'PENDING'` cujo tempo decorrido excedeu 20 minutos (1.200s).
-   - Transiciona para `EXPIRED`, emite o evento `CALL_EXPIRED` via SSE e grava o evento de domínio.
-2. **`CloseUnconfirmedCallsJob` (Execução a cada 1 minuto):**
+   - Transiciona para `EXPIRED`, emite o evento `call.expired` via SSE e grava o evento de domínio.
+2. **`CloseUnconfirmedCallsJob`:**
    - Localiza chamados em `ATTENDED` cujo tempo decorrido desde `attendedAt` ultrapassou o `confirmationWindowSec` do restaurante.
-   - Transiciona para `CLOSED_UNCONFIRMED`, emite `CALL_CLOSED_UNCONFIRMED` e encerra o ciclo.
-3. **`RollupDailyJob` (Execução diária na virada do dia operacional):**
-   - Consolida todos os atendimentos do dia operacional finalizado, calcula percentis (p50, p90, p95), rankings de mesas e grava o JSON na tabela `daily_summaries`.
-4. **`DailySummaryEmailJob` (Execução diária matinal):**
-   - Dispara o e-mail com relatório analítico para os restaurantes que têm `emailSummaryEnabled: true`.
-5. **`UrgentAlertJob` (Execução contínua a cada minuto):**
-   - Identifica mesas que ultrapassaram o tempo urgente e envia alerta de emergência por e-mail, respeitando o `alertCooldownMinutes`.
-6. **`CleanupJob` (Execução diária às 04:00):**
-   - Remove tokens de refresh expirados e registros antigos desnecessários para prevenir inchaço do banco de dados.
+   - Transiciona para `CLOSED_UNCONFIRMED`, emite `call.closed` e encerra o ciclo.
+3. **`RollupDailyJob`:**
+   - A cada execução recalcula (upsert idempotente) o consolidado do dia operacional em curso e do anterior: totais, tempos médio/mediana/p90/máximo, distribuição por hora e ranking de mesas, gravados em `daily_summaries`.
+4. **`DailySummaryEmailJob`:**
+   - Na primeira hora após o fechamento do dia operacional (`dayCutoffHour` no fuso do restaurante), envia uma única vez o resumo do dia que fechou para os restaurantes com `emailSummaryEnabled: true`.
+   - Limitação: o controle de "já enviado" fica em memória; se a API reiniciar dentro dessa hora, o resumo pode ser reenviado uma vez.
+5. **`UrgentAlertJob`:**
+   - Identifica chamados pendentes que ultrapassaram o `urgentSec` do restaurante e envia um alerta por restaurante, respeitando o `alertCooldownMinutes` (padrão 15 min).
+   - A segunda regra do RF-R12 (tempo médio da última hora acima da meta) ainda não está implementada.
+6. **`CleanupJob`:**
+   - Remove refresh tokens expirados e tickets de SSE vencidos.
+
+> **E-mail:** o adaptador atual é `InMemoryEmailSender` (guarda as últimas 100 mensagens em memória). Nenhum e-mail sai do servidor até existir um adaptador SMTP/provedor real.
 
 ---
 

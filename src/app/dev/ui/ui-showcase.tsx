@@ -73,7 +73,11 @@ import {
   usePanelAudio,
   useWakeLock,
 } from "@/features/panel";
-import type { PanelCallDto, RecentAttendedCallDto } from "@/shared/types/api";
+import type {
+  PanelCallDto,
+  RecentAttendedCallDto,
+  RestaurantAppearance,
+} from "@/shared/types/api";
 import { cn } from "@/shared/lib/cn";
 import {
   Moon,
@@ -759,71 +763,80 @@ function TableScreenDemo() {
   >("idle");
   const [baseTime] = React.useState(() => Date.now());
 
-  const themes = {
+  const themes: Record<"light" | "dark" | "image", RestaurantAppearance> = {
     light: {
-      restaurantName: "Trattoria Pasta & Vino",
+      name: "Trattoria Pasta & Vino",
       description: "Cozinha italiana artesanal e vinhos selecionados",
       logoUrl: null,
-      backgroundType: "COLOR",
+      backgroundType: "color",
       backgroundValue: "#ffffff",
       colors: {
         primary: "#ea580c",
+        background: "#ffffff",
+        surface: "#f4f4f5",
         text: "#18181b",
         primaryText: "#ffffff",
       },
       texts: {
+        ...DEMO_TEXTS,
         welcomeTitle: "Bem-vindo à Mesa {tableNumber}",
         callWaiterButton: "Chamar Garçom",
         requestBillButton: "Pedir a Conta",
       },
       socials: {
-        wifiSsid: "Trattoria_Clientes",
+        wifiName: "Trattoria_Clientes",
         wifiPassword: "vinhoebomdemais",
         instagram: "@trattoria_oficial",
         whatsapp: "11999998888",
       },
     },
     dark: {
-      restaurantName: "Nocturne Cocktail Bar",
+      name: "Nocturne Cocktail Bar",
       description: "Mixologia autoral e jazz ambiente",
       logoUrl: null,
-      backgroundType: "COLOR",
+      backgroundType: "color",
       backgroundValue: "#121214",
       colors: {
         primary: "#f97316",
+        background: "#121214",
+        surface: "#1e1e22",
         text: "#f4f4f5",
         primaryText: "#18181b",
       },
       texts: {
+        ...DEMO_TEXTS,
         welcomeTitle: "Mesa {tableNumber} • Lounge",
         callWaiterButton: "Chamar Garçom",
         requestBillButton: "Pedir a Conta",
       },
       socials: {
-        wifiSsid: "Nocturne_5G",
+        wifiName: "Nocturne_5G",
         wifiPassword: "cocktailjazz2026",
         instagram: "@nocturnebar",
       },
     },
     image: {
-      restaurantName: "Boi Bravo Steakhouse",
+      name: "Boi Bravo Steakhouse",
       description: "Cortes nobres na brasa desde 1998",
       logoUrl: null,
-      backgroundType: "IMAGE",
+      backgroundType: "image",
       backgroundValue:
         "https://images.unsplash.com/photo-1544025162-d76694265947?q=80&w=600&auto=format&fit=crop",
       colors: {
         primary: "#dc2626",
+        background: "#0f0f0f",
+        surface: "#1c1c1c",
         text: "#ffffff",
         primaryText: "#ffffff",
       },
       texts: {
+        ...DEMO_TEXTS,
         welcomeTitle: "Mesa {tableNumber} • Boi Bravo",
         callWaiterButton: "Chamar Garçom",
         requestBillButton: "Pedir a Conta",
       },
       socials: {
-        wifiSsid: "BoiBravo_Guest",
+        wifiName: "BoiBravo_Guest",
         wifiPassword: "picanhanabrasa",
         instagram: "@boibravosteak",
       },
@@ -1044,110 +1057,163 @@ function TableScreenDemo() {
 const DEMO_BASE_TIME = 1792584000000; // Deterministic static timestamp
 const DEMO_SERVER_NOW = "2026-10-21T09:30:00.000Z";
 
+const DEMO_TEXTS = {
+  welcomeTitle: "Bem-vindo!",
+  callWaiterButton: "Chamar Garçom",
+  requestBillButton: "Pedir a Conta",
+  notePlaceholder: "Observação opcional (ex.: trazer gelo)",
+  pendingMessage: "Seu chamado foi enviado. Aguarde o atendimento.",
+  attendedPrompt: "Você foi atendido?",
+  confirmButton: "Sim, fui atendido",
+  contestButton: "Ainda não",
+  cancelButton: "Cancelar chamado",
+};
+
+// Completa os campos que a vitrine não precisa variar, no formato real da API
+function demoPanelCall(
+  call: Pick<
+    PanelCallDto,
+    | "id"
+    | "tableNumber"
+    | "type"
+    | "note"
+    | "createdAt"
+    | "acknowledgedAt"
+    | "acknowledgedById"
+    | "reopenCount"
+  >,
+): PanelCallDto {
+  return {
+    restaurantId: "demo-restaurant",
+    tableId: `demo-table-${call.tableNumber}`,
+    status: "PENDING",
+    originalCreatedAt: call.createdAt,
+    firstAttendedAt: null,
+    reopened: call.reopenCount > 0,
+    contested: false,
+    reactionTimeSec: null,
+    serverNow: DEMO_SERVER_NOW,
+    ...call,
+  };
+}
+
+function demoRecent(
+  call: Pick<
+    RecentAttendedCallDto,
+    "id" | "tableNumber" | "type" | "rating" | "executionTimeSec" | "attendedAt"
+  > & { confirmationStatus: RecentAttendedCallDto["confirmationStatus"] },
+): RecentAttendedCallDto {
+  const status =
+    call.confirmationStatus === "AWAITING_CONFIRMATION"
+      ? "ATTENDED"
+      : call.confirmationStatus === "CONTESTED"
+        ? "PENDING"
+        : call.confirmationStatus;
+  return {
+    restaurantId: "demo-restaurant",
+    tableId: `demo-table-${call.tableNumber}`,
+    status,
+    note: null,
+    createdAt: call.attendedAt,
+    originalCreatedAt: call.attendedAt,
+    acknowledgedAt: null,
+    acknowledgedById: null,
+    firstAttendedAt: call.attendedAt,
+    confirmedAt: null,
+    closedAt: null,
+    attendedById: "my-user-uuid",
+    reopenCount: 0,
+    reopened: false,
+    contested: false,
+    reactionTimeSec: null,
+    responseTimeSec: null,
+    resolutionTimeSec: null,
+    serverNow: DEMO_SERVER_NOW,
+    ...call,
+  };
+}
+
 const INITIAL_DEMO_CALLS: PanelCallDto[] = [
-  {
+  demoPanelCall({
     id: "demo-call-1",
     tableNumber: 4,
     type: "WAITER",
-    status: "PENDING",
     note: null,
     createdAt: new Date(DEMO_BASE_TIME - 85 * 1000).toISOString(),
     acknowledgedAt: null,
     acknowledgedById: null,
-    firstAttendedAt: null,
-    attendedAt: null,
     reopenCount: 0,
-    serverNow: DEMO_SERVER_NOW,
-  },
-  {
+  }),
+  demoPanelCall({
     id: "demo-call-2",
     tableNumber: 12,
     type: "BILL",
-    status: "PENDING",
     note: "Trazer maquininha de cartão e nota fiscal",
     createdAt: new Date(DEMO_BASE_TIME - 210 * 1000).toISOString(),
     acknowledgedAt: null,
     acknowledgedById: null,
-    firstAttendedAt: null,
-    attendedAt: null,
     reopenCount: 0,
-    serverNow: DEMO_SERVER_NOW,
-  },
-  {
+  }),
+  demoPanelCall({
     id: "demo-call-3",
     tableNumber: 2,
     type: "WAITER",
-    status: "PENDING",
     note: "Cliente com pressa",
     createdAt: new Date(DEMO_BASE_TIME - 360 * 1000).toISOString(),
     acknowledgedAt: null,
     acknowledgedById: null,
-    firstAttendedAt: null,
-    attendedAt: null,
     reopenCount: 2,
-    serverNow: DEMO_SERVER_NOW,
-  },
-  {
+  }),
+  demoPanelCall({
     id: "demo-call-4",
     tableNumber: 8,
     type: "WAITER",
-    status: "PENDING",
     note: null,
     createdAt: new Date(DEMO_BASE_TIME - 130 * 1000).toISOString(),
     acknowledgedAt: new Date(DEMO_BASE_TIME - 40 * 1000).toISOString(),
     acknowledgedById: "other-waiter-uuid",
-    firstAttendedAt: null,
-    attendedAt: null,
     reopenCount: 0,
-    serverNow: DEMO_SERVER_NOW,
-  },
-  {
+  }),
+  demoPanelCall({
     id: "demo-call-5",
     tableNumber: 15,
     type: "BILL",
-    status: "PENDING",
     note: null,
     createdAt: new Date(DEMO_BASE_TIME - 65 * 1000).toISOString(),
     acknowledgedAt: new Date(DEMO_BASE_TIME - 20 * 1000).toISOString(),
     acknowledgedById: "my-user-uuid",
-    firstAttendedAt: null,
-    attendedAt: null,
     reopenCount: 0,
-    serverNow: DEMO_SERVER_NOW,
-  },
+  }),
 ];
 
 const INITIAL_DEMO_RECENTS: RecentAttendedCallDto[] = [
-  {
+  demoRecent({
     id: "recent-1",
     tableNumber: 5,
     type: "WAITER",
-    status: "CONFIRMED",
+    confirmationStatus: "CONFIRMED",
     rating: 3,
     executionTimeSec: 120,
     attendedAt: new Date(DEMO_BASE_TIME - 5 * 60 * 1000).toISOString(),
-    serverNow: DEMO_SERVER_NOW,
-  },
-  {
+  }),
+  demoRecent({
     id: "recent-2",
     tableNumber: 11,
     type: "BILL",
-    status: "CLOSED_UNCONFIRMED",
+    confirmationStatus: "CLOSED_UNCONFIRMED",
     rating: null,
     executionTimeSec: 180,
     attendedAt: new Date(DEMO_BASE_TIME - 12 * 60 * 1000).toISOString(),
-    serverNow: DEMO_SERVER_NOW,
-  },
-  {
+  }),
+  demoRecent({
     id: "recent-3",
     tableNumber: 3,
     type: "WAITER",
-    status: "ATTENDED",
+    confirmationStatus: "AWAITING_CONFIRMATION",
     rating: null,
     executionTimeSec: 90,
     attendedAt: new Date(DEMO_BASE_TIME - 1 * 60 * 1000).toISOString(),
-    serverNow: DEMO_SERVER_NOW,
-  },
+  }),
 ];
 
 function PanelScreenDemo() {
@@ -1200,16 +1266,15 @@ function PanelScreenDemo() {
       setCalls((prev) => prev.filter((c) => c.id !== id));
       if (target) {
         setRecentCalls((prev) => [
-          {
+          demoRecent({
             id: `attended-${target.id}`,
             tableNumber: target.tableNumber,
             type: target.type,
-            status: "ATTENDED",
+            confirmationStatus: "AWAITING_CONFIRMATION",
             rating: null,
             executionTimeSec: 110,
             attendedAt: "2026-10-21T09:30:00.000Z",
-            serverNow: DEMO_SERVER_NOW,
-          },
+          }),
           ...prev,
         ]);
       }

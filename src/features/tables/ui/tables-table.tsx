@@ -45,19 +45,10 @@ export function TablesTable({
   const { toast } = useToast();
   const [copiedId, setCopiedId] = React.useState<string | null>(null);
 
-  const getTableUrl = (token: string) => {
-    const origin =
-      typeof window !== "undefined"
-        ? window.location.origin
-        : process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3001";
-    return `${origin}/m/${token}`;
-  };
-
   const handleCopyLink = async (table: TableDto, e: React.MouseEvent) => {
     e.stopPropagation();
-    const url = getTableUrl(table.token);
     try {
-      await navigator.clipboard.writeText(url);
+      await navigator.clipboard.writeText(table.url);
       triggerHaptic(25);
       setCopiedId(table.id);
       toast({
@@ -106,7 +97,6 @@ export function TablesTable({
           {tables.map((table) => {
             const isToggling = isTogglingId === table.id;
             const isCopied = copiedId === table.id;
-            const fullUrl = getTableUrl(table.token);
 
             return (
               <TableRow key={table.id} className="group">
@@ -141,7 +131,7 @@ export function TablesTable({
                 <TableCell>
                   <div className="flex items-center gap-2 max-w-xs">
                     <span className="truncate font-mono text-xs text-zinc-500 dark:text-zinc-400">
-                      /m/{table.token}
+                      {table.url}
                     </span>
                     <Tooltip>
                       <TooltipTrigger asChild>
@@ -165,7 +155,7 @@ export function TablesTable({
                     <Tooltip>
                       <TooltipTrigger asChild>
                         <a
-                          href={fullUrl}
+                          href={table.url}
                           target="_blank"
                           rel="noopener noreferrer"
                           className="rounded-md p-1 text-zinc-400 hover:bg-zinc-100 hover:text-zinc-700 dark:hover:bg-zinc-800 dark:hover:text-zinc-200"

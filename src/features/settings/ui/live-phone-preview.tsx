@@ -9,11 +9,7 @@ import {
 } from "@/features/table-screen";
 import { Bell, Receipt, Wifi, Battery, Sparkles } from "lucide-react";
 import { cn } from "@/shared/lib/cn";
-import type {
-  RestaurantAppearance,
-  PublicCallDto,
-  PublicTableDto,
-} from "@/shared/types/api";
+import type { RestaurantAppearance, PublicCallDto } from "@/shared/types/api";
 
 export type PreviewScenario = "idle" | "pending" | "attended";
 
@@ -36,40 +32,8 @@ export function LivePhonePreview({
 }: LivePhonePreviewProps) {
   const [scenario, setScenario] = React.useState<PreviewScenario>("idle");
 
-  const sanitizedAppearance = React.useMemo<
-    PublicTableDto["appearance"]
-  >(() => {
-    return {
-      restaurantName: appearance.name,
-      name: appearance.name,
-      description: appearance.description,
-      logoUrl: appearance.logoUrl,
-      backgroundType: appearance.backgroundType,
-      backgroundValue: appearance.backgroundValue,
-      colors: {
-        primary: appearance.colors?.primary || "#ea580c",
-        secondary: appearance.colors?.secondary || "#18181b",
-        background: appearance.colors?.background || "#fafafa",
-        text: appearance.colors?.text || "#09090b",
-      },
-      texts: {
-        welcomeTitle:
-          appearance.texts?.welcomeTitle || "Bem-vindo à Mesa {tableNumber}",
-        waiterButton: appearance.texts?.waiterButton || "Chamar Garçom",
-        billButton: appearance.texts?.billButton || "Pedir a Conta",
-      },
-      socials: {
-        instagram: appearance.socials?.instagram || null,
-        wifiName: appearance.socials?.wifiName || null,
-        wifiPassword: appearance.socials?.wifiPassword || null,
-      },
-    };
-  }, [appearance]);
-
-  const waiterButtonText =
-    sanitizedAppearance.texts.waiterButton || "Chamar Garçom";
-  const billButtonText =
-    sanitizedAppearance.texts.billButton || "Pedir a Conta";
+  const waiterButtonText = appearance.texts.callWaiterButton || "Chamar Garçom";
+  const billButtonText = appearance.texts.requestBillButton || "Pedir a Conta";
 
   const mockPendingCall = React.useMemo<PublicCallDto>(
     () => ({
@@ -168,10 +132,10 @@ export function LivePhonePreview({
 
         {/* Tela Interna do Dispositivo */}
         <div className="relative h-full w-full overflow-y-auto rounded-[38px] overflow-x-hidden bg-white dark:bg-zinc-900 no-scrollbar">
-          <TableThemeProvider appearance={sanitizedAppearance}>
+          <TableThemeProvider appearance={appearance}>
             <TableScreen
               tableNumber={tableNumber}
-              appearance={sanitizedAppearance}
+              appearance={appearance}
               available={true}
               connectionStatus="connected"
             >
@@ -182,10 +146,8 @@ export function LivePhonePreview({
                   <button
                     type="button"
                     style={{
-                      backgroundColor:
-                        sanitizedAppearance.colors?.primary || "#ea580c",
-                      color:
-                        sanitizedAppearance.colors?.primaryText || "#ffffff",
+                      backgroundColor: appearance.colors?.primary || "#ea580c",
+                      color: appearance.colors?.primaryText || "#ffffff",
                     }}
                     className="flex h-16 w-full items-center justify-center gap-3 rounded-2xl px-6 text-base font-bold shadow-lg transition-transform active:scale-[0.98]"
                   >
@@ -198,7 +160,7 @@ export function LivePhonePreview({
                     type="button"
                     style={{
                       backgroundColor:
-                        sanitizedAppearance.colors?.secondary || "#18181b",
+                        appearance.colors?.secondary || "#18181b",
                       color: "#ffffff",
                     }}
                     className="flex h-14 w-full items-center justify-center gap-3 rounded-2xl px-6 text-sm font-semibold shadow-md transition-transform active:scale-[0.98]"
@@ -215,7 +177,7 @@ export function LivePhonePreview({
                     call={mockPendingCall}
                     token="preview-token"
                     showWaitTimeToCustomer={true}
-                    texts={sanitizedAppearance.texts}
+                    texts={appearance.texts}
                   />
                 </div>
               )}
@@ -225,7 +187,7 @@ export function LivePhonePreview({
                   <AttendedCallCard
                     call={mockAttendedCall}
                     token="preview-token"
-                    texts={sanitizedAppearance.texts}
+                    texts={appearance.texts}
                   />
                 </div>
               )}

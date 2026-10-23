@@ -15,6 +15,10 @@ import type {
   QuickRating,
 } from "@/shared/types/api";
 import { triggerHaptic } from "@/shared/lib/haptics";
+import { parseApiError } from "@/shared/api/problem-details";
+
+// As respostas dos POST públicos já trazem o chamado atualizado: nenhuma mutação
+// refaz GET da mesa (o back limita os GET públicos por IP somando todas as mesas).
 
 export function useOpenCallMutation(token: string) {
   const queryClient = useQueryClient();
@@ -85,18 +89,27 @@ export function useOpenCallMutation(token: string) {
         },
       );
     },
-    onError: (_err, _variables, context) => {
+    onError: (err, _variables, context) => {
       if (context?.previousTable) {
         queryClient.setQueryData(
           queryKeys.publicTable(token),
           context.previousTable,
         );
       }
-    },
-    onSettled: () => {
-      queryClient.invalidateQueries({
-        queryKey: queryKeys.publicTable(token),
-      });
+      // Pausa não gera evento SSE: o 400 TABLE_PAUSED é como a tela descobre
+      const problem = parseApiError(err);
+      if (problem.code === "TABLE_PAUSED") {
+        queryClient.setQueryData<PublicTableDto>(
+          queryKeys.publicTable(token),
+          (old) =>
+            old && {
+              ...old,
+              available: false,
+              unavailableReason: "TABLE_PAUSED",
+              message: problem.detail,
+            },
+        );
+      }
     },
   });
 }
@@ -140,11 +153,6 @@ export function useCancelCallMutation(token: string) {
           context.previousTable,
         );
       }
-    },
-    onSettled: () => {
-      queryClient.invalidateQueries({
-        queryKey: queryKeys.publicTable(token),
-      });
     },
   });
 }
@@ -217,11 +225,6 @@ export function useConfirmCallMutation(token: string) {
         );
       }
     },
-    onSettled: () => {
-      queryClient.invalidateQueries({
-        queryKey: queryKeys.publicTable(token),
-      });
-    },
   });
 }
 
@@ -252,11 +255,12 @@ export function useContestCallMutation(token: string) {
             return {
               ...old,
               calls: old.calls.map((c) => {
-                if (c.id === callId) {
+                // No limite de reaberturas o back mantém o chamado ATTENDED
+                if (c.id === callId && c.reopenCount < 2) {
                   return {
                     ...c,
                     status: "PENDING",
-                    reopenCount: (c.reopenCount ?? 0) + 1,
+                    reopenCount: c.reopenCount + 1,
                   };
                 }
                 return c;
@@ -291,11 +295,6 @@ export function useContestCallMutation(token: string) {
           context.previousTable,
         );
       }
-    },
-    onSettled: () => {
-      queryClient.invalidateQueries({
-        queryKey: queryKeys.publicTable(token),
-      });
     },
   });
 }

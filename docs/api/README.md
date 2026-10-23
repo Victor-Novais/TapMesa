@@ -34,7 +34,7 @@ O **TapMesa** é um SaaS multi-tenant de **chamada de garçom e pedido de conta 
 
 ### 3.1. Prefixos Globais e Ambientes
 
-Todas as rotas de negócio da API estão sob o prefixo global `/api/v1` (configurado em [`src/platform/bootstrap/configure-app.ts`](file:///home/novais/Desktop/TapMesa-Back-End/src/platform/bootstrap/configure-app.ts)).
+Todas as rotas de negócio da API estão sob o prefixo global `/api/v1` (configurado em [`src/platform/bootstrap/configure-app.ts`](../../src/platform/bootstrap/configure-app.ts)).
 
 - **Desenvolvimento Local:** `http://localhost:3000/api/v1`
 - **Produção:** `https://api.tapmesa.com.br/api/v1` (ou domínio configurado no ambiente)
@@ -53,16 +53,17 @@ Em conformidade com a RFC 7807, todos os erros retornados pela API (4xx e 5xx) s
   "status": 400,
   "detail": "startNumber must be an integer number",
   "instance": "/api/v1/tables",
-  "requestId": "9c8e1a82-749e-4a4b-85d1-d2d140e79391",
-  "code": "VALIDATION_ERROR"
+  "requestId": "9c8e1a82-749e-4a4b-85d1-d2d140e79391"
 }
 ```
 
 Cada resposta de erro inclui o `requestId` correspondente ao cabeçalho `X-Request-Id` recebido ou gerado pelo gateway.
 
-### 3.3. Sincronização de Relógio (`X-Server-Now`)
+### 3.3. Sincronização de Relógio (`serverNow`)
 
-Para evitar divergências causadas pelo relógio local do celular do cliente ou da estação de trabalho dos garçons, todos os endpoints críticos e eventos SSE retornam o timestamp UTC canônico do servidor, tanto no body (`serverNow`) quanto no cabeçalho HTTP `X-Server-Now: 2026-10-21T01:00:00.000Z`. Os cronômetros do frontend devem basear-se sempre nesse referencial.
+Para evitar divergências causadas pelo relógio local do celular do cliente ou da estação dos garçons, as respostas de chamados, painel e analytics, e os snapshots SSE, trazem o instante UTC do servidor no campo `serverNow` do corpo. Os cronômetros do front devem usar esse referencial. O cabeçalho `X-Server-Now` existe apenas em `GET /panel/calls` e `GET /panel/calls/recent` e não é exposto via CORS.
+
+Erros de validação de DTO (`title: "Validation Error"`) não trazem `code`; erros de regra de negócio trazem (ver `FRONTEND_INTEGRATION.md`, seção 3).
 
 ---
 
@@ -70,34 +71,35 @@ Para evitar divergências causadas pelo relógio local do celular do cliente ou 
 
 A documentação está dividida em arquivos especializados para consulta rápida e aprofundada:
 
-1. **[`README.md`](file:///home/novais/Desktop/TapMesa-Back-End/docs/api/README.md)** (este documento): Visão geral, arquitetura, convenções e sumário executivo.
-2. **[`API_REFERENCE.md`](file:///home/novais/Desktop/TapMesa-Back-End/docs/api/API_REFERENCE.md)**: Contratos detalhados de todos os 69 endpoints, parâmetros, payloads e respostas.
-3. **[`AUTHENTICATION_AND_PERMISSIONS.md`](file:///home/novais/Desktop/TapMesa-Back-End/docs/api/AUTHENTICATION_AND_PERMISSIONS.md)**: Fluxo completo de JWT, rotação de refresh token com cookie HttpOnly, detecção de reúso, matriz RBAC e impersonação.
-4. **[`DATA_MODEL.md`](file:///home/novais/Desktop/TapMesa-Back-End/docs/api/DATA_MODEL.md)**: Schema Prisma completo, enums, diagramas ER, índices, restrições e mapeamento Domínio vs DTO.
-5. **[`BUSINESS_RULES.md`](file:///home/novais/Desktop/TapMesa-Back-End/docs/api/BUSINESS_RULES.md)**: Máquinas de estado de chamados, regras de expiração (20 min), SLA, janela de confirmação, contestações e rollups diários.
-6. **[`FRONTEND_INTEGRATION.md`](file:///home/novais/Desktop/TapMesa-Back-End/docs/api/FRONTEND_INTEGRATION.md)**: Guia prático de código para frontend: cliente Axios com fila de refresh automático de token, cliente SSE com reconexão exponencial e tratamento RFC 7807.
-7. **[`TYPESCRIPT_CONTRACTS.md`](file:///home/novais/Desktop/TapMesa-Back-End/docs/api/TYPESCRIPT_CONTRACTS.md)**: Interfaces TypeScript, DTOs, Enums e tipos de eventos SSE prontos para copiar e colar no frontend.
-8. **[`FRONTEND_ENDPOINT_MAPPING.md`](file:///home/novais/Desktop/TapMesa-Back-End/docs/api/FRONTEND_ENDPOINT_MAPPING.md)**: Mapeamento tela por tela (Mesa do Cliente, Painel do Garçom, Dashboard do Gerente e Portal Admin).
-9. **[`AUDIT_REPORT.md`](file:///home/novais/Desktop/TapMesa-Back-End/docs/api/AUDIT_REPORT.md)**: Relatório da auditoria técnica do código, divergências entre OpenAPI e código real, análise de cobertura de testes e recomendações.
-10. **[`endpoint-inventory.json`](file:///home/novais/Desktop/TapMesa-Back-End/docs/api/endpoint-inventory.json)**: Inventário estruturado legível por máquina de todos os endpoints auditados e comprovados.
-11. **[`openapi.json`](file:///home/novais/Desktop/TapMesa-Back-End/docs/api/openapi.json)**: Especificação formal OpenAPI 3.1.0 extraída da aplicação.
+1. **[`README.md`](README.md)** (este documento): Visão geral, arquitetura, convenções e sumário executivo.
+2. **[`API_REFERENCE.md`](API_REFERENCE.md)**: Contratos detalhados de todos os 69 endpoints, parâmetros, payloads e respostas.
+3. **[`AUTHENTICATION_AND_PERMISSIONS.md`](AUTHENTICATION_AND_PERMISSIONS.md)**: Fluxo completo de JWT, rotação de refresh token com cookie HttpOnly, detecção de reúso, matriz RBAC e impersonação.
+4. **[`DATA_MODEL.md`](DATA_MODEL.md)**: Schema Prisma completo, enums, diagramas ER, índices, restrições e mapeamento Domínio vs DTO.
+5. **[`BUSINESS_RULES.md`](BUSINESS_RULES.md)**: Máquinas de estado de chamados, regras de expiração (20 min), SLA, janela de confirmação, contestações e rollups diários.
+6. **[`FRONTEND_INTEGRATION.md`](FRONTEND_INTEGRATION.md)**: Guia de como o front consome a API: autenticação, erros, limites de requisição, SSE (eventos, payloads e como atualizar o estado), fluxo da mesa, painel, mesas/QR, aparência, analytics, equipe, notificações e admin.
+   6.1. **[`FRONTEND_CHANGES.md`](FRONTEND_CHANGES.md)**: Lista acionável (22/10/2026) do que mudar no repositório do front para alinhá-lo à API real, com arquivos, prioridade e critérios de aceite.
+7. **[`TYPESCRIPT_CONTRACTS.md`](TYPESCRIPT_CONTRACTS.md)**: Interfaces TypeScript, DTOs, Enums e tipos de eventos SSE prontos para copiar e colar no frontend.
+8. **[`FRONTEND_ENDPOINT_MAPPING.md`](FRONTEND_ENDPOINT_MAPPING.md)**: Mapeamento tela por tela (Mesa do Cliente, Painel do Garçom, Dashboard do Gerente e Portal Admin).
+9. **[`AUDIT_REPORT.md`](AUDIT_REPORT.md)**: Relatório da auditoria técnica do código, divergências entre OpenAPI e código real, análise de cobertura de testes e recomendações.
+10. **[`endpoint-inventory.json`](endpoint-inventory.json)**: Inventário estruturado legível por máquina de todos os endpoints auditados e comprovados.
+11. **[`openapi.json`](openapi.json)**: Especificação formal OpenAPI 3.1.0 extraída da aplicação.
 
 ---
 
 ## 5. Guia de Leitura Recomendado
 
 - **Se você vai implementar a Tela da Mesa (Mobile Cliente via QR Code):**
-  1. Leia [`BUSINESS_RULES.md`](file:///home/novais/Desktop/TapMesa-Back-End/docs/api/BUSINESS_RULES.md) (Ciclo de vida do chamado e avaliação rápida).
-  2. Consulte [`FRONTEND_ENDPOINT_MAPPING.md`](file:///home/novais/Desktop/TapMesa-Back-End/docs/api/FRONTEND_ENDPOINT_MAPPING.md) na seção "Tela Pública da Mesa".
-  3. Copie os contratos de [`TYPESCRIPT_CONTRACTS.md`](file:///home/novais/Desktop/TapMesa-Back-End/docs/api/TYPESCRIPT_CONTRACTS.md).
-  4. Siga os exemplos de SSE em [`FRONTEND_INTEGRATION.md`](file:///home/novais/Desktop/TapMesa-Back-End/docs/api/FRONTEND_INTEGRATION.md).
+  1. Leia [`BUSINESS_RULES.md`](BUSINESS_RULES.md) (Ciclo de vida do chamado e avaliação rápida).
+  2. Consulte [`FRONTEND_ENDPOINT_MAPPING.md`](FRONTEND_ENDPOINT_MAPPING.md) na seção "Tela Pública da Mesa".
+  3. Copie os contratos de [`TYPESCRIPT_CONTRACTS.md`](TYPESCRIPT_CONTRACTS.md).
+  4. Siga os exemplos de SSE em [`FRONTEND_INTEGRATION.md`](FRONTEND_INTEGRATION.md).
 
 - **Se você vai implementar o Painel da Equipe (Garçons/Cozinha):**
-  1. Leia [`AUTHENTICATION_AND_PERMISSIONS.md`](file:///home/novais/Desktop/TapMesa-Back-End/docs/api/AUTHENTICATION_AND_PERMISSIONS.md) para autenticação e ticket de stream (`/panel/stream-ticket`).
-  2. Consulte [`FRONTEND_ENDPOINT_MAPPING.md`](file:///home/novais/Desktop/TapMesa-Back-End/docs/api/FRONTEND_ENDPOINT_MAPPING.md) na seção "Painel da Equipe em Tempo Real".
-  3. Veja como consumir o fluxo de reconexão SSE em [`FRONTEND_INTEGRATION.md`](file:///home/novais/Desktop/TapMesa-Back-End/docs/api/FRONTEND_INTEGRATION.md).
+  1. Leia [`AUTHENTICATION_AND_PERMISSIONS.md`](AUTHENTICATION_AND_PERMISSIONS.md) para autenticação e ticket de stream (`/panel/stream-ticket`).
+  2. Consulte [`FRONTEND_ENDPOINT_MAPPING.md`](FRONTEND_ENDPOINT_MAPPING.md) na seção "Painel da Equipe em Tempo Real".
+  3. Veja como consumir o fluxo de reconexão SSE em [`FRONTEND_INTEGRATION.md`](FRONTEND_INTEGRATION.md).
 
 - **Se você vai implementar o Painel do Dono / Gerente (Settings, Mesas, Equipe e Resumo do Dia):**
-  1. Leia [`AUTHENTICATION_AND_PERMISSIONS.md`](file:///home/novais/Desktop/TapMesa-Back-End/docs/api/AUTHENTICATION_AND_PERMISSIONS.md) (RBAC `OWNER`).
-  2. Consulte os endpoints de Settings, Mesas e Analytics em [`API_REFERENCE.md`](file:///home/novais/Desktop/TapMesa-Back-End/docs/api/API_REFERENCE.md).
-  3. Entenda o cálculo do Dia Operacional e Rollup em [`BUSINESS_RULES.md`](file:///home/novais/Desktop/TapMesa-Back-End/docs/api/BUSINESS_RULES.md).
+  1. Leia [`AUTHENTICATION_AND_PERMISSIONS.md`](AUTHENTICATION_AND_PERMISSIONS.md) (RBAC `OWNER`).
+  2. Consulte os endpoints de Settings, Mesas e Analytics em [`API_REFERENCE.md`](API_REFERENCE.md).
+  3. Entenda o cálculo do Dia Operacional e Rollup em [`BUSINESS_RULES.md`](BUSINESS_RULES.md).

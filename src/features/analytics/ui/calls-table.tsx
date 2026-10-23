@@ -29,13 +29,26 @@ import {
   Check,
 } from "lucide-react";
 import { formatDurationSec } from "../lib/operational-date";
-import type { AnalyticsCallItem, CallStatus } from "@/shared/types/api";
+import type { AnalyticsCallsFilters } from "@/shared/api/analytics";
+import type {
+  AnalyticsCallItem,
+  CallStatus,
+  CallType,
+} from "@/shared/types/api";
+
+export type CallsTableFilters = Pick<
+  AnalyticsCallsFilters,
+  "type" | "status" | "table"
+>;
 
 export interface CallsTableProps {
   calls: AnalyticsCallItem[];
-  hasMore: boolean;
+  totalCount?: number;
   nextCursor?: string | null;
+  isFirstPage?: boolean;
   onPageChange?: (cursor: string | null) => void;
+  filters: CallsTableFilters;
+  onFiltersChange: (filters: CallsTableFilters) => void;
   isLoading?: boolean;
 }
 
@@ -70,31 +83,29 @@ function formatFullDate(dateStr: string | null): string {
 
 export function CallsTable({
   calls,
-  hasMore,
+  totalCount,
   nextCursor,
+  isFirstPage = true,
   onPageChange,
+  filters,
+  onFiltersChange,
   isLoading,
 }: CallsTableProps) {
-  const [typeFilter, setTypeFilter] = React.useState<string>("all");
-  const [statusFilter, setStatusFilter] = React.useState<string>("all");
-  const [tableSearch, setTableSearch] = React.useState<string>("");
+  const [tableSearch, setTableSearch] = React.useState<string>(
+    filters.table ? String(filters.table) : "",
+  );
   const [selectedCall, setSelectedCall] =
     React.useState<AnalyticsCallItem | null>(null);
 
-  // Filtragem local dos itens recebidos
-  const filteredCalls = React.useMemo(() => {
-    return calls.filter((call) => {
-      if (typeFilter !== "all" && call.type !== typeFilter) return false;
-      if (statusFilter !== "all" && call.status !== statusFilter) return false;
-      if (
-        tableSearch.trim() &&
-        !String(call.tableNumber).includes(tableSearch.trim())
-      ) {
-        return false;
-      }
-      return true;
-    });
-  }, [calls, typeFilter, statusFilter, tableSearch]);
+  // Os filtros são aplicados pela API (type, status, table) para valerem em todas as páginas
+  const hasMore = Boolean(nextCursor);
+
+  const handleTableSearchChange = (value: string) => {
+    const digits = value.replace(/\D/g, "");
+    setTableSearch(digits);
+    const table = digits ? Number(digits) : undefined;
+    if (table !== filters.table) onFiltersChange({ ...filters, table });
+  };
 
   const renderStatusBadge = (status: CallStatus) => {
     switch (status) {
@@ -174,8 +185,16 @@ export function CallsTable({
         <div className="flex flex-wrap items-center gap-2">
           {/* Filtro de Tipo */}
           <select
-            value={typeFilter}
-            onChange={(e) => setTypeFilter(e.target.value)}
+            value={filters.type ?? "all"}
+            onChange={(e) =>
+              onFiltersChange({
+                ...filters,
+                type:
+                  e.target.value === "all"
+                    ? undefined
+                    : (e.target.value as CallType),
+              })
+            }
             className="h-8 rounded-lg border border-zinc-200 bg-white px-2.5 text-xs text-zinc-900 focus:outline-none focus:ring-2 focus:ring-orange-500 dark:border-zinc-800 dark:bg-zinc-900 dark:text-zinc-100"
             aria-label="Filtrar por tipo de chamado"
           >
@@ -186,8 +205,16 @@ export function CallsTable({
 
           {/* Filtro de Status */}
           <select
-            value={statusFilter}
-            onChange={(e) => setStatusFilter(e.target.value)}
+            value={filters.status ?? "all"}
+            onChange={(e) =>
+              onFiltersChange({
+                ...filters,
+                status:
+                  e.target.value === "all"
+                    ? undefined
+                    : (e.target.value as CallStatus),
+              })
+            }
             className="h-8 rounded-lg border border-zinc-200 bg-white px-2.5 text-xs text-zinc-900 focus:outline-none focus:ring-2 focus:ring-orange-500 dark:border-zinc-800 dark:bg-zinc-900 dark:text-zinc-100"
             aria-label="Filtrar por status"
           >
@@ -197,21 +224,29 @@ export function CallsTable({
             <option value="PENDING">Pendentes</option>
             <option value="CANCELLED">Cancelados</option>
             <option value="EXPIRED">Expirados</option>
+            <option value="CLOSED_UNCONFIRMED">Encerrados</option>
           </select>
+          {totalCount !== undefined && (
+            <span className="text-xs text-zinc-500 dark:text-zinc-400">
+              {totalCount} {totalCount === 1 ? "chamado" : "chamados"}
+            </span>
+          )}
         </div>
 
         {/* Busca por Mesa */}
         <div className="w-full sm:w-48">
           <Input
             placeholder="Filtrar por mesa..."
+            inputMode="numeric"
+            aria-label="Filtrar por número da mesa"
             value={tableSearch}
-            onChange={(e) => setTableSearch(e.target.value)}
+            onChange={(e) => handleTableSearchChange(e.target.value)}
             startAdornment={<Search className="h-3.5 w-3.5" />}
             endAdornment={
               tableSearch ? (
                 <button
                   type="button"
-                  onClick={() => setTableSearch("")}
+                  onClick={() => handleTableSearchChange("")}
                   className="rounded-md p-1 text-zinc-400 hover:text-zinc-700"
                 >
                   <X className="h-3 w-3" />
@@ -224,7 +259,7 @@ export function CallsTable({
       </div>
 
       {/* Conteúdo: Tabela Desktop / Cards Mobile */}
-      {filteredCalls.length === 0 ? (
+      {calls.length === 0 ? (
         <div className="p-8 text-center border border-dashed border-zinc-200 rounded-2xl dark:border-zinc-800">
           <p className="text-sm font-medium text-zinc-500">
             Nenhum chamado encontrado com os filtros aplicados.
@@ -250,7 +285,7 @@ export function CallsTable({
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {filteredCalls.map((call) => (
+                {calls.map((call) => (
                   <TableRow
                     key={call.id}
                     className="cursor-pointer hover:bg-zinc-50/75 dark:hover:bg-zinc-800/40"
@@ -316,7 +351,7 @@ export function CallsTable({
 
           {/* 2. Cards no Mobile */}
           <div className="grid grid-cols-1 gap-2.5 md:hidden">
-            {filteredCalls.map((call) => (
+            {calls.map((call) => (
               <Card
                 key={call.id}
                 onClick={() => setSelectedCall(call)}
@@ -350,11 +385,12 @@ export function CallsTable({
       )}
 
       {/* Paginação por Cursor */}
-      {(hasMore || nextCursor) && onPageChange && (
+      {(hasMore || !isFirstPage) && onPageChange && (
         <div className="flex items-center justify-end gap-2 pt-2">
           <Button
             variant="outline"
             size="sm"
+            disabled={isFirstPage}
             onClick={() => onPageChange(null)}
             className="text-xs gap-1"
           >

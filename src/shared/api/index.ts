@@ -2,7 +2,6 @@ export * from "./client";
 export * from "./problem-details";
 export * from "./query-client";
 export * from "./download";
-export * from "./schemas";
 
 export * as authApi from "./auth";
 export * as publicTableApi from "./public-table";

@@ -6,7 +6,7 @@ import type {
   CreateTeamUserResponse,
   UpdateTeamUserStatusRequest,
   ResetTeamUserPasswordResponse,
-  TeamUser,
+  UpdateTeamUserStatusResponse,
 } from "@/shared/types/api";
 
 export function useCreateTeamUserMutation() {
@@ -24,7 +24,7 @@ export function useUpdateTeamUserStatusMutation() {
   const queryClient = useQueryClient();
 
   return useMutation<
-    TeamUser,
+    UpdateTeamUserStatusResponse,
     Error,
     { id: string; data: UpdateTeamUserStatusRequest }
   >({

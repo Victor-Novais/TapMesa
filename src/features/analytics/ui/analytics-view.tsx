@@ -20,7 +20,7 @@ import {
 import { PeriodSelector } from "./period-selector";
 import { AnalyticsKpis } from "./analytics-kpis";
 import { TablesRanking } from "./tables-ranking";
-import { CallsTable } from "./calls-table";
+import { CallsTable, type CallsTableFilters } from "./calls-table";
 import { Skeleton } from "@/shared/ui/skeleton";
 import { EmptyState } from "@/shared/ui/empty-state";
 import { Button } from "@/shared/ui/button";
@@ -58,17 +58,25 @@ export function AnalyticsView() {
   });
 
   const [callsCursor, setCallsCursor] = React.useState<string | null>(null);
+  const [callsFilters, setCallsFilters] = React.useState<CallsTableFilters>({});
+
+  const handleCallsFiltersChange = (filters: CallsTableFilters) => {
+    setCallsFilters(filters);
+    setCallsCursor(null);
+  };
 
   // Sincroniza o range quando o preset mudar ou os presets forem recalculados
   const handlePresetChange = (newPreset: DatePreset) => {
     setPreset(newPreset);
     if (newPreset !== "custom") {
       setRange(presets[newPreset]);
+      setCallsCursor(null);
     }
   };
 
   const handleCustomRangeChange = (newRange: DateRange) => {
     setRange(newRange);
+    setCallsCursor(null);
   };
 
   const isLive = React.useMemo(() => {
@@ -86,6 +94,7 @@ export function AnalyticsView() {
   const byHourQuery = useAnalyticsByHourQuery(range.from, range.to, isLive);
   const rankingQuery = useTablesRankingQuery(range.from, range.to, isLive);
   const callsQuery = useAnalyticsCallsQuery(callsCursor, 20, {
+    ...callsFilters,
     from: range.from,
     to: range.to,
   });
@@ -193,7 +202,7 @@ export function AnalyticsView() {
           />
 
           {/* 2. Gráfico de Chamados por Hora (com tabela acessível) */}
-          <HourlyChart hourly={byHourQuery.data?.hourly || []} />
+          <HourlyChart hourly={byHourQuery.data?.byHour || []} />
 
           {/* 3. Ranking de Mesas */}
           <TablesRanking rankingData={rankingQuery.data} />
@@ -205,9 +214,12 @@ export function AnalyticsView() {
             </h3>
             <CallsTable
               calls={callsQuery.data?.items || []}
-              hasMore={callsQuery.data?.hasMore ?? false}
+              totalCount={callsQuery.data?.totalCount}
               nextCursor={callsQuery.data?.nextCursor}
+              isFirstPage={callsCursor === null}
               onPageChange={(cursor) => setCallsCursor(cursor)}
+              filters={callsFilters}
+              onFiltersChange={handleCallsFiltersChange}
               isLoading={callsQuery.isLoading}
             />
           </div>

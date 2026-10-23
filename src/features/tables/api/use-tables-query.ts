@@ -1,6 +1,8 @@
 import { useQuery } from "@tanstack/react-query";
-import { tablesApi } from "@/shared/api";
+import { settingsApi, tablesApi } from "@/shared/api";
+import { queryKeys } from "@/shared/api/query-client";
 import type {
+  RestaurantAppearance,
   TableDto,
   NextTableNumberResponse,
   TablesPrintViewResponse,
@@ -34,6 +36,15 @@ export function useTablesPrintViewQuery() {
   return useQuery<TablesPrintViewResponse>({
     queryKey: tablesQueryKeys.printView(),
     queryFn: () => tablesApi.getTablesPrintView(),
+    staleTime: 60_000,
+  });
+}
+
+// A folha de impressão não traz a cor da marca: ela vem da aparência do restaurante.
+export function useBrandAppearanceQuery() {
+  return useQuery<RestaurantAppearance>({
+    queryKey: queryKeys.settings.appearance,
+    queryFn: () => settingsApi.getAppearance(),
     staleTime: 60_000,
   });
 }

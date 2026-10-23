@@ -29,7 +29,7 @@ interface PanelState {
   isPollingFallback: boolean;
 
   // Actions
-  setSnapshot: (snapshot: Partial<PanelStateDto>) => void;
+  setSnapshot: (snapshot: PanelStateDto) => void;
   addCall: (call: PanelCallDto) => void;
   updateCall: (id: string, patch: Partial<PanelCallDto>) => void;
   removeCall: (id: string) => void;
@@ -84,31 +84,12 @@ export const usePanelStore = create<PanelState>((set) => ({
   isPollingFallback: false,
 
   setSnapshot: (snapshot) => {
-    if (snapshot.serverNow) {
-      syncClock(snapshot.serverNow);
-    }
+    syncClock(snapshot.serverNow);
 
-    const rawCalls = snapshot.activeCalls || snapshot.calls || [];
-    const sortedCalls = sortCallsOldestFirst(rawCalls);
-    const recentCalls = snapshot.recentCalls || [];
-
-    const alertSec =
-      snapshot.thresholds?.alertSec ??
-      snapshot.alertSec ??
-      DEFAULT_THRESHOLDS.alertSec;
-    const urgentSec =
-      snapshot.thresholds?.urgentSec ??
-      snapshot.urgentSec ??
-      DEFAULT_THRESHOLDS.urgentSec;
-
-    const counters =
-      snapshot.activeCallsCount !== undefined
-        ? {
-            activeCallsCount: snapshot.activeCallsCount,
-            waiterCallsCount: snapshot.waiterCallsCount ?? 0,
-            billCallsCount: snapshot.billCallsCount ?? 0,
-          }
-        : recalculateCounters(sortedCalls);
+    const sortedCalls = sortCallsOldestFirst(snapshot.activeCalls);
+    const recentCalls = snapshot.recentCalls;
+    const { alertSec, urgentSec } = snapshot.thresholds;
+    const counters = recalculateCounters(sortedCalls);
 
     set({
       calls: sortedCalls,

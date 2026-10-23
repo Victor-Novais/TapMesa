@@ -176,14 +176,14 @@ test.describe("Jornada Completa TapMesa (Smoke E2E contra Back Real)", () => {
       ownerPage.locator("text=Mesa 2").locator("visible=true").first(),
     ).toBeVisible();
 
-    // Extrair o token público da Mesa 1 a partir da tabela
+    // Extrair o token público da Mesa 1 do link exibido (table.url: {PUBLIC_APP_URL}/m/{token})
     const tokenElement = ownerPage
       .locator('span:has-text("/m/")')
       .locator("visible=true")
       .first();
     await expect(tokenElement).toBeVisible();
     const tokenRaw = await tokenElement.innerText();
-    const tableToken = tokenRaw.replace("/m/", "").trim();
+    const tableToken = tokenRaw.trim().split("/m/").pop() ?? "";
     expect(tableToken.length).toBeGreaterThanOrEqual(6);
 
     // =========================================================================
@@ -334,7 +334,7 @@ test.describe("Jornada Completa TapMesa (Smoke E2E contra Back Real)", () => {
       ownerPage.locator("text=Total de Chamados").first(),
     ).toBeVisible({ timeout: 15_000 });
     await expect(
-      ownerPage.locator("text=Chamados Concluídos").first(),
+      ownerPage.locator("text=Chamados Atendidos").first(),
     ).toBeVisible({ timeout: 15_000 });
 
     await staffPage.close();

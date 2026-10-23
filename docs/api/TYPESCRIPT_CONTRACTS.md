@@ -37,7 +37,7 @@ export type QuickRating = 1 | 2 | 3;
 
 export type EventSourceKind = 'CUSTOMER' | 'STAFF' | 'SYSTEM';
 
-export type BackgroundType = 'color' | 'image' | 'preset';
+export type BackgroundType = 'color' | 'image';
 
 // ============================================================================
 // 2. ERROS (RFC 7807 PROBLEM DETAILS)
@@ -67,14 +67,14 @@ export interface LoginResponse {
   accessToken: string;
 }
 
+// GET /auth/me devolve as claims do access token (JWT), não um registro de usuário.
 export interface AuthUser {
-  id: string;
-  sub: string;
-  username: string;
+  sub: string; // id do usuário
   role: Role;
-  restaurantId?: string;
-  rid?: string;
-  imp?: string | null;
+  rid?: string; // restaurantId (ausente para ADMIN fora de impersonação)
+  imp?: string; // id do ADMIN quando o token é de impersonação
+  iat: number;
+  exp: number;
 }
 
 // ============================================================================
@@ -89,17 +89,22 @@ export interface CreateTeamUserRequest {
 
 export interface CreateTeamUserResponse {
   id: string;
+  restaurantId: string;
   username: string;
   role: 'OWNER' | 'WAITER';
   active: boolean;
-  temporaryPassword?: string;
+  createdAt: string;
+  temporaryPassword?: string; // presente quando a senha foi gerada pelo servidor
 }
 
 export interface TeamUser {
   id: string;
+  restaurantId: string;
   username: string;
   role: Role;
   active: boolean;
+  failedAttempts: number;
+  isLocked: boolean;
   createdAt: string;
 }
 
@@ -110,14 +115,16 @@ export interface UpdateTeamUserStatusRequest {
 export interface AttendantMetric {
   userId: string;
   username: string;
-  totalAttended: number;
-  averageReactionTimeSec: number;
-  averageExecutionTimeSec: number;
-  averageRating: number | null;
+  totalCallsAttended: number;
+  avgResponseTimeSec: number;
+  fastestResponseSec: number;
+  slowestResponseSec: number;
 }
 
 export interface AttendantMetricsResponse {
-  attendants: AttendantMetric[];
+  restaurantId: string;
+  totalCallsAttended: number;
+  waiters: AttendantMetric[];
 }
 
 // ============================================================================
@@ -128,18 +135,11 @@ export interface RestaurantTenantInfo {
   id: string;
   name: string;
   status: RestaurantStatus;
-  timezone: string;
-  dayCutoffHour: number;
-  alertSec: number;
-  urgentSec: number;
-  responseGoalSec: number;
-  confirmationWindowSec: number;
-  showWaitTimeToCustomer: boolean;
-  impersonatedBy?: string | null;
+  createdAt: string;
+  impersonatedBy: string | null;
 }
 
 export interface ServiceSettings {
-  restaurantId: string;
   responseGoalSec: number;
   alertSec: number;
   urgentSec: number;
@@ -160,31 +160,32 @@ export interface UpdateServiceSettingsRequest {
 }
 
 export interface RestaurantAppearance {
-  restaurantId: string;
   name: string;
   description: string | null;
   logoUrl: string | null;
   backgroundType: BackgroundType;
   backgroundValue: string | null;
   colors: {
-    primary?: string;
-    secondary?: string;
-    background?: string;
-    text?: string;
-    [key: string]: string | undefined;
+    primary: string;
+    background: string;
+    surface: string;
+    text: string;
+    [key: string]: string;
   };
   texts: {
-    welcomeTitle?: string;
-    waiterButton?: string;
-    billButton?: string;
-    [key: string]: string | undefined;
+    welcomeTitle: string;
+    callWaiterButton: string;
+    requestBillButton: string;
+    notePlaceholder: string;
+    pendingMessage: string;
+    attendedPrompt: string;
+    confirmButton: string;
+    contestButton: string;
+    cancelButton: string;
+    [key: string]: string;
   };
-  socials: {
-    instagram?: string;
-    wifiName?: string;
-    wifiPassword?: string;
-    [key: string]: string | null | undefined;
-  };
+  // Links externos normalizados para https; wifiName e wifiPassword são texto puro.
+  socials: Record<string, string>;
 }
 
 export interface UpdateAppearanceRequest {
@@ -213,6 +214,7 @@ export interface TableDto {
   number: number;
   token: string;
   paused: boolean;
+  url: string; // URL canônica do QR: {PUBLIC_APP_URL}/m/{token}. Use-a no "Copiar link".
   createdAt: string;
 }
 
@@ -224,14 +226,16 @@ export interface PrintViewTable {
   id: string;
   number: number;
   token: string;
-  qrCodeSvg: string;
+  paused: boolean;
   url: string;
+  qrSvg: string;
 }
 
 export interface TablesPrintViewResponse {
-  restaurantName: string;
-  logoUrl: string | null;
-  primaryColor: string;
+  restaurant: {
+    name: string;
+    logoUrl: string | null;
+  };
   tables: PrintViewTable[];
 }
 
@@ -274,6 +278,19 @@ export interface PublicTableDto {
   calls: PublicCallDto[];
 }
 
+// GET /public/tables/:token/calls: chamados ativos da mesa (versão enxuta)
+export interface PublicCallStateDto {
+  id: string;
+  type: CallType;
+  status: CallStatus;
+  note: string | null;
+  createdAt: string;
+  attendedAt: string | null;
+  confirmationDeadline: string | null;
+  reopenCount: number;
+  serverNow: string;
+}
+
 export interface CreatePublicCallRequest {
   type: CallType;
   note?: string;
@@ -292,32 +309,35 @@ export interface StreamTicketResponse {
   expiresInSec: number;
 }
 
+// Item de GET /panel/calls e de PanelStateDto.activeCalls.
 export interface PanelCallDto {
   id: string;
+  restaurantId: string;
+  tableId: string | null;
   tableNumber: number;
   type: CallType;
   status: CallStatus;
   note: string | null;
-  createdAt: string;
+  createdAt: string; // reinicia na contestação (base do cronômetro)
+  originalCreatedAt: string; // abertura original do chamado
   acknowledgedAt: string | null;
   acknowledgedById: string | null;
   firstAttendedAt: string | null;
-  attendedAt: string | null;
-  attendedById?: string | null;
-  rating?: number | null;
   reopenCount: number;
-  reactionTimeSec?: number | null;
-  executionTimeSec?: number | null;
+  reopened: boolean;
+  contested: boolean;
+  reactionTimeSec: number | null;
   serverNow: string;
 }
 
+// GET /panel/state e evento `snapshot` do SSE do painel.
 export interface PanelStateDto {
-  calls: PanelCallDto[];
-  alertSec: number;
-  urgentSec: number;
-  activeCallsCount: number;
-  waiterCallsCount: number;
-  billCallsCount: number;
+  activeCalls: PanelCallDto[];
+  recentCalls: RecentAttendedCallDto[];
+  thresholds: {
+    alertSec: number;
+    urgentSec: number;
+  };
   serverNow: string;
 }
 
@@ -330,6 +350,7 @@ export interface AcknowledgedCallDto {
   status: CallStatus;
   note: string | null;
   createdAt: string;
+  originalCreatedAt: string;
   acknowledgedAt: string;
   acknowledgedById: string;
   reopenCount: number;
@@ -349,6 +370,7 @@ export interface AttendedCallDto {
   status: CallStatus;
   note: string | null;
   createdAt: string;
+  originalCreatedAt: string;
   acknowledgedAt: string | null;
   acknowledgedById: string | null;
   firstAttendedAt: string | null;
@@ -364,14 +386,35 @@ export interface AttendedCallDto {
   serverNow: string;
 }
 
+export type ConfirmationStatus =
+  'AWAITING_CONFIRMATION' | 'CONFIRMED' | 'CONTESTED' | 'CLOSED_UNCONFIRMED';
+
 export interface RecentAttendedCallDto {
   id: string;
+  restaurantId: string;
+  tableId: string | null;
   tableNumber: number;
   type: CallType;
   status: CallStatus;
+  confirmationStatus: ConfirmationStatus;
+  note: string | null;
+  createdAt: string;
+  originalCreatedAt: string;
+  acknowledgedAt: string | null;
+  acknowledgedById: string | null;
+  firstAttendedAt: string | null;
   attendedAt: string;
+  confirmedAt: string | null;
+  closedAt: string | null;
+  attendedById: string | null;
   rating: number | null;
-  executionTimeSec: number;
+  reopenCount: number;
+  reopened: boolean;
+  contested: boolean;
+  reactionTimeSec: number | null;
+  executionTimeSec: number | null;
+  responseTimeSec: number | null;
+  resolutionTimeSec: number | null;
   serverNow: string;
 }
 
@@ -379,58 +422,124 @@ export interface RecentAttendedCallDto {
 // 9. RESUMO DO DIA E ANALYTICS (/analytics/*)
 // ============================================================================
 
-export interface AnalyticsSummaryOverview {
-  totalCalls: number;
-  waiterCalls: number;
-  billCalls: number;
-  completedCalls: number;
-  cancelledCalls: number;
-  expiredCalls: number;
-  percentageWithinTarget: number;
-  responseTimes: {
-    averageResponseTimeSec: number;
-    medianResponseTimeSec: number;
-    p90ResponseTimeSec: number;
-    p95ResponseTimeSec: number;
-  };
-  ratings: {
-    average: number | null;
-    totalRated: number;
-  };
+export interface AnalyticsRange {
+  from: string; // YYYY-MM-DD (dia operacional)
+  to: string;
+  daysCount: number;
 }
 
-export interface AnalyticsSummaryResponse {
-  range: {
-    from: string;
-    to: string;
+export interface TimeStats {
+  averageResponseTimeSec: number;
+  medianResponseTimeSec: number;
+  p90ResponseTimeSec: number;
+  maxWaitTimeSec: number;
+  sampleCount: number;
+}
+
+export interface CallMetrics {
+  totalCalls: number;
+  statusCounts: {
+    pending: number;
+    attended: number;
+    confirmed: number;
+    cancelled: number;
+    expired: number;
+    closed: number;
   };
-  summary: {
-    overview: AnalyticsSummaryOverview;
-    ranking?: any;
+  attendedCount: number;
+  expiredCount: number;
+  cancelledCount: number;
+  reopenedCount: number;
+  responseTimes: TimeStats; // abertura -> atendido
+  reactionTimes: TimeStats; // abertura -> assumido (T26)
+  executionTimes: TimeStats; // assumido -> atendido (T26)
+  ratings: {
+    '1': number;
+    '2': number;
+    '3': number;
+    total: number;
+    average: number | null;
   };
+  percentageWithinTarget: number;
+  confirmationRate: number;
+}
+
+export interface AnalyticsSummaryOverview extends CallMetrics {
+  waiterCalls: number;
+  billCalls: number;
 }
 
 export interface HourlyMetric {
-  hour: number;
+  hour: number; // 0..23
   totalCalls: number;
-  averageWaitSec: number;
-}
-
-export interface AnalyticsByHourResponse {
-  hourly: HourlyMetric[];
+  waiterCalls: number;
+  billCalls: number;
+  attendedCalls: number;
+  averageResponseTimeSec: number;
+  averageWaiterResponseTimeSec: number;
+  averageBillResponseTimeSec: number;
 }
 
 export interface TableRankingItem {
   tableNumber: number;
   totalCalls: number;
-  averageWaitSec: number;
+  attendedCalls: number;
+  averageResponseTimeSec: number;
+}
+
+export interface TableRanking {
+  byVolume: TableRankingItem[];
+  byResponseTime: TableRankingItem[];
+}
+
+export interface TablesRankingByType {
+  all: TableRanking;
+  waiter: TableRanking;
+  bill: TableRanking;
+}
+
+export interface AnalyticsMetrics {
+  overview: AnalyticsSummaryOverview;
+  byType: { waiter: CallMetrics; bill: CallMetrics };
+  byHour: HourlyMetric[];
+  ranking: TablesRankingByType;
+}
+
+export interface AnalyticsSummaryResponse {
+  range: AnalyticsRange;
+  summary: AnalyticsMetrics;
+  serverNow: string;
+}
+
+export interface AnalyticsByHourResponse {
+  range: AnalyticsRange;
+  byHour: HourlyMetric[];
+  serverNow: string;
 }
 
 export interface TablesRankingResponse {
-  ranking: {
-    byVolume: TableRankingItem[];
-    byWaitTime: TableRankingItem[];
+  range: AnalyticsRange;
+  ranking: TablesRankingByType;
+  serverNow: string;
+}
+
+export interface AnalyticsCompareDay {
+  day: string;
+  metrics: AnalyticsMetrics;
+  delta?: {
+    deltaTotalCalls: number;
+    deltaAverageResponseTimeSec: number;
+    deltaPercentageWithinTarget: number;
+    deltaConfirmationRate: number;
   };
+}
+
+// GET /analytics/summary/compare (delta = hoje menos o dia comparado)
+export interface AnalyticsCompareResponse {
+  today: AnalyticsCompareDay;
+  yesterday: AnalyticsCompareDay;
+  sameDayLastWeek: AnalyticsCompareDay;
+  serverNow: string;
 }
 
 export interface AnalyticsCallItem {
@@ -438,19 +547,30 @@ export interface AnalyticsCallItem {
   tableNumber: number;
   type: CallType;
   status: CallStatus;
+  note: string | null;
   createdAt: string;
+  acknowledgedAt: string | null;
+  firstAttendedAt: string | null;
   attendedAt: string | null;
   confirmedAt: string | null;
+  cancelledAt: string | null;
+  expiredAt: string | null;
+  closedAt: string | null;
   rating: number | null;
-  reopenCount: number;
   reactionTimeSec: number | null;
   executionTimeSec: number | null;
+  responseTimeSec: number | null;
+  resolutionTimeSec: number | null;
+  confirmationTimeSec: number | null;
+  reopenCount: number;
+  contested: boolean;
 }
 
 export interface AnalyticsCallsResponse {
   items: AnalyticsCallItem[];
-  nextCursor: string | null;
-  hasMore: boolean;
+  nextCursor: string | null; // null = não há mais páginas
+  totalCount: number;
+  serverNow: string;
 }
 
 // ============================================================================
@@ -460,9 +580,9 @@ export interface AnalyticsCallsResponse {
 export interface NotificationSettingsDto {
   restaurantId: string;
   emailSummaryEnabled: boolean;
-  summaryEmailRecipient: string | null;
+  summaryEmailRecipient?: string; // ausente até ser configurado
   urgentAlertEnabled: boolean;
-  urgentAlertRecipient: string | null;
+  urgentAlertRecipient?: string;
   alertCooldownMinutes: number;
 }
 
@@ -478,64 +598,73 @@ export interface UpdateNotificationSettingsRequest {
 // 11. MAPA DE EVENTOS EM TEMPO REAL (SSE EVENT MAP)
 // ============================================================================
 
-export interface RealtimeEventMap {
-  snapshot: PanelStateDto;
-  CALL_CREATED: {
-    callId: string;
-    restaurantId: string;
-    tableId: string;
-    tableNumber: number;
-    type: CallType;
-    status: CallStatus;
-    createdAt: string;
-  };
-  CALL_ACKNOWLEDGED: {
-    callId: string;
-    actorUserId: string;
-    acknowledgedAt: string;
-  };
-  CALL_ASSUMED: {
-    callId: string;
-    actorUserId: string;
-    acknowledgedAt: string;
-  };
-  CALL_ATTENDED: {
-    callId: string;
-    actorUserId: string;
-    attendedAt: string;
-  };
-  CALL_CONFIRMED: {
-    callId: string;
-    rating?: number | null;
-    confirmedAt: string;
-  };
-  CALL_REOPENED: {
-    callId: string;
-    reopenCount: number;
-    reopenedAt: string;
-  };
-  CALL_CANCELLED: {
-    callId: string;
-    cancelledAt: string;
-  };
-  CALL_EXPIRED: {
-    callId: string;
-    expiredAt: string;
-  };
-  CALL_CLOSED_UNCONFIRMED: {
-    callId: string;
-    closedAt: string;
-  };
-  TABLE_PAUSED: {
-    tableId: string;
-    tableNumber: number;
-  };
-  TABLE_RESUMED: {
-    tableId: string;
-    tableNumber: number;
-  };
-  TABLE_DELETED: {
-    tableId: string;
-  };
+// Nomes exatos do campo `event:` do SSE. Fonte: ServiceCallEvents.ts e
+// DomainToRealtimeEventHandler.ts. Pausar/retomar mesa NÃO emite evento SSE.
+export type CallEventType =
+  | 'OPENED'
+  | 'ACKNOWLEDGED'
+  | 'ATTENDED'
+  | 'CONFIRMED'
+  | 'REOPENED'
+  | 'CANCELLED'
+  | 'EXPIRED'
+  | 'CLOSED_UNCONFIRMED';
+
+// Canal do painel (GET /panel/stream): payload completo do evento.
+export interface PanelCallEventData {
+  callId: string;
+  restaurantId: string;
+  tableId: string | null;
+  actorUserId: string | null;
+  // Em `call.opened` este campo traz o tipo do chamado (WAITER | BILL);
+  // nos demais eventos traz o CallEventType.
+  type: CallEventType | CallType;
+  source: EventSourceKind;
+  occurredAt: string;
+  note?: string | null; // call.opened
+  tableNumber?: number; // call.opened
+  rating?: number; // call.confirmed (1 a 3)
+  reopenCount?: number; // call.reopened
 }
+
+// Canal da mesa (GET /public/tables/:token/stream): payload reduzido (RNF-09),
+// sem restaurantId nem dados de outras mesas.
+export interface PublicCallEventData {
+  callId: string;
+  tableId: string;
+  type: CallEventType;
+  actorUserId: string | null;
+  occurredAt: string;
+  tableNumber?: number;
+}
+
+type CallEventName =
+  | 'call.opened'
+  | 'call.acknowledged'
+  | 'call.attended'
+  | 'call.confirmed'
+  | 'call.reopened'
+  | 'call.cancelled'
+  | 'call.expired'
+  | 'call.closed';
+
+export type PanelRealtimeEventMap = {
+  snapshot: PanelStateDto;
+  'table.removed': { tableId: string; tableNumber: number; occurredAt: string };
+  'alert.raised': {
+    restaurantId: string;
+    tableNumber: number;
+    callType: CallType;
+    waitDurationSec: number;
+    urgentThresholdSec: number;
+    note: string | null;
+    raisedAt: string;
+  };
+} & Record<CallEventName, PanelCallEventData>;
+
+export type PublicTableRealtimeEventMap = {
+  snapshot: unknown; // estado atual da mesa + serverNow
+  // Enviado imediatamente antes de o servidor encerrar a conexão.
+  'table.removed': { message: string };
+} & Record<CallEventName, PublicCallEventData>;
 ```

@@ -29,6 +29,7 @@ import type { TeamUser, CreateTeamUserResponse } from "@/shared/types/api";
 export function TeamManager() {
   const { toast } = useToast();
   const currentUser = useAuthStore((s) => s.user);
+  const currentUsername = useAuthStore((s) => s.username);
 
   // Queries
   const {
@@ -277,8 +278,8 @@ export function TeamManager() {
           ) : (
             <TeamMembersList
               members={filteredUsers}
-              currentUserId={currentUser?.id}
-              currentUsername={currentUser?.username}
+              currentUserId={currentUser?.sub}
+              currentUsername={currentUsername ?? undefined}
               onToggleStatus={handleToggleStatus}
               onResetPassword={(u) => setResetTarget(u)}
               onDelete={(u) => setDeleteTarget(u)}
@@ -290,7 +291,7 @@ export function TeamManager() {
         {/* Aba 2: Métricas de Desempenho */}
         <TabsContent value="metrics" className="pt-4">
           <AttendantMetricsView
-            metrics={metricsData?.attendants ?? []}
+            metrics={metricsData?.waiters ?? []}
             isLoading={isLoadingMetrics}
           />
         </TabsContent>

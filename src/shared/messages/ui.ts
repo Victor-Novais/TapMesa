@@ -58,7 +58,7 @@ export const UI_MESSAGES = {
     billRequested: "Conta Solicitada",
     notePlaceholder: "Observação opcional (ex.: trazer gelo)",
     noteLabel: "Observação para a equipe (opcional)",
-    noteCharLimit: "Máximo de 140 caracteres",
+    noteCharLimit: "Máximo de 150 caracteres",
     cancelCall: "Cancelar chamado",
     cancelConfirmTitle: "Cancelar chamado?",
     cancelConfirmDesc: "Tem certeza que deseja cancelar esta solicitação?",
@@ -80,6 +80,9 @@ export const UI_MESSAGES = {
     contestConfirmTitle: "Contestar atendimento?",
     contestConfirmDesc:
       "Deseja informar que o garçom ainda não esteve na mesa? O chamado retornará ao painel com destaque.",
+    contestFinalDesc:
+      "Este chamado já foi reaberto 2 vezes. Ele não voltará para a fila, mas o restaurante será avisado de que o atendimento foi contestado.",
+    contestFinalNotice: "O restaurante foi avisado sobre este atendimento.",
     contestSuccess:
       "Atendimento contestado. O chamado voltou à fila com prioridade.",
     confirmedTitle: "Atendimento confirmado!",

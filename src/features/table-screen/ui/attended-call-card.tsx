@@ -9,6 +9,7 @@ import {
   useContestCallMutation,
 } from "../api/use-table-mutations";
 import { useNow, getServerNowMs, formatTimer } from "@/shared/lib/clock";
+import { parseApiError } from "@/shared/api/problem-details";
 import { UI_MESSAGES } from "@/shared/messages/ui";
 import { cn } from "@/shared/lib/cn";
 import type { PublicCallDto, QuickRating } from "@/shared/types/api";
@@ -19,6 +20,8 @@ export interface AttendedCallCardProps {
   texts?: Record<string, string>;
   className?: string;
 }
+
+const MAX_REOPEN_COUNT = 2;
 
 export function AttendedCallCard({
   call,
@@ -32,17 +35,17 @@ export function AttendedCallCard({
 
   const confirmMutation = useConfirmCallMutation(token);
   const contestMutation = useContestCallMutation(token);
+  // Ex.: 429 do limite de POSTs públicos; a atualização otimista já foi desfeita
+  const actionError = confirmMutation.error ?? contestMutation.error;
 
   // Assina o tick do relógio global para atualizar o cronômetro do deadline
   useNow();
 
   const isWaiter = call.type === "WAITER";
   const promptTitle = texts.attendedPrompt || UI_MESSAGES.calls.attendedPrompt;
-  const promptSubtitle =
-    texts.attendedSubtitle ||
-    (isWaiter
-      ? UI_MESSAGES.calls.attendedSubtitle
-      : "A equipe informou a entrega da conta. Como foi o atendimento?");
+  const promptSubtitle = isWaiter
+    ? UI_MESSAGES.calls.attendedSubtitle
+    : "A equipe informou a entrega da conta. Como foi o atendimento?";
   const confirmButtonLabel =
     texts.confirmButton || UI_MESSAGES.calls.confirmSimple;
   const contestButtonLabel =
@@ -61,8 +64,10 @@ export function AttendedCallCard({
     }
   }, [call.confirmationDeadline]);
 
-  // Se reopenCount >= 2 ou contested = true, a ação contest deve ser omitida
-  const canContest = !call.contested && (call.reopenCount ?? 0) < 2;
+  // Máximo de 2 reaberturas: a 3ª contestação não reabre o chamado, só o
+  // marca como contestado no painel (o chamado continua ATTENDED)
+  const reachedReopenLimit = call.reopenCount >= MAX_REOPEN_COUNT;
+  const [contestFlagged, setContestFlagged] = React.useState(false);
 
   const handleSelectRating = (rating: QuickRating) => {
     setSelectedRating(rating);
@@ -75,6 +80,9 @@ export function AttendedCallCard({
 
   const handleConfirmContest = () => {
     contestMutation.mutate(call.id, {
+      onSuccess: (updated) => {
+        if (updated.status === "ATTENDED") setContestFlagged(true);
+      },
       onSettled: () => {
         setShowContestDialog(false);
       },
@@ -196,7 +204,11 @@ export function AttendedCallCard({
             </div>
           )}
 
-          {canContest && (
+          {contestFlagged ? (
+            <span className="text-[11px] font-semibold text-zinc-500 dark:text-zinc-400">
+              {UI_MESSAGES.calls.contestFinalNotice}
+            </span>
+          ) : (
             <button
               type="button"
               onClick={() => setShowContestDialog(true)}
@@ -207,13 +219,25 @@ export function AttendedCallCard({
             </button>
           )}
         </div>
+        {actionError && (
+          <p
+            role="alert"
+            className="mt-2 text-xs text-red-600 dark:text-red-400"
+          >
+            {parseApiError(actionError).detail}
+          </p>
+        )}
       </div>
 
       <ConfirmDialog
         open={showContestDialog}
         onOpenChange={setShowContestDialog}
         title={UI_MESSAGES.calls.contestConfirmTitle}
-        description={UI_MESSAGES.calls.contestConfirmDesc}
+        description={
+          reachedReopenLimit
+            ? UI_MESSAGES.calls.contestFinalDesc
+            : UI_MESSAGES.calls.contestConfirmDesc
+        }
         confirmLabel="Sim, contestar"
         cancelLabel={UI_MESSAGES.calls.keepCall}
         variant="danger"

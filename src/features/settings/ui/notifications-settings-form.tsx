@@ -186,10 +186,8 @@ export function NotificationsSettingsForm() {
     try {
       const res = await testSummaryMutation.mutateAsync();
       toast({
-        title: "E-mail de teste enviado",
-        description:
-          res.message ||
-          `Resumo de teste enviado com sucesso para ${summaryEmailRecipient}.`,
+        title: "Teste de resumo registrado",
+        description: `Teste registrado para ${res.recipient}. O envio real de e-mail ainda não está ativo.`,
         type: "success",
       });
     } catch (err) {
@@ -207,10 +205,8 @@ export function NotificationsSettingsForm() {
     try {
       const res = await testAlertMutation.mutateAsync();
       toast({
-        title: "Alerta de teste enviado",
-        description:
-          res.message ||
-          `Alerta urgente de teste enviado para ${urgentAlertRecipient}.`,
+        title: "Teste de alerta registrado",
+        description: `Teste registrado para ${res.recipient}. O envio real de e-mail ainda não está ativo.`,
         type: "success",
       });
     } catch (err) {
