@@ -1,93 +1,252 @@
 @import "tailwindcss";
+@import "tw-animate-css";
+
+/*
+ * Variante dark: segue o seletor de tema (ThemeProvider) e, com o tema "Sistema"
+ * (sem data-theme="light"), segue o sistema operacional já antes da hidratação.
+ */
+@custom-variant dark {
+  &:where(.dark, .dark *, [data-theme="dark"], [data-theme="dark"] *) {
+    @slot;
+  }
+  @media (prefers-color-scheme: dark) {
+    &:where(
+      :root:not([data-theme="light"]),
+      :root:not([data-theme="light"]) *
+    ) {
+      @slot;
+    }
+  }
+}
+
+/* ==========================================================================
+   Design tokens TapMesa (docs/design/DESIGN_PLAN.md §2)
+   ========================================================================== */
 
 :root {
-  --background: #ffffff;
-  --foreground: #09090b;
-  --surface: #f4f4f5;
-  --surface-elevated: #ffffff;
-  --muted: #71717a;
-  --muted-foreground: #71717a;
-  --border: #e4e4e7;
-  --border-subtle: #f4f4f5;
+  color-scheme: light;
 
-  --color-primary: #ea580c;
-  --color-primary-hover: #c2410c;
-  --color-primary-foreground: #ffffff;
+  /* Superfícies */
+  --canvas: #f9f8f6; /* Warm Alabaster */
+  --nav: #f2efe9; /* Raw Linen */
+  --surface: #ffffff; /* Pure Ceramic */
+  --raised: #ffffff;
+  --espresso: #2a2421; /* Deep Espresso */
+  --on-espresso: #f9f8f6;
+  --on-espresso-2: #c9c3ba;
 
-  --color-success: #16a34a;
-  --color-success-foreground: #ffffff;
-  --color-alert: #eab308;
-  --color-alert-foreground: #713f12;
-  --color-danger: #dc2626;
-  --color-danger-foreground: #ffffff;
-  --color-info: #2563eb;
-  --color-info-foreground: #ffffff;
+  /* Texto */
+  --ink: #141615; /* Cast Iron */
+  --ink-2: #5c5852; /* Roasted Umber */
+  --ink-3: #948f87; /* Dry Clay: só decorativo, desabilitado ou texto ≥ 24px */
+  --ink-placeholder: #6e6a64;
 
+  /* Marca e ação */
+  --brand: #d94e34; /* Terracotta Ember: logo, marca, destaques gráficos */
+  --primary: #c4452d; /* preenchimento de botão (rótulo branco 4,96:1) */
+  --primary-hover: #b23e29;
+  --primary-active: #9f3724;
+  --on-primary: #ffffff;
+  --primary-ink: #b23e29; /* Terracotta como texto/link */
+
+  /* Semânticas */
+  --success: #2e6f40; /* Fresh Sage */
+  --on-success: #ffffff;
+  --warning: #d9822b; /* Saffron: preencher com tinta --on-warning */
+  --on-warning: #141615;
+  --warning-ink: #8f531a;
+  --danger: #c92a2a; /* Chili Crisp */
+  --on-danger: #ffffff;
+  --danger-ink: #a82424;
+  --success-tint: #e3efe6;
+  --warning-tint: #fbebd9;
+  --danger-tint: #f9e1df;
+  --brand-tint: #fbe6e0;
+
+  /* Bordas e foco */
+  --border: #e6e1d8;
+  --border-subtle: #efebe4;
+  --border-control: #8f887e;
+  --focus-ring: #d94e34;
+  --overlay: rgb(20 22 21 / 0.48);
+
+  /* Elevação */
+  --elevation-1: 0 1px 2px rgb(20 22 21 / 0.06);
+  --elevation-2: 0 8px 24px rgb(20 22 21 / 0.1);
+  --elevation-3: 0 16px 48px rgb(20 22 21 / 0.16);
+
+  /* Raios legados (sobrepõem os do Tailwind; os do redesign estão no @theme abaixo) */
   --radius-sm: 6px;
   --radius-md: 10px;
   --radius-lg: 14px;
   --radius-xl: 20px;
   --radius-full: 9999px;
 
+  /* Movimento */
+  --motion-instant: 100ms;
   --motion-fast: 150ms;
-  --motion-normal: 200ms;
-  --motion-ease: cubic-bezier(0.16, 1, 0.3, 1);
+  --motion-base: 200ms;
+  --motion-slow: 250ms;
+  --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+  --ease-in: cubic-bezier(0.4, 0, 1, 1);
+  --motion-normal: var(--motion-base); /* legado */
+  --motion-ease: var(--ease-out); /* legado */
+
+  /* Camadas */
+  --z-sticky: 20;
+  --z-header: 30;
+  --z-nav: 40;
+  --z-overlay: 50;
+  --z-toast: 60;
+  --z-tooltip: 70;
+
+  /* Apelidos legados (mantidos até a migração dos componentes) */
+  --background: var(--canvas);
+  --foreground: var(--ink);
+  --surface-elevated: var(--surface);
+  --muted: var(--ink-2);
+  --muted-foreground: var(--ink-2);
+  --color-primary: var(--primary);
+  --color-primary-hover: var(--primary-hover);
+  --color-primary-foreground: var(--on-primary);
+  --color-success: var(--success);
+  --color-success-foreground: var(--on-success);
+  --color-alert: var(--warning);
+  --color-alert-foreground: var(--on-warning);
+  --color-danger: var(--danger);
+  --color-danger-foreground: var(--on-danger);
+  --color-info: var(--ink-2);
+  --color-info-foreground: var(--surface);
 }
 
+/* Tema escuro (paleta aprovada, DESIGN_PLAN.md §2.2) */
 .dark,
 [data-theme="dark"] {
-  --background: #09090b;
-  --foreground: #fafafa;
-  --surface: #18181b;
-  --surface-elevated: #27272a;
-  --muted: #a1a1aa;
-  --muted-foreground: #a1a1aa;
-  --border: #27272a;
-  --border-subtle: #1f1f23;
-
-  --color-primary: #ea580c;
-  --color-primary-hover: #f97316;
-  --color-primary-foreground: #ffffff;
-
-  --color-success: #22c55e;
-  --color-success-foreground: #052e16;
-  --color-alert: #facc15;
-  --color-alert-foreground: #422006;
-  --color-danger: #ef4444;
-  --color-danger-foreground: #450a0a;
-  --color-info: #3b82f6;
-  --color-info-foreground: #172554;
+  color-scheme: dark;
+  --canvas: #141615;
+  --nav: #1f1d1b;
+  --surface: #2a2421;
+  --raised: #36302c;
+  --espresso: #2a2421;
+  --ink: #f9f8f6;
+  --ink-2: #c9c3ba;
+  --ink-3: #a39c92;
+  --ink-placeholder: #a39c92;
+  --primary-ink: #e86e55;
+  --success: #62b079;
+  --on-success: #141615;
+  --warning: #e39343;
+  --warning-ink: #e39343;
+  --danger: #ec7066;
+  --on-danger: #141615;
+  --danger-ink: #ec7066;
+  --success-tint: #1e3325;
+  --warning-tint: #3a2a17;
+  --danger-tint: #3a1f1c;
+  --brand-tint: #3b2219;
+  --border: #433d3b;
+  --border-subtle: #38322e;
+  --border-control: #7a736d;
+  --focus-ring: #e86e55;
+  --overlay: rgb(0 0 0 / 0.64);
+  --elevation-1: none;
+  --elevation-2: 0 8px 24px rgb(0 0 0 / 0.4);
+  --elevation-3: 0 16px 48px rgb(0 0 0 / 0.5);
 }
 
 @media (prefers-color-scheme: dark) {
   :root:not([data-theme="light"]) {
-    --background: #09090b;
-    --foreground: #fafafa;
-    --surface: #18181b;
-    --surface-elevated: #27272a;
-    --muted: #a1a1aa;
-    --muted-foreground: #a1a1aa;
-    --border: #27272a;
-    --border-subtle: #1f1f23;
-
-    --color-primary: #ea580c;
-    --color-primary-hover: #f97316;
-    --color-primary-foreground: #ffffff;
-
-    --color-success: #22c55e;
-    --color-success-foreground: #052e16;
-    --color-alert: #facc15;
-    --color-alert-foreground: #422006;
-    --color-danger: #ef4444;
-    --color-danger-foreground: #450a0a;
-    --color-info: #3b82f6;
-    --color-info-foreground: #172554;
+    color-scheme: dark;
+    --canvas: #141615;
+    --nav: #1f1d1b;
+    --surface: #2a2421;
+    --raised: #36302c;
+    --espresso: #2a2421;
+    --ink: #f9f8f6;
+    --ink-2: #c9c3ba;
+    --ink-3: #a39c92;
+    --ink-placeholder: #a39c92;
+    --primary-ink: #e86e55;
+    --success: #62b079;
+    --on-success: #141615;
+    --warning: #e39343;
+    --warning-ink: #e39343;
+    --danger: #ec7066;
+    --on-danger: #141615;
+    --danger-ink: #ec7066;
+    --success-tint: #1e3325;
+    --warning-tint: #3a2a17;
+    --danger-tint: #3a1f1c;
+    --brand-tint: #3b2219;
+    --border: #433d3b;
+    --border-subtle: #38322e;
+    --border-control: #7a736d;
+    --focus-ring: #e86e55;
+    --overlay: rgb(0 0 0 / 0.64);
+    --elevation-1: none;
+    --elevation-2: 0 8px 24px rgb(0 0 0 / 0.4);
+    --elevation-3: 0 16px 48px rgb(0 0 0 / 0.5);
   }
 }
 
+/* Utilitários Tailwind gerados a partir dos tokens (bg-canvas, text-ink-2, border-control…) */
+@theme inline {
+  --color-canvas: var(--canvas);
+  --color-nav: var(--nav);
+  --color-surface: var(--surface);
+  --color-raised: var(--raised);
+  --color-espresso: var(--espresso);
+  --color-on-espresso: var(--on-espresso);
+  --color-on-espresso-2: var(--on-espresso-2);
+  --color-ink: var(--ink);
+  --color-ink-2: var(--ink-2);
+  --color-ink-3: var(--ink-3);
+  --color-ink-placeholder: var(--ink-placeholder);
+  --color-brand: var(--brand);
+  --color-primary: var(--primary);
+  --color-primary-hover: var(--primary-hover);
+  --color-primary-active: var(--primary-active);
+  --color-on-primary: var(--on-primary);
+  --color-primary-ink: var(--primary-ink);
+  --color-success: var(--success);
+  --color-on-success: var(--on-success);
+  --color-warning: var(--warning);
+  --color-on-warning: var(--on-warning);
+  --color-warning-ink: var(--warning-ink);
+  --color-danger: var(--danger);
+  --color-on-danger: var(--on-danger);
+  --color-danger-ink: var(--danger-ink);
+  --color-success-tint: var(--success-tint);
+  --color-warning-tint: var(--warning-tint);
+  --color-danger-tint: var(--danger-tint);
+  --color-brand-tint: var(--brand-tint);
+  --color-border: var(--border);
+  --color-border-subtle: var(--border-subtle);
+  --color-border-control: var(--border-control);
+  --color-focus-ring: var(--focus-ring);
+  --color-overlay: var(--overlay);
+
+  --shadow-elevation-1: var(--elevation-1);
+  --shadow-elevation-2: var(--elevation-2);
+  --shadow-elevation-3: var(--elevation-3);
+
+  --ease-out-soft: var(--ease-out);
+  --ease-in-soft: var(--ease-in);
+}
+
+/* Valores fixos do redesign: rounded-chip/control/card/sheet e o breakpoint xs */
+@theme {
+  --radius-chip: 6px;
+  --radius-control: 10px;
+  --radius-card: 14px;
+  --radius-sheet: 20px;
+
+  --breakpoint-xs: 25rem; /* 400px — botão "Painel" no cabeçalho (Q11) */
+}
+
 body {
-  background-color: var(--background);
-  color: var(--foreground);
+  background-color: var(--canvas);
+  color: var(--ink);
   font-family:
     var(--font-inter),
     system-ui,
@@ -99,6 +258,18 @@ body {
   min-height: 100dvh;
   margin: 0;
   padding: 0;
+  -webkit-tap-highlight-color: transparent;
+}
+
+/* Remove o atraso de toque duplo em controles (sem afetar o zoom por pinça) */
+a,
+button,
+[role="button"],
+input,
+select,
+textarea,
+label {
+  touch-action: manipulation;
 }
 
 /* Utilitários de Safe Area */
