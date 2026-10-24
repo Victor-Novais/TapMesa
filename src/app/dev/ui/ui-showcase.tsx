@@ -1025,7 +1025,8 @@ function TableScreenDemo() {
           )}
       </div>
 
-      <div className="relative mx-auto max-w-sm overflow-hidden rounded-3xl border border-zinc-300 shadow-xl dark:border-zinc-700">
+      {/* transform-gpu cria um bloco de contenção: o fundo `fixed` da mesa fica preso à moldura e não cobre a vitrine */}
+      <div className="relative mx-auto max-w-sm transform-gpu overflow-hidden rounded-3xl border border-zinc-300 shadow-xl dark:border-zinc-700">
         {selectedTheme === "skeleton" ? (
           <TableScreenSkeleton />
         ) : selectedTheme === "paused" ? (
