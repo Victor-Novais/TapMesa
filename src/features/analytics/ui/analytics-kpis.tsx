@@ -90,9 +90,7 @@ export function AnalyticsKpis({
         description={`${overview.waiterCalls || 0} Garçom · ${
           overview.billCalls || 0
         } Conta`}
-        icon={
-          <BellRing className="h-4 w-4 text-orange-600 dark:text-orange-400" />
-        }
+        icon={<BellRing className="h-4 w-4 text-primary-ink" />}
       />
 
       {/* 2. Chamados Atendidos */}
@@ -102,14 +100,14 @@ export function AnalyticsKpis({
         goalStatus={completionRate >= 85 ? "met" : "neutral"}
         goalLabel={`${completionRate}% atendidos`}
         description={`${Math.round(overview.confirmationRate)}% confirmados pelo cliente · ${overview.reopenedCount} reabertos`}
-        icon={
-          <CheckCircle2 className="h-4 w-4 text-emerald-600 dark:text-emerald-400" />
-        }
+        icon={<CheckCircle2 className="h-4 w-4 text-success" />}
       />
 
       {/* 3. Tempo Médio de Resposta */}
       <StatCard
         title="Tempo Médio de Espera"
+        emphasis
+        className="order-first"
         value={formatDurationSec(
           overview.responseTimes?.averageResponseTimeSec,
         )}
@@ -125,7 +123,7 @@ export function AnalyticsKpis({
         description={`Mediana: ${formatDurationSec(
           overview.responseTimes?.medianResponseTimeSec,
         )}`}
-        icon={<Timer className="h-4 w-4 text-blue-600 dark:text-blue-400" />}
+        icon={<Timer className="h-4 w-4 text-ink-2" />}
       />
 
       {/* 4. % Dentro da Meta */}
@@ -135,9 +133,7 @@ export function AnalyticsKpis({
         goalStatus={isWithinTargetGoalMet ? "met" : "unmet"}
         goalLabel={isWithinTargetGoalMet ? "Na meta" : "Abaixo da meta"}
         description={`Chamados atendidos em até ${responseGoalSec}s`}
-        icon={
-          <Target className="h-4 w-4 text-orange-600 dark:text-orange-400" />
-        }
+        icon={<Target className="h-4 w-4 text-primary-ink" />}
       />
 
       {/* 5. Percentil 90 (P90) */}
@@ -147,7 +143,7 @@ export function AnalyticsKpis({
         description={`Maior espera: ${formatDurationSec(
           overview.responseTimes?.maxWaitTimeSec,
         )}`}
-        icon={<Clock className="h-4 w-4 text-zinc-600 dark:text-zinc-400" />}
+        icon={<Clock className="h-4 w-4 text-ink-2" />}
       />
 
       {/* 6. Cancelados e Expirados */}
@@ -157,9 +153,7 @@ export function AnalyticsKpis({
         goalStatus={totalProblematic > 0 ? "unmet" : "met"}
         goalLabel={totalProblematic > 0 ? "Atenção" : "Zero perdas"}
         description={`${overview.cancelledCount} cancelados · ${overview.expiredCount} expirados`}
-        icon={
-          <AlertTriangle className="h-4 w-4 text-amber-600 dark:text-amber-400" />
-        }
+        icon={<AlertTriangle className="h-4 w-4 text-warning-ink" />}
       />
 
       {/* 7. Satisfação do Cliente */}
@@ -177,7 +171,7 @@ export function AnalyticsKpis({
             : "Sem avaliações"
         }
         description="Nota de 1 (Ruim) a 3 (Bom)"
-        icon={<Star className="h-4 w-4 text-yellow-500" />}
+        icon={<Star className="h-4 w-4 text-warning-ink" />}
       />
 
       {/* 8. Mediana de Espera */}
@@ -185,9 +179,7 @@ export function AnalyticsKpis({
         title="Mediana de Atendimento"
         value={formatDurationSec(overview.responseTimes?.medianResponseTimeSec)}
         description="Tempo típico de resposta da equipe"
-        icon={
-          <Clock className="h-4 w-4 text-emerald-600 dark:text-emerald-400" />
-        }
+        icon={<Clock className="h-4 w-4 text-success" />}
       />
     </div>
   );

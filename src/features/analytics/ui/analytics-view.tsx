@@ -30,9 +30,9 @@ const HourlyChart = dynamic(
   () => import("./hourly-chart").then((mod) => mod.HourlyChart),
   {
     loading: () => (
-      <div className="rounded-2xl border border-zinc-200 bg-white p-6 shadow-sm dark:border-zinc-800 dark:bg-zinc-900">
+      <div className="rounded-card border border-border bg-surface p-6">
         <Skeleton className="h-6 w-48 mb-4" />
-        <Skeleton className="h-[280px] w-full rounded-xl" />
+        <Skeleton className="h-[280px] w-full rounded-control" />
       </div>
     ),
     ssr: false,
@@ -117,10 +117,10 @@ export function AnalyticsView() {
       {/* Cabeçalho da Página */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
         <div>
-          <h1 className="text-2xl sm:text-3xl font-extrabold tracking-tight text-zinc-900 dark:text-zinc-50">
+          <h1 className="text-2xl sm:text-3xl font-bold tracking-tight text-ink">
             Resumo Operacional
           </h1>
-          <p className="mt-1 text-sm text-zinc-500 dark:text-zinc-400">
+          <p className="mt-1 text-sm text-ink-2">
             Acompanhe o volume de chamados, tempo de resposta, satisfação e
             equipe ativa.
           </p>
@@ -141,22 +141,22 @@ export function AnalyticsView() {
         <div className="space-y-6">
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
             {[1, 2, 3, 4, 5, 6, 7, 8].map((i) => (
-              <Skeleton key={i} className="h-32 rounded-2xl" />
+              <Skeleton key={i} className="h-32 rounded-card" />
             ))}
           </div>
-          <Skeleton className="h-80 w-full rounded-2xl" />
+          <Skeleton className="h-80 w-full rounded-card" />
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <Skeleton className="h-64 rounded-2xl" />
-            <Skeleton className="h-64 rounded-2xl" />
+            <Skeleton className="h-64 rounded-card" />
+            <Skeleton className="h-64 rounded-card" />
           </div>
         </div>
       ) : isError ? (
-        <div className="rounded-2xl border border-red-200 bg-red-50/50 p-8 text-center dark:border-red-950/60 dark:bg-red-950/20">
-          <AlertCircle className="mx-auto h-10 w-10 text-red-600 dark:text-red-400" />
-          <h3 className="mt-3 text-base font-semibold text-zinc-900 dark:text-zinc-100">
+        <div className="rounded-card border border-danger/40 bg-danger-tint p-8 text-center">
+          <AlertCircle className="mx-auto h-10 w-10 text-danger-ink" />
+          <h3 className="mt-3 text-base font-semibold text-ink">
             Não foi possível carregar as métricas operacionais
           </h3>
-          <p className="mt-1 text-sm text-zinc-500 max-w-sm mx-auto">
+          <p className="mt-1 text-sm text-ink-2 max-w-sm mx-auto">
             Verifique sua conexão ou tente recarregar os dados.
           </p>
           <Button
@@ -183,9 +183,7 @@ export function AnalyticsView() {
           )}
 
           <EmptyState
-            icon={
-              <LayoutDashboard className="h-8 w-8 text-orange-600 dark:text-orange-400" />
-            }
+            icon={<LayoutDashboard className="h-8 w-8 text-primary-ink" />}
             title="Nenhum chamado no período selecionado"
             description="Não foram registrados atendimentos ou pedidos de conta no intervalo escolhido. Alterne o filtro para consultar outros dias."
           />
@@ -209,7 +207,7 @@ export function AnalyticsView() {
 
           {/* 4. Tabela Detalhada de Chamados com Paginação por Cursor */}
           <div className="space-y-2">
-            <h3 className="text-base font-bold text-zinc-900 dark:text-zinc-100">
+            <h3 className="text-base font-bold text-ink">
               Histórico Detalhado de Chamados
             </h3>
             <CallsTable

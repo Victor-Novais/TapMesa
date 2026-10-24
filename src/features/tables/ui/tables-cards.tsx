@@ -89,18 +89,16 @@ export function TablesCards({
         return (
           <Card
             key={table.id}
-            className="p-4 flex flex-col justify-between transition-shadow hover:shadow-md"
+            className="p-4 flex flex-col justify-between transition-shadow hover:shadow-elevation-1"
           >
             {/* Topo do Card: Número, Status e Menu de 3 Pontos */}
             <div className="flex items-start justify-between gap-2">
               <div className="flex items-center gap-2.5">
-                <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-orange-50 font-mono text-base font-bold text-orange-600 dark:bg-orange-950/60 dark:text-orange-400">
+                <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-control bg-brand-tint tabular-nums text-base font-bold text-primary-ink">
                   {String(table.number).padStart(2, "0")}
                 </span>
                 <div>
-                  <h3 className="font-bold text-zinc-900 dark:text-zinc-50">
-                    Mesa {table.number}
-                  </h3>
+                  <h3 className="font-bold text-ink">Mesa {table.number}</h3>
                   <div className="mt-0.5">
                     {table.paused ? (
                       <Badge variant="alert" size="sm" className="gap-1.5">
@@ -124,19 +122,19 @@ export function TablesCards({
                     variant="ghost"
                     size="sm"
                     aria-label={`Mais opções para a Mesa ${table.number}`}
-                    className="text-zinc-400 hover:text-zinc-700 dark:hover:text-zinc-200"
+                    className="text-ink-2 hover:text-ink"
                   >
                     <MoreVertical className="h-4 w-4" />
                   </IconButton>
                 </DropdownMenuTrigger>
                 <DropdownMenuContent align="end" className="w-48">
                   <DropdownMenuItem onClick={() => onViewQr(table)}>
-                    <QrCode className="mr-2 h-4 w-4 text-orange-600 dark:text-orange-400" />
+                    <QrCode className="mr-2 h-4 w-4 text-primary-ink" />
                     <span>Ver QR Code</span>
                   </DropdownMenuItem>
                   <DropdownMenuItem onClick={() => handleCopyLink(table)}>
                     {isCopied ? (
-                      <Check className="mr-2 h-4 w-4 text-emerald-600" />
+                      <Check className="mr-2 h-4 w-4 text-success" />
                     ) : (
                       <Copy className="mr-2 h-4 w-4" />
                     )}
@@ -157,12 +155,12 @@ export function TablesCards({
                   <DropdownMenuItem onClick={() => onTogglePause(table)}>
                     {table.paused ? (
                       <>
-                        <Play className="mr-2 h-4 w-4 text-emerald-600" />
+                        <Play className="mr-2 h-4 w-4 text-success" />
                         <span>Retomar chamados</span>
                       </>
                     ) : (
                       <>
-                        <Pause className="mr-2 h-4 w-4 text-amber-600" />
+                        <Pause className="mr-2 h-4 w-4 text-warning-ink" />
                         <span>Pausar chamados</span>
                       </>
                     )}
@@ -180,10 +178,10 @@ export function TablesCards({
             </div>
 
             {/* Informações centrais */}
-            <div className="my-3 space-y-1 text-xs text-zinc-500 dark:text-zinc-400">
+            <div className="my-3 space-y-1 text-xs text-ink-2">
               <div className="flex items-center justify-between">
                 <span>Identificador:</span>
-                <span className="font-mono text-zinc-700 dark:text-zinc-300 truncate">
+                <span className="font-mono text-ink-2 truncate">
                   {table.url}
                 </span>
               </div>
@@ -196,14 +194,14 @@ export function TablesCards({
             </div>
 
             {/* Ações principais no rodapé do card */}
-            <div className="flex items-center gap-2 pt-2 border-t border-zinc-100 dark:border-zinc-800">
+            <div className="flex items-center gap-2 pt-2 border-t border-border-subtle">
               <Button
                 variant="outline"
                 size="sm"
                 onClick={() => onViewQr(table)}
                 className="flex-1 gap-1.5 text-xs font-semibold"
               >
-                <QrCode className="h-4 w-4 text-orange-600 dark:text-orange-400" />
+                <QrCode className="h-4 w-4 text-primary-ink" />
                 Ver QR Code
               </Button>
               <Button

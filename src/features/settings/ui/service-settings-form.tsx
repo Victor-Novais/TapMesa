@@ -196,21 +196,21 @@ export function ServiceSettingsForm() {
   if (isLoading) {
     return (
       <div className="space-y-6">
-        <Skeleton className="h-44 w-full rounded-2xl" />
-        <Skeleton className="h-64 w-full rounded-2xl" />
-        <Skeleton className="h-32 w-full rounded-2xl" />
+        <Skeleton className="h-44 w-full rounded-card" />
+        <Skeleton className="h-64 w-full rounded-card" />
+        <Skeleton className="h-32 w-full rounded-card" />
       </div>
     );
   }
 
   if (isError || !settings) {
     return (
-      <Card className="p-8 text-center border-red-200 dark:border-red-900/40">
-        <AlertTriangle className="mx-auto h-8 w-8 text-red-500" />
-        <h3 className="mt-3 text-base font-bold text-zinc-900 dark:text-zinc-100">
+      <Card className="p-8 text-center border-danger/40">
+        <AlertTriangle className="mx-auto h-8 w-8 text-danger-ink" />
+        <h3 className="mt-3 text-base font-bold text-ink">
           Não foi possível carregar as configurações de atendimento
         </h3>
-        <p className="mt-1 text-sm text-zinc-500">
+        <p className="mt-1 text-sm text-ink-2">
           Ocorreu uma falha ao obter os dados do restaurante. Por favor, tente
           novamente.
         </p>
@@ -230,15 +230,15 @@ export function ServiceSettingsForm() {
     <form onSubmit={handleSubmit(onSubmit)} className="space-y-6 pb-24">
       {/* 1. Limites de Tempo e SLA */}
       <Card className="p-6 space-y-6">
-        <div className="flex items-center gap-3 border-b border-zinc-100 pb-4 dark:border-zinc-800">
-          <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-orange-100 text-orange-600 dark:bg-orange-950/60 dark:text-orange-400">
+        <div className="flex items-center gap-3 border-b border-border-subtle pb-4">
+          <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-control bg-brand-tint text-primary-ink">
             <Timer className="h-5 w-5" />
           </div>
           <div>
-            <h3 className="text-base font-bold text-zinc-900 dark:text-zinc-100">
+            <h3 className="text-base font-bold text-ink">
               Tempos de Resposta e Níveis de Urgência
             </h3>
-            <p className="text-xs text-zinc-500 dark:text-zinc-400">
+            <p className="text-xs text-ink-2">
               Defina os limites de tempo que regem as cores, alertas sonoros e
               prioridades nos painéis dos garçons.
             </p>
@@ -251,11 +251,11 @@ export function ServiceSettingsForm() {
             <div className="flex items-center justify-between">
               <label
                 htmlFor="responseGoalSec"
-                className="text-sm font-semibold text-zinc-900 dark:text-zinc-100"
+                className="text-sm font-semibold text-ink"
               >
                 Meta de Atendimento
               </label>
-              <span className="rounded-md bg-zinc-100 px-2 py-0.5 font-mono text-xs font-bold text-zinc-700 dark:bg-zinc-800 dark:text-zinc-300">
+              <span className="rounded-chip bg-nav px-2 py-0.5 tabular-nums text-xs font-bold text-ink-2">
                 {formatDurationPreview(responseGoalSec)}
               </span>
             </div>
@@ -266,7 +266,7 @@ export function ServiceSettingsForm() {
               max={3600}
               placeholder="120"
               endAdornment={
-                <span className="text-xs font-semibold text-zinc-400">seg</span>
+                <span className="text-xs font-semibold text-ink-2">seg</span>
               }
               helperText="Tempo ideal desejado para que o garçom assuma ou atenda ao chamado."
               error={errors.responseGoalSec?.message}
@@ -279,11 +279,11 @@ export function ServiceSettingsForm() {
             <div className="flex items-center justify-between">
               <label
                 htmlFor="alertSec"
-                className="text-sm font-semibold text-zinc-900 dark:text-zinc-100"
+                className="text-sm font-semibold text-ink"
               >
                 Tempo para Alerta
               </label>
-              <span className="rounded-md bg-amber-100 px-2 py-0.5 font-mono text-xs font-bold text-amber-800 dark:bg-amber-950/60 dark:text-amber-300">
+              <span className="rounded-chip bg-warning-tint px-2 py-0.5 tabular-nums text-xs font-bold text-warning-ink">
                 {formatDurationPreview(alertSec)}
               </span>
             </div>
@@ -294,7 +294,7 @@ export function ServiceSettingsForm() {
               max={3600}
               placeholder="180"
               endAdornment={
-                <span className="text-xs font-semibold text-zinc-400">seg</span>
+                <span className="text-xs font-semibold text-ink-2">seg</span>
               }
               helperText="Chamado muda para amarelo (Atenção) no painel do salão."
               error={errors.alertSec?.message}
@@ -307,11 +307,11 @@ export function ServiceSettingsForm() {
             <div className="flex items-center justify-between">
               <label
                 htmlFor="urgentSec"
-                className="text-sm font-semibold text-zinc-900 dark:text-zinc-100"
+                className="text-sm font-semibold text-ink"
               >
                 Tempo para Urgência
               </label>
-              <span className="rounded-md bg-red-100 px-2 py-0.5 font-mono text-xs font-bold text-red-800 dark:bg-red-950/60 dark:text-red-300">
+              <span className="rounded-chip bg-danger-tint px-2 py-0.5 tabular-nums text-xs font-bold text-danger-ink">
                 {formatDurationPreview(urgentSec)}
               </span>
             </div>
@@ -322,7 +322,7 @@ export function ServiceSettingsForm() {
               max={3600}
               placeholder="300"
               endAdornment={
-                <span className="text-xs font-semibold text-zinc-400">seg</span>
+                <span className="text-xs font-semibold text-ink-2">seg</span>
               }
               helperText="Chamado atinge nível crítico, disparando alerta sonoro e visual pulsante."
               error={errors.urgentSec?.message}
@@ -332,17 +332,17 @@ export function ServiceSettingsForm() {
         </div>
 
         {/* Janela de Confirmação e Avaliação */}
-        <div className="pt-2 border-t border-zinc-100 dark:border-zinc-800">
+        <div className="pt-2 border-t border-border-subtle">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6 items-start">
             <div className="space-y-2">
               <div className="flex items-center justify-between">
                 <label
                   htmlFor="confirmationWindowSec"
-                  className="text-sm font-semibold text-zinc-900 dark:text-zinc-100"
+                  className="text-sm font-semibold text-ink"
                 >
                   Janela de Avaliação do Cliente
                 </label>
-                <span className="rounded-md bg-zinc-100 px-2 py-0.5 font-mono text-xs font-bold text-zinc-700 dark:bg-zinc-800 dark:text-zinc-300">
+                <span className="rounded-chip bg-nav px-2 py-0.5 tabular-nums text-xs font-bold text-ink-2">
                   {formatDurationPreview(confirmationWindowSec)}
                 </span>
               </div>
@@ -353,9 +353,7 @@ export function ServiceSettingsForm() {
                 max={900}
                 placeholder="120"
                 endAdornment={
-                  <span className="text-xs font-semibold text-zinc-400">
-                    seg
-                  </span>
+                  <span className="text-xs font-semibold text-ink-2">seg</span>
                 }
                 helperText="Tempo concedido na tela da mesa para o cliente avaliar ou contestar o chamado (de 30s a 900s)."
                 error={errors.confirmationWindowSec?.message}
@@ -363,9 +361,9 @@ export function ServiceSettingsForm() {
               />
             </div>
 
-            <div className="rounded-xl bg-zinc-50 p-3.5 text-xs text-zinc-600 dark:bg-zinc-800/50 dark:text-zinc-400 leading-relaxed border border-zinc-200/80 dark:border-zinc-700/60 mt-1">
-              <p className="font-semibold text-zinc-800 dark:text-zinc-200 mb-1 flex items-center gap-1.5">
-                <Sparkles className="h-3.5 w-3.5 text-orange-500" />
+            <div className="rounded-control bg-nav p-3.5 text-xs text-ink-2 leading-relaxed border border-border mt-1">
+              <p className="font-semibold text-ink mb-1 flex items-center gap-1.5">
+                <Sparkles className="h-3.5 w-3.5 text-primary-ink" />
                 Como funciona a confirmação?
               </p>
               Assim que o garçom marca um chamado como atendido no painel, a
@@ -380,15 +378,15 @@ export function ServiceSettingsForm() {
 
       {/* 2. Operação, Fuso e Dia Operacional */}
       <Card className="p-6 space-y-6">
-        <div className="flex items-center gap-3 border-b border-zinc-100 pb-4 dark:border-zinc-800">
-          <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-blue-100 text-blue-600 dark:bg-blue-950/60 dark:text-blue-400">
+        <div className="flex items-center gap-3 border-b border-border-subtle pb-4">
+          <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-control bg-nav text-ink-2">
             <Globe2 className="h-5 w-5" />
           </div>
           <div>
-            <h3 className="text-base font-bold text-zinc-900 dark:text-zinc-100">
+            <h3 className="text-base font-bold text-ink">
               Fuso Horário e Dia Operacional
             </h3>
-            <p className="text-xs text-zinc-500 dark:text-zinc-400">
+            <p className="text-xs text-ink-2">
               Configure as regras de virada de turno para bares e restaurantes
               que operam de madrugada.
             </p>
@@ -400,13 +398,13 @@ export function ServiceSettingsForm() {
           <div className="space-y-1.5 text-left">
             <label
               htmlFor="timezone"
-              className="block text-sm font-semibold text-zinc-900 dark:text-zinc-100"
+              className="block text-sm font-semibold text-ink"
             >
               Fuso Horário Oficial (IANA)
             </label>
             <select
               id="timezone"
-              className="flex h-11 w-full rounded-xl border border-zinc-200 bg-white px-3.5 py-2 text-sm text-zinc-900 shadow-sm focus:outline-none focus:ring-2 focus:ring-orange-500 dark:border-zinc-800 dark:bg-zinc-900 dark:text-zinc-50"
+              className="flex h-11 w-full rounded-control border border-border bg-surface px-3.5 py-2 text-sm text-ink focus:outline-none focus:ring-2 focus:ring-focus-ring"
               {...register("timezone")}
             >
               {COMMON_TIMEZONES.map((tz) => (
@@ -416,11 +414,11 @@ export function ServiceSettingsForm() {
               ))}
             </select>
             {errors.timezone && (
-              <p className="text-xs font-medium text-red-600 dark:text-red-400">
+              <p className="text-xs font-medium text-danger-ink">
                 {errors.timezone.message}
               </p>
             )}
-            <p className="text-xs text-zinc-500 dark:text-zinc-400">
+            <p className="text-xs text-ink-2">
               Garante a precisão dos relatórios de horário de pico e gráficos
               operacionais.
             </p>
@@ -430,13 +428,13 @@ export function ServiceSettingsForm() {
           <div className="space-y-1.5 text-left">
             <label
               htmlFor="dayCutoffHour"
-              className="block text-sm font-semibold text-zinc-900 dark:text-zinc-100"
+              className="block text-sm font-semibold text-ink"
             >
               Hora de Corte do Dia Operacional
             </label>
             <select
               id="dayCutoffHour"
-              className="flex h-11 w-full rounded-xl border border-zinc-200 bg-white px-3.5 py-2 text-sm text-zinc-900 shadow-sm focus:outline-none focus:ring-2 focus:ring-orange-500 dark:border-zinc-800 dark:bg-zinc-900 dark:text-zinc-50"
+              className="flex h-11 w-full rounded-control border border-border bg-surface px-3.5 py-2 text-sm text-ink focus:outline-none focus:ring-2 focus:ring-focus-ring"
               {...register("dayCutoffHour", { valueAsNumber: true })}
             >
               {CUTOFF_HOURS.map((h) => (
@@ -446,11 +444,11 @@ export function ServiceSettingsForm() {
               ))}
             </select>
             {errors.dayCutoffHour && (
-              <p className="text-xs font-medium text-red-600 dark:text-red-400">
+              <p className="text-xs font-medium text-danger-ink">
                 {errors.dayCutoffHour.message}
               </p>
             )}
-            <p className="text-xs text-zinc-500 dark:text-zinc-400">
+            <p className="text-xs text-ink-2">
               Horário em que o faturamento e os atendimentos viram para a data
               do dia seguinte.
             </p>
@@ -458,10 +456,10 @@ export function ServiceSettingsForm() {
         </div>
 
         {/* Exemplo Prático do Dia Operacional */}
-        <div className="flex items-start gap-3 rounded-2xl border border-blue-200 bg-blue-50/70 p-4 text-xs text-blue-900 dark:border-blue-900/40 dark:bg-blue-950/30 dark:text-blue-200">
-          <CalendarDays className="h-5 w-5 shrink-0 text-blue-600 dark:text-blue-400 mt-0.5" />
+        <div className="flex items-start gap-3 rounded-card border border-border bg-nav p-4 text-sm text-ink">
+          <CalendarDays className="h-5 w-5 shrink-0 text-ink-2 mt-0.5" />
           <div className="space-y-1">
-            <p className="font-semibold text-blue-950 dark:text-blue-100">
+            <p className="font-semibold text-ink">
               Exemplo Prático com Corte às{" "}
               {String(dayCutoffHour ?? 0).padStart(2, "0")}:00:
             </p>
@@ -489,15 +487,15 @@ export function ServiceSettingsForm() {
 
       {/* 3. Experiência do Cliente na Mesa */}
       <Card className="p-6 space-y-4">
-        <div className="flex items-center gap-3 border-b border-zinc-100 pb-4 dark:border-zinc-800">
-          <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-purple-100 text-purple-600 dark:bg-purple-950/60 dark:text-purple-400">
+        <div className="flex items-center gap-3 border-b border-border-subtle pb-4">
+          <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-control bg-nav text-ink-2">
             <Eye className="h-5 w-5" />
           </div>
           <div>
-            <h3 className="text-base font-bold text-zinc-900 dark:text-zinc-100">
+            <h3 className="text-base font-bold text-ink">
               Transparência na Tela da Mesa
             </h3>
-            <p className="text-xs text-zinc-500 dark:text-zinc-400">
+            <p className="text-xs text-ink-2">
               Controle o que os clientes podem visualizar no celular enquanto
               aguardam atendimento.
             </p>
@@ -526,16 +524,17 @@ export function ServiceSettingsForm() {
         <div
           role="region"
           aria-label="Barra de alterações pendentes"
-          className="fixed bottom-4 left-4 right-4 z-40 mx-auto max-w-4xl rounded-2xl border border-zinc-200 bg-white/95 p-4 shadow-2xl backdrop-blur-md dark:border-zinc-800 dark:bg-zinc-900/95 animate-in fade-in-0 slide-in-from-bottom-4 duration-200 ease-out"
+          data-pending-bar
+          className="fixed right-4 bottom-[calc(4.75rem+env(safe-area-inset-bottom))] left-4 z-40 mx-auto max-w-4xl rounded-card border border-border bg-surface p-4 shadow-elevation-3 animate-in fade-in-0 slide-in-from-bottom-4 duration-200 ease-out-soft lg:bottom-4"
         >
           <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
-            <div className="flex items-center gap-2.5 text-xs text-zinc-600 dark:text-zinc-400">
-              <span className="flex h-2.5 w-2.5 rounded-full bg-amber-500 animate-pulse" />
+            <div className="flex items-center gap-2.5 text-xs text-ink-2">
+              <span className="flex h-2.5 w-2.5 rounded-full bg-warning" />
               <div>
-                <p className="font-semibold text-zinc-900 dark:text-zinc-100">
+                <p className="font-semibold text-ink">
                   Você possui alterações pendentes
                 </p>
-                <p className="text-[11px] text-zinc-500">
+                <p className="text-xs text-ink-2">
                   Os novos limites passarão a valer no painel operacional após o
                   próximo carregamento.
                 </p>
@@ -572,9 +571,9 @@ export function ServiceSettingsForm() {
 
       {/* Botões Normais no Rodapé se não estiver flutuando */}
       {!isDirty && (
-        <div className="flex items-center justify-between text-xs text-zinc-400">
+        <div className="flex items-center justify-between text-xs text-ink-2">
           <p className="flex items-center gap-1.5">
-            <Info className="h-3.5 w-3.5 text-zinc-400" />
+            <Info className="h-3.5 w-3.5 text-ink-2" />
             Configurações salvas e sincronizadas com os servidores da TapMesa.
           </p>
           <Button

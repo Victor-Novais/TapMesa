@@ -55,16 +55,13 @@ export function ColorPickerInput({
 
   return (
     <div className={cn("space-y-1.5 text-left", className)}>
-      <label
-        htmlFor={inputId}
-        className="block text-sm font-semibold text-zinc-900 dark:text-zinc-100"
-      >
+      <label htmlFor={inputId} className="block text-sm font-semibold text-ink">
         {label}
       </label>
 
       <div className="flex items-center gap-2">
         {/* Color Swatch / Native Picker Trigger */}
-        <div className="relative flex h-11 w-11 shrink-0 items-center justify-center rounded-xl border border-zinc-300 shadow-sm dark:border-zinc-700 overflow-hidden cursor-pointer">
+        <div className="relative flex h-11 w-11 shrink-0 items-center justify-center rounded-control border border-border overflow-hidden cursor-pointer">
           <input
             id={colorPickerId}
             type="color"
@@ -76,7 +73,7 @@ export function ColorPickerInput({
             aria-label={`Escolher ${label} visualmente`}
           />
           <div
-            className="h-full w-full rounded-lg transition-transform hover:scale-105"
+            className="h-full w-full rounded-control transition-transform hover:scale-105"
             style={{ backgroundColor: value }}
           />
         </div>
@@ -98,7 +95,7 @@ export function ColorPickerInput({
                 ? `${inputId}-helper`
                 : undefined
           }
-          className="flex h-11 w-full rounded-xl border border-zinc-200 bg-white px-3.5 py-2 font-mono text-sm text-zinc-900 shadow-sm transition-colors uppercase placeholder:text-zinc-400 focus:outline-none focus:ring-2 focus:ring-orange-500 dark:border-zinc-800 dark:bg-zinc-900 dark:text-zinc-50"
+          className="flex h-11 w-full rounded-control border border-border bg-surface px-3.5 py-2 font-mono text-sm text-ink transition-colors uppercase placeholder:text-ink-2 focus:outline-none focus:ring-2 focus:ring-focus-ring"
         />
       </div>
 
@@ -107,15 +104,12 @@ export function ColorPickerInput({
           id={`${inputId}-error`}
           role="alert"
           aria-live="polite"
-          className="text-xs font-medium text-red-600 dark:text-red-400"
+          className="text-xs font-medium text-danger-ink"
         >
           {error}
         </p>
       ) : helperText ? (
-        <p
-          id={`${inputId}-helper`}
-          className="text-xs text-zinc-500 dark:text-zinc-400"
-        >
+        <p id={`${inputId}-helper`} className="text-xs text-ink-2">
           {helperText}
         </p>
       ) : null}

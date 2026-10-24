@@ -77,12 +77,12 @@ export function TablesPrintView() {
     return (
       <div className="space-y-6">
         <div className="flex items-center justify-between">
-          <Skeleton className="h-8 w-48 rounded-lg" />
-          <Skeleton className="h-10 w-32 rounded-xl" />
+          <Skeleton className="h-8 w-48 rounded-control" />
+          <Skeleton className="h-10 w-32 rounded-control" />
         </div>
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
           {[1, 2, 3, 4, 5, 6].map((i) => (
-            <Skeleton key={i} className="h-72 w-full rounded-2xl" />
+            <Skeleton key={i} className="h-72 w-full rounded-card" />
           ))}
         </div>
       </div>
@@ -91,12 +91,12 @@ export function TablesPrintView() {
 
   if (isError) {
     return (
-      <div className="rounded-2xl border border-red-200 bg-red-50/50 p-8 text-center dark:border-red-950/60 dark:bg-red-950/20">
-        <AlertCircle className="mx-auto h-10 w-10 text-red-600 dark:text-red-400" />
-        <h3 className="mt-3 text-base font-semibold text-zinc-900 dark:text-zinc-100">
+      <div className="rounded-card border border-danger/40 bg-danger-tint p-8 text-center">
+        <AlertCircle className="mx-auto h-10 w-10 text-danger-ink" />
+        <h3 className="mt-3 text-base font-semibold text-ink">
           Não foi possível carregar os dados de impressão
         </h3>
-        <p className="mt-1 text-sm text-zinc-500 max-w-sm mx-auto">
+        <p className="mt-1 text-sm text-ink-2 max-w-sm mx-auto">
           {error instanceof Error
             ? error.message
             : "Verifique a conexão com o servidor e tente novamente."}
@@ -117,9 +117,7 @@ export function TablesPrintView() {
   if (tables.length === 0) {
     return (
       <EmptyState
-        icon={
-          <QrCode className="h-8 w-8 text-orange-600 dark:text-orange-400" />
-        }
+        icon={<QrCode className="h-8 w-8 text-primary-ink" />}
         title="Nenhuma mesa para imprimir"
         description="Cadastre as mesas do salão na tela de Gestão de Mesas antes de gerar a folha de impressão."
         action={
@@ -148,10 +146,10 @@ export function TablesPrintView() {
               </Link>
             </Button>
             <div>
-              <h1 className="text-xl sm:text-2xl font-extrabold tracking-tight text-zinc-900 dark:text-zinc-50">
+              <h1 className="text-xl sm:text-2xl font-bold tracking-tight text-ink">
                 Impressão de QR Codes
               </h1>
-              <p className="text-xs text-zinc-500 dark:text-zinc-400">
+              <p className="text-xs text-ink-2">
                 {data?.restaurant.name} · Folha A4 para recorte
               </p>
             </div>
@@ -162,7 +160,7 @@ export function TablesPrintView() {
               variant="primary"
               onClick={handlePrint}
               disabled={selectedTables.length === 0}
-              className="gap-2 shadow-sm font-semibold"
+              className="gap-2 font-semibold"
             >
               <Printer className="h-4 w-4" />
               <span>Imprimir ({selectedTables.length})</span>
@@ -171,7 +169,7 @@ export function TablesPrintView() {
         </div>
 
         {/* Painel de Controles: Seleção de Mesas e Layout */}
-        <div className="rounded-2xl border border-zinc-200 bg-white p-4 shadow-xs dark:border-zinc-800 dark:bg-zinc-900 space-y-3">
+        <div className="rounded-card border border-border bg-surface p-4 space-y-3">
           <div className="flex flex-wrap items-center justify-between gap-3 text-xs">
             {/* Controles de Seleção */}
             <div className="flex items-center gap-3">
@@ -193,25 +191,23 @@ export function TablesPrintView() {
                   </>
                 )}
               </Button>
-              <span className="text-zinc-500 font-medium">
-                <strong className="text-zinc-900 dark:text-zinc-100">
-                  {selectedTables.length}
-                </strong>{" "}
-                de {tables.length} mesas selecionadas
+              <span className="text-ink-2 font-medium">
+                <strong className="text-ink">{selectedTables.length}</strong> de{" "}
+                {tables.length} mesas selecionadas
               </span>
             </div>
 
             {/* Alternância de Formato / Densidade */}
             <div className="flex items-center gap-2">
-              <span className="text-zinc-500">Tamanho do Cartão:</span>
-              <div className="flex items-center rounded-xl border border-zinc-200 p-0.5 dark:border-zinc-800">
+              <span className="text-ink-2">Tamanho do Cartão:</span>
+              <div className="flex items-center rounded-control border border-border p-0.5">
                 <button
                   type="button"
                   onClick={() => setLayoutSize("standard")}
-                  className={`rounded-lg px-2.5 py-1 text-xs font-semibold transition-colors ${
+                  className={`rounded-control px-2.5 py-1 text-xs font-semibold transition-colors ${
                     layoutSize === "standard"
-                      ? "bg-zinc-900 text-white dark:bg-zinc-100 dark:text-zinc-900"
-                      : "text-zinc-600 hover:text-zinc-900 dark:text-zinc-400 dark:hover:text-zinc-100"
+                      ? "bg-ink text-canvas"
+                      : "text-ink-2 hover:text-ink"
                   }`}
                 >
                   6 por página (Padrão)
@@ -219,10 +215,10 @@ export function TablesPrintView() {
                 <button
                   type="button"
                   onClick={() => setLayoutSize("large")}
-                  className={`rounded-lg px-2.5 py-1 text-xs font-semibold transition-colors ${
+                  className={`rounded-control px-2.5 py-1 text-xs font-semibold transition-colors ${
                     layoutSize === "large"
-                      ? "bg-zinc-900 text-white dark:bg-zinc-100 dark:text-zinc-900"
-                      : "text-zinc-600 hover:text-zinc-900 dark:text-zinc-400 dark:hover:text-zinc-100"
+                      ? "bg-ink text-canvas"
+                      : "text-ink-2 hover:text-ink"
                   }`}
                 >
                   4 por página (Grande)
@@ -232,7 +228,7 @@ export function TablesPrintView() {
           </div>
 
           {/* Seletores individuais de mesa */}
-          <div className="flex flex-wrap items-center gap-1.5 pt-2 border-t border-zinc-100 dark:border-zinc-800 max-h-24 overflow-y-auto">
+          <div className="flex flex-wrap items-center gap-1.5 pt-2 border-t border-border-subtle max-h-24 overflow-y-auto">
             {tables.map((table) => {
               const isChecked = !deselectedTableIds.has(table.id);
               return (
@@ -240,10 +236,10 @@ export function TablesPrintView() {
                   key={table.id}
                   type="button"
                   onClick={() => handleToggleTable(table.id)}
-                  className={`flex items-center gap-1.5 rounded-lg border px-2.5 py-1 text-xs font-mono transition-colors ${
+                  className={`flex items-center gap-1.5 rounded-control border px-2.5 py-1 text-xs tabular-nums transition-colors ${
                     isChecked
-                      ? "border-orange-500 bg-orange-50 text-orange-950 font-bold dark:bg-orange-950/40 dark:text-orange-200"
-                      : "border-zinc-200 text-zinc-400 hover:border-zinc-300 dark:border-zinc-800"
+                      ? "border-brand bg-brand-tint text-primary-ink font-bold"
+                      : "border-border text-ink-2 hover:border-border"
                   }`}
                 >
                   <Checkbox
@@ -258,8 +254,8 @@ export function TablesPrintView() {
           </div>
 
           {/* Dica de Impressão */}
-          <div className="flex items-center gap-2 text-[11px] text-zinc-500 bg-zinc-50 dark:bg-zinc-800/40 p-2.5 rounded-xl">
-            <Info className="h-4 w-4 text-orange-600 shrink-0" />
+          <div className="flex items-center gap-2 text-xs text-ink-2 bg-nav p-2.5 rounded-control">
+            <Info className="h-4 w-4 text-primary-ink shrink-0" />
             <span>
               <strong>Dica de impressão:</strong> Na caixa de diálogo do
               navegador, certifique-se de escolher o destino como{" "}
@@ -274,8 +270,8 @@ export function TablesPrintView() {
       {/* Área de Impressão / Pré-via em Tela (idêntica ao resultado impresso) */}
       <div className="print:m-0 print:p-0">
         {selectedTables.length === 0 ? (
-          <div className="p-12 text-center border-2 border-dashed border-zinc-200 rounded-2xl dark:border-zinc-800">
-            <p className="text-sm font-medium text-zinc-500">
+          <div className="p-12 text-center border-2 border-dashed border-border rounded-card">
+            <p className="text-sm font-medium text-ink-2">
               Nenhuma mesa selecionada para impressão. Selecione ao menos uma
               mesa acima.
             </p>

@@ -32,28 +32,28 @@ export function SettingsTabs() {
     <div className="space-y-6">
       {/* Cabeçalho da Seção de Configurações */}
       <div>
-        <h1 className="text-2xl font-bold tracking-tight text-zinc-900 dark:text-zinc-50">
+        <h1 className="text-2xl font-bold tracking-tight text-ink">
           Configurações do Restaurante
         </h1>
-        <p className="mt-1 text-sm text-zinc-500 dark:text-zinc-400">
+        <p className="mt-1 text-sm text-ink-2">
           Ajuste limites de atendimento, identidade visual e notificações do seu
           estabelecimento.
         </p>
       </div>
 
       <Tabs value={currentTab} onValueChange={handleTabChange}>
-        <div className="border-b border-zinc-200 dark:border-zinc-800 pb-2">
-          <TabsList className="bg-zinc-100 p-1 dark:bg-zinc-800/80">
+        <div className="-mx-4 overflow-x-auto border-b border-border px-4 pb-2 sm:mx-0 sm:px-0">
+          <TabsList className="w-max bg-nav p-1">
             <TabsTrigger value="service" className="gap-2">
-              <Clock className="h-4 w-4" />
+              <Clock className="hidden h-4 w-4 xs:block" aria-hidden />
               <span>Atendimento</span>
             </TabsTrigger>
             <TabsTrigger value="appearance" className="gap-2">
-              <Palette className="h-4 w-4" />
+              <Palette className="hidden h-4 w-4 xs:block" aria-hidden />
               <span>Aparência</span>
             </TabsTrigger>
             <TabsTrigger value="notifications" className="gap-2">
-              <Bell className="h-4 w-4" />
+              <Bell className="hidden h-4 w-4 xs:block" aria-hidden />
               <span>Notificações</span>
             </TabsTrigger>
           </TabsList>

@@ -223,20 +223,20 @@ export function NotificationsSettingsForm() {
   if (isLoading) {
     return (
       <div className="space-y-6">
-        <Skeleton className="h-44 w-full rounded-2xl" />
-        <Skeleton className="h-56 w-full rounded-2xl" />
+        <Skeleton className="h-44 w-full rounded-card" />
+        <Skeleton className="h-56 w-full rounded-card" />
       </div>
     );
   }
 
   if (isError || !settings) {
     return (
-      <Card className="p-8 text-center border-red-200 dark:border-red-900/40">
-        <AlertTriangle className="mx-auto h-8 w-8 text-red-500" />
-        <h3 className="mt-3 text-base font-bold text-zinc-900 dark:text-zinc-100">
+      <Card className="p-8 text-center border-danger/40">
+        <AlertTriangle className="mx-auto h-8 w-8 text-danger-ink" />
+        <h3 className="mt-3 text-base font-bold text-ink">
           Não foi possível carregar as notificações
         </h3>
-        <p className="mt-1 text-sm text-zinc-500">
+        <p className="mt-1 text-sm text-ink-2">
           Ocorreu uma falha ao consultar as preferências de e-mail do
           restaurante.
         </p>
@@ -256,15 +256,15 @@ export function NotificationsSettingsForm() {
     <form onSubmit={handleSubmit(onSubmit)} className="space-y-6 pb-24">
       {/* 1. Resumo Diário Operacional por E-mail */}
       <Card className="p-6 space-y-6">
-        <div className="flex items-center gap-3 border-b border-zinc-100 pb-4 dark:border-zinc-800">
-          <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-orange-100 text-orange-600 dark:bg-orange-950/60 dark:text-orange-400">
+        <div className="flex items-center gap-3 border-b border-border-subtle pb-4">
+          <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-control bg-brand-tint text-primary-ink">
             <CalendarDays className="h-5 w-5" />
           </div>
           <div>
-            <h3 className="text-base font-bold text-zinc-900 dark:text-zinc-100">
+            <h3 className="text-base font-bold text-ink">
               Resumo Diário Operacional por E-mail
             </h3>
-            <p className="text-xs text-zinc-500 dark:text-zinc-400">
+            <p className="text-xs text-ink-2">
               Receba um consolidado automático com métricas de chamados, tempos
               de resposta e garçons de destaque.
             </p>
@@ -287,7 +287,7 @@ export function NotificationsSettingsForm() {
         />
 
         {/* Destinatário do Resumo */}
-        <div className="space-y-3 pt-2 border-t border-zinc-100 dark:border-zinc-800">
+        <div className="space-y-3 pt-2 border-t border-border-subtle">
           <div className="grid grid-cols-1 sm:grid-cols-12 gap-3 items-end">
             <div className="sm:col-span-8">
               <Input
@@ -298,7 +298,7 @@ export function NotificationsSettingsForm() {
                 disabled={!emailSummaryEnabled}
                 helperText="O relatório será entregue neste endereço na virada de turno."
                 error={errors.summaryEmailRecipient?.message}
-                startAdornment={<Mail className="h-4 w-4 text-zinc-400" />}
+                startAdornment={<Mail className="h-4 w-4 text-ink-2" />}
                 {...register("summaryEmailRecipient")}
               />
             </div>
@@ -327,15 +327,15 @@ export function NotificationsSettingsForm() {
 
       {/* 2. Alertas de Chamados Urgentes */}
       <Card className="p-6 space-y-6">
-        <div className="flex items-center gap-3 border-b border-zinc-100 pb-4 dark:border-zinc-800">
-          <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-red-100 text-red-600 dark:bg-red-950/60 dark:text-red-400">
+        <div className="flex items-center gap-3 border-b border-border-subtle pb-4">
+          <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-control bg-danger-tint text-danger-ink">
             <ShieldAlert className="h-5 w-5" />
           </div>
           <div>
-            <h3 className="text-base font-bold text-zinc-900 dark:text-zinc-100">
+            <h3 className="text-base font-bold text-ink">
               Alertas Imediatos de Chamados Urgentes
             </h3>
-            <p className="text-xs text-zinc-500 dark:text-zinc-400">
+            <p className="text-xs text-ink-2">
               Notifique gerentes ou supervisores quando uma mesa ultrapassar o
               tempo limite de espera.
             </p>
@@ -358,7 +358,7 @@ export function NotificationsSettingsForm() {
         />
 
         {/* Destinatário e Cooldown */}
-        <div className="space-y-4 pt-2 border-t border-zinc-100 dark:border-zinc-800">
+        <div className="space-y-4 pt-2 border-t border-border-subtle">
           <div className="grid grid-cols-1 sm:grid-cols-12 gap-3 items-end">
             <div className="sm:col-span-8">
               <Input
@@ -369,7 +369,7 @@ export function NotificationsSettingsForm() {
                 disabled={!urgentAlertEnabled}
                 helperText="Endereço que receberá o aviso imediato com o número da mesa e tempo de espera."
                 error={errors.urgentAlertRecipient?.message}
-                startAdornment={<Mail className="h-4 w-4 text-zinc-400" />}
+                startAdornment={<Mail className="h-4 w-4 text-ink-2" />}
                 {...register("urgentAlertRecipient")}
               />
             </div>
@@ -400,7 +400,7 @@ export function NotificationsSettingsForm() {
               <div className="space-y-2">
                 <label
                   htmlFor="alertCooldownMinutes"
-                  className="block text-sm font-semibold text-zinc-900 dark:text-zinc-100"
+                  className="block text-sm font-semibold text-ink"
                 >
                   Intervalo Mínimo entre Alertas (Cooldown)
                 </label>
@@ -412,7 +412,7 @@ export function NotificationsSettingsForm() {
                   disabled={!urgentAlertEnabled}
                   placeholder="15"
                   endAdornment={
-                    <span className="text-xs font-semibold text-zinc-400">
+                    <span className="text-xs font-semibold text-ink-2">
                       min
                     </span>
                   }
@@ -424,9 +424,9 @@ export function NotificationsSettingsForm() {
                 />
               </div>
 
-              <div className="rounded-xl bg-zinc-50 p-3.5 text-xs text-zinc-600 dark:bg-zinc-800/50 dark:text-zinc-400 leading-relaxed border border-zinc-200/80 dark:border-zinc-700/60 mt-1">
-                <p className="font-semibold text-zinc-800 dark:text-zinc-200 mb-1 flex items-center gap-1.5">
-                  <Timer className="h-3.5 w-3.5 text-orange-500" />
+              <div className="rounded-control bg-nav p-3.5 text-xs text-ink-2 leading-relaxed border border-border mt-1">
+                <p className="font-semibold text-ink mb-1 flex items-center gap-1.5">
+                  <Timer className="h-3.5 w-3.5 text-primary-ink" />
                   Por que configurar o cooldown?
                 </p>
                 Durante horários de pico, se várias mesas atingirem o estado de
@@ -442,11 +442,11 @@ export function NotificationsSettingsForm() {
       <div
         role="region"
         aria-label="Nota de auditoria de notificações"
-        className="flex items-start gap-3 rounded-2xl border border-zinc-200 bg-zinc-50/80 p-4 text-xs text-zinc-600 dark:border-zinc-800 dark:bg-zinc-800/40 dark:text-zinc-400"
+        className="flex items-start gap-3 rounded-card border border-border bg-nav p-4 text-xs text-ink-2"
       >
-        <Info className="h-4 w-4 shrink-0 text-zinc-500 mt-0.5" />
+        <Info className="h-4 w-4 shrink-0 text-ink-2 mt-0.5" />
         <div className="space-y-1">
-          <p className="font-semibold text-zinc-900 dark:text-zinc-200">
+          <p className="font-semibold text-ink">
             Armazenamento de Preferências
           </p>
           <p className="leading-relaxed">
@@ -462,16 +462,17 @@ export function NotificationsSettingsForm() {
         <div
           role="region"
           aria-label="Barra de alterações pendentes de notificações"
-          className="fixed bottom-4 left-4 right-4 z-40 mx-auto max-w-4xl rounded-2xl border border-zinc-200 bg-white/95 p-4 shadow-2xl backdrop-blur-md dark:border-zinc-800 dark:bg-zinc-900/95 animate-in fade-in-0 slide-in-from-bottom-4 duration-200 ease-out"
+          data-pending-bar
+          className="fixed right-4 bottom-[calc(4.75rem+env(safe-area-inset-bottom))] left-4 z-40 mx-auto max-w-4xl rounded-card border border-border bg-surface p-4 shadow-elevation-3 animate-in fade-in-0 slide-in-from-bottom-4 duration-200 ease-out-soft lg:bottom-4"
         >
           <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
-            <div className="flex items-center gap-2.5 text-xs text-zinc-600 dark:text-zinc-400">
-              <span className="flex h-2.5 w-2.5 rounded-full bg-orange-500 animate-pulse" />
+            <div className="flex items-center gap-2.5 text-xs text-ink-2">
+              <span className="flex h-2.5 w-2.5 rounded-full bg-primary" />
               <div>
-                <p className="font-semibold text-zinc-900 dark:text-zinc-100">
+                <p className="font-semibold text-ink">
                   Você possui alterações pendentes de notificação
                 </p>
-                <p className="text-[11px] text-zinc-500">
+                <p className="text-xs text-ink-2">
                   Clique em Salvar para atualizar os canais de recebimento do
                   restaurante.
                 </p>
@@ -508,9 +509,9 @@ export function NotificationsSettingsForm() {
 
       {/* Estado sem alterações */}
       {!isDirty && (
-        <div className="flex items-center justify-between text-xs text-zinc-400">
+        <div className="flex items-center justify-between text-xs text-ink-2">
           <p className="flex items-center gap-1.5">
-            <Check className="h-3.5 w-3.5 text-emerald-600 dark:text-emerald-400" />
+            <Check className="h-3.5 w-3.5 text-success" />
             Canais de notificação sincronizados e prontos para envio.
           </p>
           <Button

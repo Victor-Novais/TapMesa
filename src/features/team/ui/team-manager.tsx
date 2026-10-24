@@ -166,10 +166,10 @@ export function TeamManager() {
       {/* Header da Tela */}
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div>
-          <h1 className="text-2xl font-bold tracking-tight text-zinc-900 dark:text-zinc-50">
+          <h1 className="text-2xl font-bold tracking-tight text-ink">
             Equipe e Desempenho
           </h1>
-          <p className="mt-1 text-sm text-zinc-500 dark:text-zinc-400">
+          <p className="mt-1 text-sm text-ink-2">
             Gerencie garçons, permissões de acesso e acompanhe métricas de
             atendimento no salão.
           </p>
@@ -207,13 +207,13 @@ export function TeamManager() {
         value={activeTab}
         onValueChange={(val) => setActiveTab(val as "members" | "metrics")}
       >
-        <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between border-b border-zinc-200 dark:border-zinc-800 pb-2">
-          <TabsList className="bg-zinc-100 p-1 dark:bg-zinc-800/80">
+        <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between border-b border-border pb-2">
+          <TabsList className="bg-nav p-1">
             <TabsTrigger value="members" className="gap-2">
               <Users className="h-4 w-4" />
               <span>Membros</span>
               {!isLoadingUsers && (
-                <span className="ml-1 rounded-full bg-zinc-200 px-2 py-0.5 text-[11px] font-bold text-zinc-700 dark:bg-zinc-700 dark:text-zinc-300">
+                <span className="ml-1 rounded-full bg-nav px-2 py-0.5 text-xs font-bold text-ink-2">
                   {users.length}
                 </span>
               )}
@@ -230,7 +230,7 @@ export function TeamManager() {
                 placeholder="Buscar por usuário..."
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
-                startAdornment={<Search className="h-4 w-4 text-zinc-400" />}
+                startAdornment={<Search className="h-4 w-4 text-ink-2" />}
                 className="h-9 text-xs"
               />
             </div>
@@ -242,12 +242,12 @@ export function TeamManager() {
           {isLoadingUsers ? (
             <div className="space-y-3">
               {Array.from({ length: 4 }).map((_, i) => (
-                <Skeleton key={i} className="h-16 w-full rounded-2xl" />
+                <Skeleton key={i} className="h-16 w-full rounded-card" />
               ))}
             </div>
           ) : users.length === 0 ? (
             <EmptyState
-              icon={<Users className="h-6 w-6 text-zinc-500" />}
+              icon={<Users className="h-6 w-6 text-ink-2" />}
               title="Nenhum membro cadastrado"
               description="Adicione garçons ou gerentes para começar a operar as mesas e o salão."
               action={
@@ -262,8 +262,8 @@ export function TeamManager() {
               }
             />
           ) : filteredUsers.length === 0 ? (
-            <div className="rounded-2xl border border-dashed border-zinc-200 p-8 text-center dark:border-zinc-800">
-              <p className="text-sm font-medium text-zinc-600 dark:text-zinc-400">
+            <div className="rounded-card border border-dashed border-border p-8 text-center">
+              <p className="text-sm font-medium text-ink-2">
                 Nenhum membro encontrado com o termo &ldquo;{search}&rdquo;.
               </p>
               <Button

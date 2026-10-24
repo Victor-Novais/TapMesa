@@ -108,14 +108,14 @@ export function CreateTeamUserDialog({
       <DialogContent className="max-w-md w-full p-6">
         <DialogHeader>
           <div className="flex items-center gap-3">
-            <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-orange-100 text-orange-600 dark:bg-orange-950/60 dark:text-orange-400">
+            <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-control bg-brand-tint text-primary-ink">
               <UserPlus className="h-5 w-5" />
             </div>
             <div>
-              <DialogTitle className="text-lg font-bold text-zinc-900 dark:text-zinc-50">
+              <DialogTitle className="text-lg font-bold text-ink">
                 Novo Membro da Equipe
               </DialogTitle>
-              <DialogDescription className="text-xs text-zinc-500 dark:text-zinc-400">
+              <DialogDescription className="text-xs text-ink-2">
                 Cadastre garçons para o salão ou administradores para o
                 restaurante.
               </DialogDescription>
@@ -127,9 +127,9 @@ export function CreateTeamUserDialog({
           {conflictError && (
             <div
               role="alert"
-              className="flex items-start gap-2.5 rounded-xl border border-red-200 bg-red-50/75 p-3 text-xs text-red-800 dark:border-red-900/50 dark:bg-red-950/40 dark:text-red-300"
+              className="flex items-start gap-2.5 rounded-control border border-danger/40 bg-danger-tint p-3 text-xs text-danger-ink"
             >
-              <AlertTriangle className="h-4 w-4 shrink-0 text-red-600 dark:text-red-400 mt-0.5" />
+              <AlertTriangle className="h-4 w-4 shrink-0 text-danger-ink mt-0.5" />
               <div className="flex-1 font-medium leading-relaxed">
                 {conflictError}
               </div>
@@ -150,13 +150,13 @@ export function CreateTeamUserDialog({
           <div className="space-y-1.5 text-left">
             <label
               htmlFor="role"
-              className="block text-sm font-medium text-zinc-700 dark:text-zinc-300"
+              className="block text-sm font-medium text-ink-2"
             >
               Função no Restaurante
             </label>
             <select
               id="role"
-              className="flex h-11 w-full rounded-xl border border-zinc-200 bg-white px-3.5 py-2 text-sm text-zinc-900 shadow-sm focus:outline-none focus:ring-2 focus:ring-orange-500 dark:border-zinc-800 dark:bg-zinc-900 dark:text-zinc-50"
+              className="flex h-11 w-full rounded-control border border-border bg-surface px-3.5 py-2 text-sm text-ink focus:outline-none focus:ring-2 focus:ring-focus-ring"
               {...register("role")}
             >
               <option value="WAITER">

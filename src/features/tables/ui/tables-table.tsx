@@ -103,10 +103,10 @@ export function TablesTable({
                 {/* Número da mesa */}
                 <TableCell className="font-medium">
                   <div className="flex items-center gap-2">
-                    <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-zinc-100 font-mono text-sm font-bold text-zinc-900 dark:bg-zinc-800 dark:text-zinc-100">
+                    <span className="flex h-8 w-8 items-center justify-center rounded-control bg-nav text-sm font-semibold text-ink tabular-nums">
                       {String(table.number).padStart(2, "0")}
                     </span>
-                    <span className="font-semibold text-zinc-900 dark:text-zinc-100">
+                    <span className="font-semibold whitespace-nowrap text-ink">
                       Mesa {table.number}
                     </span>
                   </div>
@@ -130,7 +130,7 @@ export function TablesTable({
                 {/* Link do autoatendimento com cópia rápida */}
                 <TableCell>
                   <div className="flex items-center gap-2 max-w-xs">
-                    <span className="truncate font-mono text-xs text-zinc-500 dark:text-zinc-400">
+                    <span className="truncate font-mono text-xs text-ink-2">
                       {table.url}
                     </span>
                     <Tooltip>
@@ -138,11 +138,11 @@ export function TablesTable({
                         <button
                           type="button"
                           onClick={(e) => handleCopyLink(table, e)}
-                          className="rounded-lg p-1.5 min-h-[44px] min-w-[44px] inline-flex items-center justify-center text-zinc-400 hover:bg-zinc-100 hover:text-zinc-700 dark:hover:bg-zinc-800 dark:hover:text-zinc-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-orange-500"
+                          className="rounded-control p-1.5 min-h-11 min-w-11 inline-flex items-center justify-center text-ink-2 hover:bg-nav hover:text-ink-2 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-focus-ring"
                           aria-label={`Copiar link da Mesa ${table.number}`}
                         >
                           {isCopied ? (
-                            <Check className="h-4 w-4 text-emerald-600 dark:text-emerald-400" />
+                            <Check className="h-4 w-4 text-success" />
                           ) : (
                             <Copy className="h-4 w-4" />
                           )}
@@ -158,7 +158,7 @@ export function TablesTable({
                           href={table.url}
                           target="_blank"
                           rel="noopener noreferrer"
-                          className="rounded-md p-1 text-zinc-400 hover:bg-zinc-100 hover:text-zinc-700 dark:hover:bg-zinc-800 dark:hover:text-zinc-200"
+                          className="rounded-chip p-1 text-ink-2 hover:bg-nav hover:text-ink-2"
                           aria-label={`Abrir Mesa ${table.number} em nova aba`}
                         >
                           <ExternalLink className="h-3.5 w-3.5" />
@@ -170,7 +170,7 @@ export function TablesTable({
                 </TableCell>
 
                 {/* Data de criação */}
-                <TableCell className="text-xs text-zinc-500 dark:text-zinc-400 tabular-nums">
+                <TableCell className="text-xs text-ink-2 tabular-nums">
                   {formatDate(table.createdAt)}
                 </TableCell>
 
@@ -182,9 +182,9 @@ export function TablesTable({
                       variant="outline"
                       size="sm"
                       onClick={() => onViewQr(table)}
-                      className="gap-1.5 text-xs font-semibold"
+                      className="gap-1.5 whitespace-nowrap"
                     >
-                      <QrCode className="h-3.5 w-3.5 text-orange-600 dark:text-orange-400" />
+                      <QrCode className="h-4 w-4" aria-hidden />
                       Ver QR
                     </Button>
 
@@ -203,8 +203,8 @@ export function TablesTable({
                           onClick={() => onTogglePause(table)}
                           className={
                             table.paused
-                              ? "text-emerald-600 hover:bg-emerald-50 dark:text-emerald-400 dark:hover:bg-emerald-950/40"
-                              : "text-amber-600 hover:bg-amber-50 dark:text-amber-400 dark:hover:bg-amber-950/40"
+                              ? "text-success hover:bg-success-tint"
+                              : "text-warning-ink hover:bg-warning-tint"
                           }
                         >
                           {table.paused ? (
@@ -227,7 +227,7 @@ export function TablesTable({
                           variant="ghost"
                           size="sm"
                           onClick={() => onDelete(table)}
-                          className="text-zinc-400 hover:bg-red-50 hover:text-red-600 dark:hover:bg-red-950/40 dark:hover:text-red-400"
+                          className="text-ink-2 hover:bg-danger-tint hover:text-danger-ink"
                         >
                           <Trash2 className="h-4 w-4" />
                         </IconButton>
