@@ -99,14 +99,14 @@ export function CreateRestaurantDialog({
       <DialogContent className="max-w-md w-full p-6">
         <DialogHeader>
           <div className="flex items-center gap-3">
-            <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-orange-100 text-orange-600 dark:bg-orange-950/60 dark:text-orange-400">
+            <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-control bg-brand-tint text-primary-ink">
               <Building2 className="h-5 w-5" />
             </div>
             <div>
-              <DialogTitle className="text-lg font-bold text-zinc-900 dark:text-zinc-50">
+              <DialogTitle className="text-lg font-bold text-ink">
                 Novo Restaurante
               </DialogTitle>
-              <DialogDescription className="text-xs text-zinc-500 dark:text-zinc-400">
+              <DialogDescription className="text-xs text-ink-2">
                 Cadastre um novo estabelecimento e gere as credenciais iniciais
                 do proprietário.
               </DialogDescription>
@@ -118,9 +118,9 @@ export function CreateRestaurantDialog({
           {apiError && (
             <div
               role="alert"
-              className="flex items-start gap-2.5 rounded-xl border border-red-200 bg-red-50/75 p-3 text-xs text-red-800 dark:border-red-900/50 dark:bg-red-950/40 dark:text-red-300"
+              className="flex items-start gap-2.5 rounded-control border border-danger/40 bg-danger-tint p-3 text-xs text-danger-ink"
             >
-              <AlertTriangle className="h-4 w-4 shrink-0 text-red-600 dark:text-red-400 mt-0.5" />
+              <AlertTriangle className="h-4 w-4 shrink-0 text-danger-ink mt-0.5" />
               <div className="flex-1 font-medium leading-relaxed">
                 {apiError}
               </div>
@@ -145,8 +145,8 @@ export function CreateRestaurantDialog({
             {...register("ownerUsername")}
           />
 
-          <div className="flex items-start gap-2 rounded-xl bg-zinc-50 p-3 text-xs text-zinc-600 dark:bg-zinc-800/50 dark:text-zinc-400 border border-zinc-200/80 dark:border-zinc-700/60">
-            <ShieldCheck className="h-4 w-4 shrink-0 text-orange-500 mt-0.5" />
+          <div className="flex items-start gap-2 rounded-control bg-nav p-3 text-xs text-ink-2 border border-border">
+            <ShieldCheck className="h-4 w-4 shrink-0 text-primary-ink mt-0.5" />
             <p>
               Uma senha temporária segura será gerada automaticamente e exibida
               para cópia logo após a confirmação.
