@@ -11,7 +11,7 @@ export default function AdminLoading() {
         <Skeleton className="h-10 w-36" />
       </div>
 
-      <div className="rounded-2xl border border-zinc-200 bg-white p-6 space-y-4 dark:border-zinc-800 dark:bg-zinc-900">
+      <div className="space-y-4 rounded-card border border-border bg-surface p-6">
         <div className="flex items-center justify-between">
           <Skeleton className="h-6 w-48" />
           <Skeleton className="h-9 w-64 rounded-xl" />

@@ -153,12 +153,12 @@ export function LoginForm() {
       {isExpired && !errorMessage && (
         <div
           role="status"
-          className="flex items-start gap-3 rounded-xl border border-amber-500/20 bg-amber-500/10 p-4 text-sm text-amber-900 dark:text-amber-200"
+          className="flex items-start gap-3 rounded-control bg-warning-tint p-4 text-sm text-warning-ink"
         >
-          <Clock className="mt-0.5 h-5 w-5 shrink-0 text-amber-600 dark:text-amber-400" />
+          <Clock className="mt-0.5 h-5 w-5 shrink-0" aria-hidden />
           <div>
             <p className="font-semibold">Sessão expirada</p>
-            <p className="mt-0.5 text-xs text-amber-800/90 dark:text-amber-300/90">
+            <p className="mt-0.5 text-xs">
               Sua sessão foi encerrada por tempo de inatividade. Por favor, faça
               login novamente para continuar.
             </p>
@@ -170,20 +170,18 @@ export function LoginForm() {
         <div
           role="alert"
           aria-live="polite"
-          className={`flex items-start gap-3 rounded-xl border p-4 text-sm ${
-            isLocked
-              ? "border-red-500/30 bg-red-500/10 text-red-950 dark:text-red-200"
-              : rateLimitSeconds > 0
-                ? "border-amber-500/30 bg-amber-500/10 text-amber-950 dark:text-amber-200"
-                : "border-red-500/20 bg-red-500/10 text-red-900 dark:text-red-200"
+          className={`flex items-start gap-3 rounded-control p-4 text-sm ${
+            rateLimitSeconds > 0 && !isLocked
+              ? "bg-warning-tint text-warning-ink"
+              : "bg-danger-tint text-danger-ink"
           }`}
         >
           {isLocked ? (
-            <Lock className="mt-0.5 h-5 w-5 shrink-0 text-red-600 dark:text-red-400" />
+            <Lock className="mt-0.5 h-5 w-5 shrink-0" aria-hidden />
           ) : rateLimitSeconds > 0 ? (
-            <Clock className="mt-0.5 h-5 w-5 shrink-0 text-amber-600 dark:text-amber-400" />
+            <Clock className="mt-0.5 h-5 w-5 shrink-0" aria-hidden />
           ) : (
-            <AlertCircle className="mt-0.5 h-5 w-5 shrink-0 text-red-600 dark:text-red-400" />
+            <AlertCircle className="mt-0.5 h-5 w-5 shrink-0" aria-hidden />
           )}
 
           <div className="space-y-1">
@@ -227,7 +225,7 @@ export function LoginForm() {
               type="button"
               onClick={() => setShowPassword((prev) => !prev)}
               aria-label={showPassword ? "Ocultar senha" : "Exibir senha"}
-              className="flex h-9 w-9 min-h-[44px] min-w-[44px] items-center justify-center rounded-xl text-zinc-400 hover:text-zinc-600 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-orange-500 dark:hover:text-zinc-200"
+              className="flex h-11 w-11 items-center justify-center rounded-control text-ink-2 transition-colors hover:text-ink focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-focus-ring"
             >
               {showPassword ? (
                 <EyeOff className="h-4 w-4" />

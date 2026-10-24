@@ -42,24 +42,20 @@ export function UserMenu() {
         <Button
           variant="ghost"
           size="sm"
-          className="relative h-10 w-10 min-h-[44px] min-w-[44px] rounded-full border border-zinc-200 bg-zinc-100 p-0 hover:bg-zinc-200 dark:border-zinc-800 dark:bg-zinc-800 dark:hover:bg-zinc-700"
+          className="relative h-11 w-11 min-h-11 min-w-11 rounded-full border border-border bg-nav p-0 hover:bg-border"
           aria-label={`Menu do usuário ${displayName}`}
         >
-          <span className="font-semibold text-xs text-zinc-800 dark:text-zinc-200">
-            {initial}
-          </span>
+          <span className="font-semibold text-xs text-ink">{initial}</span>
         </Button>
       </DropdownMenuTrigger>
 
       <DropdownMenuContent align="end" className="w-56">
         <DropdownMenuLabel className="font-normal">
           <div className="flex flex-col space-y-1">
-            <p className="text-sm font-semibold leading-none text-zinc-900 dark:text-zinc-50">
+            <p className="text-sm font-semibold leading-tight text-ink">
               {displayName}
             </p>
-            <p className="text-xs leading-none text-zinc-500 dark:text-zinc-400">
-              {roleLabel}
-            </p>
+            <p className="text-xs leading-tight text-ink-2">{roleLabel}</p>
           </div>
         </DropdownMenuLabel>
 
@@ -68,7 +64,7 @@ export function UserMenu() {
         {canAccessPanel && !isPanel && (
           <DropdownMenuItem asChild>
             <Link href="/panel" className="flex items-center gap-2">
-              <Radio className="h-4 w-4 text-orange-600" />
+              <Radio className="h-4 w-4 text-brand" aria-hidden />
               <span>Painel de Atendimento</span>
             </Link>
           </DropdownMenuItem>
@@ -77,7 +73,7 @@ export function UserMenu() {
         {role !== "WAITER" && isPanel && (
           <DropdownMenuItem asChild>
             <Link href="/dashboard" className="flex items-center gap-2">
-              <User className="h-4 w-4 text-orange-600" />
+              <User className="h-4 w-4 text-ink-2" aria-hidden />
               <span>Painel de Gestão</span>
             </Link>
           </DropdownMenuItem>

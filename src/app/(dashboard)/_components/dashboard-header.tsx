@@ -2,8 +2,9 @@
 
 import Link from "next/link";
 import { useQuery } from "@tanstack/react-query";
-import { Menu, Radio, UtensilsCrossed } from "lucide-react";
-import { Button } from "@/shared/ui/button";
+import { Menu, Radio } from "lucide-react";
+import { Button, IconButton } from "@/shared/ui/button";
+import { BrandLogo } from "@/shared/ui/brand-logo";
 import { queryKeys } from "@/shared/api/query-client";
 import { getCurrentRestaurant } from "@/shared/api/settings";
 import { useAuth, useAuthStore } from "@/features/auth";
@@ -32,23 +33,19 @@ export function DashboardHeader({ onOpenMobileMenu }: DashboardHeaderProps) {
     (hasRestaurant ? "Carregando restaurante..." : "Administração Geral");
 
   return (
-    <header className="sticky top-0 z-30 flex h-14 sm:h-16 w-full items-center justify-between border-b border-zinc-200 bg-white/90 px-3 sm:px-6 backdrop-blur dark:border-zinc-800 dark:bg-zinc-950/90">
+    <header className="sticky top-0 z-30 flex h-14 sm:h-16 w-full items-center justify-between border-b border-border bg-canvas px-3 sm:px-6">
       <div className="flex items-center gap-2 sm:gap-3 min-w-0">
-        <Button
-          variant="ghost"
-          size="sm"
+        <IconButton
           onClick={onOpenMobileMenu}
-          className="h-10 w-10 min-h-[44px] min-w-[44px] p-0 lg:hidden text-zinc-600 dark:text-zinc-400"
+          className="lg:hidden"
           aria-label="Abrir menu de navegação"
         >
-          <Menu className="h-5 w-5" />
-        </Button>
+          <Menu className="h-5 w-5" aria-hidden />
+        </IconButton>
 
         <div className="flex items-center gap-2 min-w-0">
-          <div className="hidden sm:flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-orange-600 text-white">
-            <UtensilsCrossed className="h-4 w-4" />
-          </div>
-          <span className="truncate text-sm sm:text-base font-semibold text-zinc-900 dark:text-zinc-100">
+          <BrandLogo size={32} alt="" className="hidden sm:block lg:hidden" />
+          <span className="truncate text-sm sm:text-base font-semibold text-ink">
             {restaurantName}
           </span>
         </div>
@@ -59,10 +56,10 @@ export function DashboardHeader({ onOpenMobileMenu }: DashboardHeaderProps) {
           asChild
           size="sm"
           variant="outline"
-          className="hidden xs:inline-flex h-8 sm:h-9 border-orange-500/20 bg-orange-500/5 text-orange-600 hover:bg-orange-500/10 hover:text-orange-700 dark:border-orange-500/30 dark:bg-orange-950/20 dark:text-orange-400"
+          className="hidden xs:inline-flex"
         >
           <Link href="/panel">
-            <Radio className="mr-1.5 h-3.5 w-3.5 animate-pulse text-orange-600 dark:text-orange-400" />
+            <Radio className="h-4 w-4 text-brand" aria-hidden />
             <span className="text-xs font-semibold">Painel</span>
           </Link>
         </Button>

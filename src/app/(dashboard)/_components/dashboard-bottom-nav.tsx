@@ -45,7 +45,7 @@ export function DashboardBottomNav() {
   return (
     <nav
       aria-label="Navegação móvel"
-      className="fixed inset-x-0 bottom-0 z-40 border-t border-zinc-200 bg-white/95 pb-[env(safe-area-inset-bottom)] backdrop-blur lg:hidden dark:border-zinc-800 dark:bg-zinc-950/95"
+      className="fixed inset-x-0 bottom-0 z-40 border-t border-border bg-nav pb-[env(safe-area-inset-bottom)] lg:hidden"
     >
       <div className="flex h-16 items-center justify-around px-2">
         {BOTTOM_NAV_ITEMS.map((item) => {
@@ -61,20 +61,14 @@ export function DashboardBottomNav() {
               href={item.href}
               aria-current={isActive ? "page" : undefined}
               className={cn(
-                "flex flex-col items-center justify-center gap-1 rounded-xl px-2.5 py-1 text-[11px] font-medium transition-colors min-h-[48px] min-w-[48px] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-orange-500",
+                "relative flex min-h-12 min-w-12 flex-col items-center justify-center gap-1 rounded-control px-2 py-1 text-xs font-medium transition-colors duration-150 ease-out-soft focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-focus-ring",
+                // Ativo: tinta + traço Terracotta acima do ícone (não só cor)
                 isActive
-                  ? "text-orange-600 dark:text-orange-400 font-semibold"
-                  : "text-zinc-500 hover:text-zinc-800 dark:text-zinc-400 dark:hover:text-zinc-200",
+                  ? "font-semibold text-ink before:absolute before:top-0 before:h-[3px] before:w-6 before:rounded-full before:bg-brand"
+                  : "text-ink-2 hover:text-ink",
               )}
             >
-              <Icon
-                className={cn(
-                  "h-5 w-5",
-                  isActive
-                    ? "text-orange-600 dark:text-orange-400"
-                    : "text-zinc-500 dark:text-zinc-400",
-                )}
-              />
+              <Icon className="h-5 w-5" aria-hidden />
               <span className="truncate">{item.label}</span>
             </Link>
           );

@@ -2,7 +2,8 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { ShieldAlert, Building2, ScrollText } from "lucide-react";
+import { Building2, ScrollText } from "lucide-react";
+import { BrandLogo } from "@/shared/ui/brand-logo";
 import { AuthGate } from "@/features/auth";
 import { UserMenu } from "@/app/_components/user-menu";
 import { SkipLink } from "@/shared/ui/skip-link";
@@ -34,18 +35,19 @@ export default function AdminLayout({
   return (
     <AuthGate allowedRoles={["ADMIN"]}>
       <SkipLink targetId="main-content" />
-      <div className="flex min-h-screen flex-col bg-zinc-50 dark:bg-zinc-950">
-        <header className="sticky top-0 z-30 flex h-16 w-full items-center justify-between border-b border-zinc-200 bg-white/95 px-4 sm:px-8 backdrop-blur dark:border-zinc-800 dark:bg-zinc-900/95">
+      <div className="flex min-h-screen flex-col bg-canvas">
+        <header className="sticky top-0 z-30 flex h-16 w-full items-center justify-between bg-espresso px-4 text-on-espresso sm:px-8">
           <div className="flex items-center gap-6">
-            <Link href="/admin" className="flex items-center gap-2.5">
-              <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-zinc-900 text-white shadow dark:bg-white dark:text-zinc-900">
-                <ShieldAlert className="h-5 w-5" />
-              </div>
+            <Link
+              href="/admin"
+              className="flex items-center gap-2.5 rounded-control focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-focus-ring focus-visible:ring-offset-2 focus-visible:ring-offset-espresso"
+            >
+              <BrandLogo size={36} tone="dark" alt="" priority />
               <div className="flex flex-col">
-                <span className="text-base font-bold leading-tight text-zinc-900 dark:text-zinc-100">
+                <span className="text-base font-bold leading-tight text-on-espresso">
                   TapMesa Admin
                 </span>
-                <span className="text-[11px] text-zinc-500 dark:text-zinc-400">
+                <span className="text-xs text-on-espresso-2">
                   Gestão Geral da Plataforma
                 </span>
               </div>
@@ -68,13 +70,13 @@ export default function AdminLayout({
                     href={item.href}
                     aria-current={isActive ? "page" : undefined}
                     className={cn(
-                      "flex items-center gap-2 rounded-xl px-3 py-2 text-sm font-medium transition-colors",
+                      "flex min-h-11 items-center gap-2 rounded-control px-3 text-sm font-medium transition-colors duration-150 ease-out-soft focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-focus-ring focus-visible:ring-offset-2 focus-visible:ring-offset-espresso",
                       isActive
-                        ? "bg-zinc-100 text-zinc-900 dark:bg-zinc-800 dark:text-zinc-50 font-semibold"
-                        : "text-zinc-600 hover:bg-zinc-50 hover:text-zinc-900 dark:text-zinc-400 dark:hover:bg-zinc-800/50 dark:hover:text-zinc-200",
+                        ? "bg-white/12 font-semibold text-on-espresso"
+                        : "text-on-espresso-2 hover:bg-white/8 hover:text-on-espresso",
                     )}
                   >
-                    <Icon className="h-4 w-4" />
+                    <Icon className="h-4 w-4" aria-hidden />
                     <span>{item.label}</span>
                   </Link>
                 );
@@ -90,7 +92,7 @@ export default function AdminLayout({
         {/* Mobile secondary nav for admin */}
         <nav
           aria-label="Navegação administrativa móvel"
-          className="sm:hidden border-b border-zinc-200 bg-white px-4 py-2 flex items-center justify-around dark:border-zinc-800 dark:bg-zinc-900"
+          className="sm:hidden flex items-center justify-around border-b border-border bg-nav px-4 py-2"
         >
           {ADMIN_NAV_ITEMS.map((item) => {
             const isActive = item.exact
@@ -105,10 +107,10 @@ export default function AdminLayout({
                 href={item.href}
                 aria-current={isActive ? "page" : undefined}
                 className={cn(
-                  "flex items-center gap-1.5 px-3 py-2 min-h-[44px] rounded-lg text-xs font-medium",
+                  "flex min-h-11 items-center gap-1.5 rounded-control px-3 py-2 text-xs font-medium focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-focus-ring",
                   isActive
-                    ? "bg-zinc-100 text-zinc-900 dark:bg-zinc-800 dark:text-zinc-100 font-semibold"
-                    : "text-zinc-600 dark:text-zinc-400",
+                    ? "bg-surface font-semibold text-ink shadow-elevation-1"
+                    : "text-ink-2",
                 )}
               >
                 <Icon className="h-4 w-4" />

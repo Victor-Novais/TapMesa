@@ -2,9 +2,11 @@
 
 import * as React from "react";
 import Image from "next/image";
-import { Wifi, Copy, Check, Phone, Globe, UtensilsCrossed } from "lucide-react";
+import { Wifi, Copy, Check, Phone, Globe } from "lucide-react";
 import { Badge } from "@/shared/ui/badge";
 import { Button } from "@/shared/ui/button";
+import { BrandLogo } from "@/shared/ui/brand-logo";
+import { getContrastRatio } from "../lib/contrast";
 import {
   ConnectionIndicator,
   type ConnectionStatus,
@@ -51,6 +53,22 @@ export function TableScreen({
   const { name, description, logoUrl, texts, socials } = appearance;
 
   const displayName = name || "Restaurante";
+
+  // A versão do logo segue o fundo do restaurante (nunca o modo escuro do celular)
+  const restaurantBg =
+    appearance.colors?.background ||
+    (appearance.backgroundValue?.startsWith("#")
+      ? appearance.backgroundValue
+      : "#ffffff");
+  const hasImageBg =
+    appearance.backgroundType === "image" &&
+    Boolean(appearance.backgroundValue);
+  const fallbackLogoTone =
+    hasImageBg ||
+    getContrastRatio("#ffffff", restaurantBg) >=
+      getContrastRatio("#141615", restaurantBg)
+      ? "dark"
+      : "light";
 
   // Interpolate welcome title with table number: "Bem-vindo à Mesa {tableNumber}"
   const rawWelcome = texts.welcomeTitle || "Mesa {tableNumber}";
@@ -117,9 +135,14 @@ export function TableScreen({
               priority
             />
           ) : (
-            <div className="flex h-full w-full items-center justify-center bg-orange-600 text-white">
-              <UtensilsCrossed className="h-8 w-8" />
-            </div>
+            // Sem logo do restaurante: logo TapMesa na versão do fundo do restaurante
+            <BrandLogo
+              size={80}
+              tone={fallbackLogoTone}
+              alt=""
+              priority
+              className="h-full w-full"
+            />
           )}
         </div>
 

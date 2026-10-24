@@ -19,7 +19,7 @@ export default function DashboardLayout({
   return (
     <AuthGate allowedRoles={["OWNER", "ADMIN"]}>
       <SkipLink targetId="main-content" />
-      <div className="flex min-h-screen bg-zinc-50 dark:bg-zinc-950 print:bg-white print:min-h-0 print:block">
+      <div className="flex min-h-screen bg-canvas print:bg-white print:min-h-0 print:block">
         {/* Desktop / Tablet Sidebar */}
         <div className="print:hidden">
           <DashboardSidebar

@@ -1,14 +1,44 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512">
+<svg width="400" height="400" viewBox="0 0 1254 1254" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <!-- Fundo Cast Iron (Ferro Fundido) com cantos de ícone moderno -->
+  <rect id="Fundo" width="1254" height="1254" rx="260" fill="#141615" />
+  
+  <!-- Anel (Prato / Ciclo) - Fino, elegante e sem blur neon -->
+  <g id="Anel" opacity="0.85">
+    <path d="M1175.7 601.7 A554 554 0 1 1 68.3 601.7" stroke="url(#g-anel-clean)" stroke-width="28" />
+    <path d="M68.3 640.3 A554 554 0 1 1 1175.7 640.3" stroke="url(#g-anel-clean)" stroke-width="28" />
+  </g>
+
+  <!-- Letra A em Cerâmica Aquecida com contraste arquitetônico na dobra -->
+  <g id="Letra-A">
+    <path id="Dobra" d="M400.8 588.3 A80 80 0 0 1 523.6 573.2 L565.3 620 L391.2 895 L259.2 812 Z" fill="url(#g-dobra-clean)" />
+    <path id="Perna-principal" d="M490.1 447.1 L400.8 588.3 L401.6 588.8 A77 77 0 0 1 530.3 586.6 L689.7 905.3 A70 70 0 0 0 752.3 944 L827.8 944 A57 57 0 0 0 878.8 861.5 L676.3 456.5 A107 107 0 0 0 490.1 447.1 Z" fill="url(#g-perna-clean)" />
+    <path id="Barra" d="M312.5 772 L554 772 Q574 772 582.9 789.9 L632.5 889 A38 38 0 0 1 598.5 944 L315.5 944 A77 77 0 0 1 250.4 825.8 L269.5 795.7 Q284.5 772 312.5 772 Z" fill="#F9F8F6" />
+  </g>
+
+  <!-- Ondas (Vapor Gastronômico + Automação) em Terracotta Ember -->
+  <g id="Ondas">
+    <path id="Onda-3" d="M729.8 289.4 A271 271 0 0 1 1013.5 588.3" stroke="url(#g-terracotta)" stroke-width="54" stroke-linecap="round" />
+    <path id="Onda-2" d="M729.2 390.6 A170 170 0 0 1 900.5 626.4" stroke="url(#g-terracotta)" stroke-width="51" stroke-linecap="round" />
+    <path id="Onda-1" d="M755.5 487.4 A73.5 73.5 0 0 1 811.1 589.9" stroke="#E05A40" stroke-width="47" stroke-linecap="round" />
+  </g>
+
   <defs>
-    <linearGradient id="grad" x1="0%" y1="0%" x2="100%" y2="100%">
-      <stop offset="0%" stop-color="#ea580c"/>
-      <stop offset="100%" stop-color="#c2410c"/>
+    <linearGradient id="g-anel-clean" x1="68" y1="621" x2="1176" y2="621" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#2E3230" />
+      <stop offset="0.5" stop-color="#D94E34" stop-opacity="0.6" />
+      <stop offset="1" stop-color="#2E3230" />
+    </linearGradient>
+    <linearGradient id="g-perna-clean" x1="448" y1="447" x2="850" y2="944" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#FFFFFF" />
+      <stop offset="1" stop-color="#E6E4E0" />
+    </linearGradient>
+    <linearGradient id="g-dobra-clean" x1="350" y1="600" x2="520" y2="850" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#A39E93" />
+      <stop offset="1" stop-color="#5C5852" />
+    </linearGradient>
+    <linearGradient id="g-terracotta" x1="729" y1="289" x2="1013" y2="626" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#F26B4E" />
+      <stop offset="1" stop-color="#C83E26" />
     </linearGradient>
   </defs>
-  <rect width="512" height="512" rx="128" fill="url(#grad)"/>
-  <circle cx="256" cy="140" r="28" fill="#ffffff"/>
-  <path d="M160 360 C160 220, 352 220, 352 360 Z" fill="#ffffff"/>
-  <rect x="220" y="380" width="72" height="16" rx="8" fill="#ffffff"/>
-  <path d="M240 396 L272 396 L280 430 L232 430 Z" fill="#ffffff" opacity="0.9"/>
 </svg>
-
