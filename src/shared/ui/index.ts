@@ -1,3 +1,4 @@
+export * from "./brand-logo";
 export * from "./button";
 export * from "./input";
 export * from "./textarea";

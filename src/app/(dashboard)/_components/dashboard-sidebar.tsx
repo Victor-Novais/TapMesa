@@ -10,10 +10,10 @@ import {
   Radio,
   ChevronLeft,
   ChevronRight,
-  UtensilsCrossed,
 } from "lucide-react";
 import { cn } from "@/shared/lib/cn";
-import { Button } from "@/shared/ui/button";
+import { IconButton } from "@/shared/ui/button";
+import { BrandLogo } from "@/shared/ui/brand-logo";
 import {
   Tooltip,
   TooltipContent,
@@ -70,45 +70,58 @@ export function DashboardSidebar({
     <TooltipProvider delayDuration={200}>
       <aside
         className={cn(
-          "hidden lg:flex flex-col border-r border-zinc-200 bg-white transition-all duration-200 dark:border-zinc-800 dark:bg-zinc-950",
-          isCollapsed ? "w-[68px]" : "w-60",
+          // Fixa na altura da janela: o fundo da navegação cobre a lateral inteira
+          "sticky top-0 hidden h-dvh flex-col overflow-y-auto bg-nav transition-[width] duration-200 ease-out-soft lg:flex",
+          isCollapsed ? "w-18" : "w-62",
           className,
         )}
       >
         {/* Logo / Brand Header */}
-        <div className="flex h-16 items-center justify-between border-b border-zinc-200 px-4 dark:border-zinc-800">
+        <div
+          className={cn(
+            "flex h-16 items-center px-3",
+            isCollapsed ? "justify-center" : "justify-between",
+          )}
+        >
           <Link
             href="/dashboard"
-            className="flex items-center gap-2.5 overflow-hidden font-bold text-zinc-900 dark:text-zinc-50"
+            aria-label={isCollapsed ? "TapMesa" : undefined}
+            className="flex items-center gap-2.5 overflow-hidden rounded-control font-bold text-ink focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-focus-ring focus-visible:ring-offset-2 focus-visible:ring-offset-nav"
           >
-            <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-orange-600 text-white shadow-sm shadow-orange-600/30">
-              <UtensilsCrossed className="h-5 w-5" />
-            </div>
+            <BrandLogo size={36} alt="" priority />
             {!isCollapsed && (
-              <span className="truncate text-base tracking-tight font-extrabold">
+              <span className="truncate text-base font-bold tracking-tight">
                 TapMesa
               </span>
             )}
           </Link>
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={onToggleCollapse}
-            className="h-8 w-8 p-0 text-zinc-500 hover:text-zinc-900 dark:hover:text-zinc-100"
-            aria-label={
-              isCollapsed ? "Expandir barra lateral" : "Recolher barra lateral"
-            }
-          >
-            {isCollapsed ? (
-              <ChevronRight className="h-4 w-4" />
-            ) : (
-              <ChevronLeft className="h-4 w-4" />
-            )}
-          </Button>
+          {!isCollapsed && (
+            <IconButton
+              onClick={onToggleCollapse}
+              aria-label="Recolher barra lateral"
+            >
+              <ChevronLeft className="h-4 w-4" aria-hidden />
+            </IconButton>
+          )}
         </div>
 
+        {/* Recolhida: o botão de expandir fica abaixo do logo (não cabe ao lado) */}
+        {isCollapsed && (
+          <div className="flex justify-center pb-1">
+            <IconButton
+              onClick={onToggleCollapse}
+              aria-label="Expandir barra lateral"
+            >
+              <ChevronRight className="h-4 w-4" aria-hidden />
+            </IconButton>
+          </div>
+        )}
+
         {/* Main Navigation */}
-        <nav className="flex-1 space-y-1 p-3" aria-label="Navegação do sistema">
+        <nav
+          className="flex-1 space-y-1 px-3 py-2"
+          aria-label="Navegação do sistema"
+        >
           {DASHBOARD_NAV_ITEMS.map((item) => {
             const isActive = item.exact
               ? pathname === item.href
@@ -121,20 +134,20 @@ export function DashboardSidebar({
                 key={item.href}
                 href={item.href}
                 aria-current={isActive ? "page" : undefined}
+                aria-label={isCollapsed ? item.label : undefined}
                 className={cn(
-                  "group flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-orange-500",
+                  "group flex min-h-11 items-center gap-3 rounded-control px-3 text-sm font-medium transition-colors duration-150 ease-out-soft focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-focus-ring focus-visible:ring-offset-2 focus-visible:ring-offset-nav",
                   isActive
-                    ? "bg-orange-50 text-orange-600 dark:bg-orange-950/30 dark:text-orange-400 font-semibold"
-                    : "text-zinc-600 hover:bg-zinc-100 hover:text-zinc-900 dark:text-zinc-400 dark:hover:bg-zinc-800/60 dark:hover:text-zinc-100",
+                    ? "bg-surface font-semibold text-ink shadow-elevation-1"
+                    : "text-ink-2 hover:bg-surface/60 hover:text-ink",
                   isCollapsed && "justify-center px-0",
                 )}
               >
                 <Icon
+                  aria-hidden
                   className={cn(
-                    "h-5 w-5 shrink-0 transition-transform group-hover:scale-105",
-                    isActive
-                      ? "text-orange-600 dark:text-orange-400"
-                      : "text-zinc-500 group-hover:text-zinc-700 dark:text-zinc-400 dark:group-hover:text-zinc-200",
+                    "h-4.5 w-4.5 shrink-0",
+                    isActive ? "text-brand" : "text-ink-2 group-hover:text-ink",
                   )}
                 />
                 {!isCollapsed && <span className="truncate">{item.label}</span>}
@@ -157,15 +170,16 @@ export function DashboardSidebar({
         </nav>
 
         {/* Operational Panel Fast Link */}
-        <div className="border-t border-zinc-200 p-3 dark:border-zinc-800">
+        <div className="p-3">
           {isCollapsed ? (
             <Tooltip>
               <TooltipTrigger asChild>
                 <Link
                   href="/panel"
-                  className="flex h-10 w-full items-center justify-center rounded-xl bg-orange-600/10 text-orange-600 transition-colors hover:bg-orange-600/20 dark:bg-orange-950/40 dark:text-orange-400"
+                  aria-label="Painel de Atendimento"
+                  className="flex min-h-11 w-full items-center justify-center rounded-control border border-border-control bg-surface text-brand transition-colors duration-150 ease-out-soft hover:bg-canvas focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-focus-ring focus-visible:ring-offset-2 focus-visible:ring-offset-nav"
                 >
-                  <Radio className="h-5 w-5 animate-pulse" />
+                  <Radio className="h-5 w-5" aria-hidden />
                 </Link>
               </TooltipTrigger>
               <TooltipContent side="right">
@@ -175,9 +189,9 @@ export function DashboardSidebar({
           ) : (
             <Link
               href="/panel"
-              className="flex items-center gap-3 rounded-xl border border-orange-500/20 bg-orange-500/5 px-3 py-2.5 text-sm font-semibold text-orange-600 transition-colors hover:bg-orange-500/10 dark:border-orange-500/30 dark:bg-orange-950/30 dark:text-orange-400"
+              className="flex min-h-11 items-center gap-3 rounded-control border border-border-control bg-surface px-3 text-sm font-semibold text-ink transition-colors duration-150 ease-out-soft hover:bg-canvas focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-focus-ring focus-visible:ring-offset-2 focus-visible:ring-offset-nav"
             >
-              <Radio className="h-5 w-5 animate-pulse shrink-0" />
+              <Radio className="h-5 w-5 shrink-0 text-brand" aria-hidden />
               <span className="truncate">Painel de Atendimento</span>
             </Link>
           )}

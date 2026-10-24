@@ -17,7 +17,7 @@ export default function DashboardLoading() {
         {Array.from({ length: 4 }).map((_, i) => (
           <div
             key={i}
-            className="rounded-2xl border border-zinc-200 bg-white p-5 space-y-3 dark:border-zinc-800 dark:bg-zinc-900"
+            className="space-y-3 rounded-card border border-border bg-surface p-5"
           >
             <div className="flex items-center justify-between">
               <Skeleton className="h-4 w-24" />
@@ -30,7 +30,7 @@ export default function DashboardLoading() {
       </div>
 
       {/* Main Content Area Skeleton */}
-      <div className="rounded-2xl border border-zinc-200 bg-white p-6 space-y-4 dark:border-zinc-800 dark:bg-zinc-900">
+      <div className="space-y-4 rounded-card border border-border bg-surface p-6">
         <div className="flex items-center justify-between">
           <Skeleton className="h-6 w-40" />
           <Skeleton className="h-8 w-24" />

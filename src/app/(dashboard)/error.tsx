@@ -27,10 +27,10 @@ export default function DashboardError({
 
   return (
     <div className="flex min-h-[50vh] items-center justify-center p-4">
-      <Card className="w-full max-w-md border-red-500/30">
+      <Card className="w-full max-w-md">
         <CardHeader>
-          <div className="mb-2 flex h-10 w-10 items-center justify-center rounded-full bg-red-500/10 text-red-600 dark:text-red-400">
-            <AlertCircle className="h-5 w-5" />
+          <div className="mb-2 flex h-10 w-10 items-center justify-center rounded-full bg-danger-tint text-danger-ink">
+            <AlertCircle className="h-5 w-5" aria-hidden />
           </div>
           <CardTitle>{UI_MESSAGES.common.errorTitle}</CardTitle>
           <CardDescription>
@@ -40,7 +40,7 @@ export default function DashboardError({
         </CardHeader>
         <CardContent className="flex justify-end gap-2">
           <Button onClick={() => reset()} className="gap-2">
-            <RefreshCw className="h-4 w-4" />
+            <RefreshCw className="h-4 w-4" aria-hidden />
             {UI_MESSAGES.common.retry}
           </Button>
         </CardContent>

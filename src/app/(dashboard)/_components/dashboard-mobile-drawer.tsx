@@ -3,7 +3,8 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { Drawer, DrawerContent } from "@/shared/ui/drawer";
-import { UtensilsCrossed, Radio } from "lucide-react";
+import { Radio } from "lucide-react";
+import { BrandLogo } from "@/shared/ui/brand-logo";
 import { cn } from "@/shared/lib/cn";
 import { DASHBOARD_NAV_ITEMS } from "./dashboard-sidebar";
 
@@ -22,13 +23,9 @@ export function DashboardMobileDrawer({
     <Drawer open={open} onOpenChange={onOpenChange}>
       <DrawerContent position="left" className="flex flex-col p-4 w-[280px]">
         {/* Header */}
-        <div className="flex items-center gap-2.5 pb-4 border-b border-zinc-100 dark:border-zinc-800">
-          <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-orange-600 text-white shadow-sm shadow-orange-600/30">
-            <UtensilsCrossed className="h-5 w-5" />
-          </div>
-          <span className="text-base font-bold text-zinc-900 dark:text-zinc-50">
-            TapMesa
-          </span>
+        <div className="flex items-center gap-2.5 pb-4 border-b border-border-subtle">
+          <BrandLogo size={36} alt="" />
+          <span className="text-base font-bold text-ink">TapMesa</span>
         </div>
 
         {/* Links */}
@@ -46,23 +43,22 @@ export function DashboardMobileDrawer({
                 href={item.href}
                 onClick={() => onOpenChange(false)}
                 className={cn(
-                  "flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium transition-colors",
+                  "flex min-h-11 items-center gap-3 rounded-control px-3 py-2.5 text-sm font-medium transition-colors duration-150 ease-out-soft focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-focus-ring",
                   isActive
-                    ? "bg-orange-50 text-orange-600 dark:bg-orange-950/30 dark:text-orange-400"
-                    : "text-zinc-600 hover:bg-zinc-100 hover:text-zinc-900 dark:text-zinc-400 dark:hover:bg-zinc-800/60 dark:hover:text-zinc-100",
+                    ? "bg-nav font-semibold text-ink"
+                    : "text-ink-2 hover:bg-nav hover:text-ink",
                 )}
               >
                 <Icon
+                  aria-hidden
                   className={cn(
                     "h-5 w-5 shrink-0",
-                    isActive
-                      ? "text-orange-600 dark:text-orange-400"
-                      : "text-zinc-500 dark:text-zinc-400",
+                    isActive ? "text-brand" : "text-ink-2",
                   )}
                 />
                 <div className="flex flex-col">
                   <span className="leading-snug">{item.label}</span>
-                  <span className="text-[11px] text-zinc-400 dark:text-zinc-500">
+                  <span className="text-xs font-normal text-ink-2">
                     {item.description}
                   </span>
                 </div>
@@ -72,13 +68,13 @@ export function DashboardMobileDrawer({
         </nav>
 
         {/* Bottom panel action */}
-        <div className="border-t border-zinc-100 pt-3 dark:border-zinc-800">
+        <div className="border-t border-border-subtle pt-3">
           <Link
             href="/panel"
             onClick={() => onOpenChange(false)}
-            className="flex items-center justify-center gap-2 rounded-xl bg-orange-600 px-4 py-2.5 text-sm font-semibold text-white shadow-sm hover:bg-orange-700 transition-colors"
+            className="flex min-h-11 items-center justify-center gap-2 rounded-control bg-primary px-4 py-2.5 text-sm font-semibold text-on-primary transition-colors duration-150 ease-out-soft hover:bg-primary-hover focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-focus-ring focus-visible:ring-offset-2 focus-visible:ring-offset-raised"
           >
-            <Radio className="h-4 w-4 animate-pulse" />
+            <Radio className="h-4 w-4" aria-hidden />
             <span>Abrir Painel</span>
           </Link>
         </div>

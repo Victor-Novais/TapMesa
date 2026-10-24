@@ -36,10 +36,8 @@ function HomeRedirect() {
   return (
     <div className="flex min-h-screen flex-col items-center justify-center p-4">
       <div className="flex flex-col items-center gap-3">
-        <Loader2 className="h-8 w-8 animate-spin text-orange-600" />
-        <p className="text-sm font-medium text-zinc-500 dark:text-zinc-400">
-          Carregando TapMesa...
-        </p>
+        <Loader2 className="h-8 w-8 animate-spin text-brand" aria-hidden />
+        <p className="text-sm font-medium text-ink-2">Carregando TapMesa...</p>
       </div>
     </div>
   );
@@ -51,7 +49,7 @@ export default function HomePage() {
       <Suspense
         fallback={
           <div className="flex min-h-screen flex-col items-center justify-center p-4">
-            <Loader2 className="h-8 w-8 animate-spin text-orange-600" />
+            <Loader2 className="h-8 w-8 animate-spin text-brand" aria-hidden />
           </div>
         }
       >
