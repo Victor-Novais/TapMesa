@@ -62,3 +62,5 @@ temp/
 .husky/_/
 .vercel/
 
+# Laboratório de design (prints e capturas pesadas)
+design-lab/
