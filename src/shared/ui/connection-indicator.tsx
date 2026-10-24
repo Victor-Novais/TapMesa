@@ -18,31 +18,24 @@ export function ConnectionIndicator({
   const configs = {
     connected: {
       label: "Conectado",
-      dotColor: "bg-emerald-500",
-      textColor: "text-emerald-700 dark:text-emerald-400",
-      bgColor:
-        "bg-emerald-50/80 dark:bg-emerald-950/40 border-emerald-200 dark:border-emerald-800/60",
-      icon: (
-        <Wifi className="h-3.5 w-3.5 text-emerald-600 dark:text-emerald-400" />
-      ),
+      dotColor: "bg-success",
+      textColor: "text-success",
+      bgColor: "bg-success-tint",
+      icon: <Wifi className="h-3.5 w-3.5" />,
     },
     reconnecting: {
       label: "Reconectando...",
-      dotColor: "bg-amber-500 animate-pulse",
-      textColor: "text-amber-700 dark:text-amber-400",
-      bgColor:
-        "bg-amber-50/80 dark:bg-amber-950/40 border-amber-200 dark:border-amber-800/60",
-      icon: (
-        <RefreshCw className="h-3.5 w-3.5 text-amber-600 dark:text-amber-400 animate-spin" />
-      ),
+      dotColor: "bg-warning",
+      textColor: "text-warning-ink",
+      bgColor: "bg-warning-tint",
+      icon: <RefreshCw className="h-3.5 w-3.5" />,
     },
     offline: {
       label: "Sem conexão",
-      dotColor: "bg-red-500",
-      textColor: "text-red-700 dark:text-red-400",
-      bgColor:
-        "bg-red-50/80 dark:bg-red-950/40 border-red-200 dark:border-red-800/60",
-      icon: <WifiOff className="h-3.5 w-3.5 text-red-600 dark:text-red-400" />,
+      dotColor: "bg-danger",
+      textColor: "text-danger-ink",
+      bgColor: "bg-danger-tint",
+      icon: <WifiOff className="h-3.5 w-3.5" />,
     },
   };
 
@@ -53,7 +46,7 @@ export function ConnectionIndicator({
       role="status"
       aria-live="polite"
       className={cn(
-        "inline-flex items-center gap-2 rounded-full border px-2.5 py-1 text-xs font-medium select-none transition-all",
+        "inline-flex flex-none items-center gap-2 whitespace-nowrap rounded-full border border-transparent px-2.5 py-1 text-xs font-medium select-none transition-colors duration-150 ease-out-soft",
         current.bgColor,
         current.textColor,
         className,

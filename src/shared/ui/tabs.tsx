@@ -13,7 +13,7 @@ export const TabsList = React.forwardRef<
   <TabsPrimitive.List
     ref={ref}
     className={cn(
-      "inline-flex h-11 items-center justify-center rounded-xl bg-zinc-100 p-1 text-zinc-500 dark:bg-zinc-800 dark:text-zinc-400 select-none",
+      "inline-flex h-13 items-center justify-center rounded-full bg-nav p-1 text-ink-2 select-none",
       className,
     )}
     {...props}
@@ -28,7 +28,8 @@ export const TabsTrigger = React.forwardRef<
   <TabsPrimitive.Trigger
     ref={ref}
     className={cn(
-      "inline-flex items-center justify-center whitespace-nowrap rounded-lg px-3.5 py-1.5 text-sm font-medium ring-offset-white transition-[background-color,color,box-shadow,transform] duration-150 ease-out active:scale-[0.98] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-orange-500 focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 data-[state=checked]:bg-white data-[state=checked]:text-zinc-950 data-[state=checked]:shadow-sm dark:ring-offset-zinc-950 dark:data-[state=checked]:bg-zinc-900 dark:data-[state=checked]:text-zinc-50",
+      // Radix Tabs marca a aba ativa com data-state="active"
+      "inline-flex h-11 items-center justify-center whitespace-nowrap rounded-full px-4 text-sm font-medium transition-[background-color,color,box-shadow,transform] duration-150 ease-out-soft hover:text-ink active:scale-[0.98] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-focus-ring focus-visible:ring-offset-2 focus-visible:ring-offset-nav disabled:pointer-events-none disabled:text-ink-3 data-[state=active]:bg-surface data-[state=active]:text-ink data-[state=active]:shadow-elevation-1",
       className,
     )}
     {...props}
@@ -43,7 +44,7 @@ export const TabsContent = React.forwardRef<
   <TabsPrimitive.Content
     ref={ref}
     className={cn(
-      "mt-2 ring-offset-white animate-in fade-in-50 duration-150 ease-out focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-orange-500 focus-visible:ring-offset-2 dark:ring-offset-zinc-950",
+      "mt-2 animate-in fade-in-0 duration-150 ease-out-soft focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-focus-ring focus-visible:ring-offset-2 focus-visible:ring-offset-canvas",
       className,
     )}
     {...props}

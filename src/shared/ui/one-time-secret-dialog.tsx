@@ -56,32 +56,32 @@ export function OneTimeSecretDialog({
       <DialogContent hideCloseButton>
         <DialogHeader>
           <div className="flex items-center gap-3">
-            <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-orange-100 text-orange-600 dark:bg-orange-950/60 dark:text-orange-400">
-              <KeyRound className="h-5 w-5" />
+            <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-control bg-brand-tint text-primary-ink">
+              <KeyRound className="h-5 w-5" aria-hidden />
             </div>
             <DialogTitle>{title}</DialogTitle>
           </div>
           <DialogDescription>{description}</DialogDescription>
         </DialogHeader>
 
-        <div className="my-4 space-y-3 rounded-2xl bg-zinc-50 p-4 border border-zinc-200 dark:bg-zinc-800/60 dark:border-zinc-700/60 text-left">
+        <div className="my-4 space-y-3 rounded-card bg-nav p-4 text-left">
           {username && (
             <div>
-              <span className="text-xs font-semibold uppercase tracking-wider text-zinc-500 dark:text-zinc-400">
+              <span className="text-xs font-medium text-ink-2">
                 Nome de Usuário
               </span>
-              <p className="font-mono text-base font-bold text-zinc-900 dark:text-zinc-100">
+              <p className="font-mono text-base font-bold text-ink">
                 {username}
               </p>
             </div>
           )}
 
           <div>
-            <span className="text-xs font-semibold uppercase tracking-wider text-zinc-500 dark:text-zinc-400">
+            <span className="text-xs font-medium text-ink-2">
               Senha Temporária
             </span>
-            <div className="mt-1 flex items-center justify-between rounded-xl bg-white p-2.5 border border-zinc-200 dark:bg-zinc-900 dark:border-zinc-700">
-              <span className="font-mono text-lg font-bold tracking-wider text-orange-600 dark:text-orange-400 select-all">
+            <div className="mt-1 flex items-center justify-between gap-3 rounded-control border border-border bg-surface p-2.5">
+              <span className="font-mono text-lg font-bold tracking-wider text-primary-ink select-all">
                 {secret}
               </span>
               <Button
@@ -94,7 +94,7 @@ export function OneTimeSecretDialog({
               >
                 {copied ? (
                   <>
-                    <Check className="h-4 w-4 text-emerald-600 dark:text-emerald-400" />
+                    <Check className="h-4 w-4 text-success" aria-hidden />
                     <span>Copiado</span>
                   </>
                 ) : (
@@ -108,8 +108,8 @@ export function OneTimeSecretDialog({
           </div>
         </div>
 
-        <div className="flex items-start gap-2 rounded-xl bg-amber-50 p-3 text-xs text-amber-800 border border-amber-200 dark:bg-amber-950/40 dark:text-amber-300 dark:border-amber-800/60">
-          <AlertTriangle className="h-4 w-4 shrink-0 text-amber-600 dark:text-amber-400 mt-0.5" />
+        <div className="flex items-start gap-2 rounded-control bg-warning-tint p-3 text-xs text-warning-ink">
+          <AlertTriangle className="h-4 w-4 shrink-0 mt-0.5" aria-hidden />
           <p>
             Esta senha será solicitada no primeiro acesso. Certifique-se de que
             o destinatário a receba em canal seguro.

@@ -59,8 +59,8 @@ export function ConfirmDialog({
         <DialogHeader>
           <div className="flex items-center gap-3">
             {variant === "danger" && (
-              <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-red-100 text-red-600 dark:bg-red-950/60 dark:text-red-400">
-                <AlertTriangle className="h-5 w-5" />
+              <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-control bg-danger-tint text-danger-ink">
+                <AlertTriangle className="h-5 w-5" aria-hidden />
               </div>
             )}
             <DialogTitle>{title}</DialogTitle>
@@ -70,11 +70,9 @@ export function ConfirmDialog({
 
         {confirmMatchText && (
           <div className="mt-4 space-y-2 text-left">
-            <p className="text-xs text-zinc-600 dark:text-zinc-400">
+            <p className="text-xs text-ink-2">
               Para confirmar, digite exatamente{" "}
-              <strong className="text-zinc-950 dark:text-zinc-100 font-mono">
-                {confirmMatchText}
-              </strong>
+              <strong className="text-ink font-mono">{confirmMatchText}</strong>
               :
             </p>
             <input
@@ -84,7 +82,7 @@ export function ConfirmDialog({
               onChange={(e) => setTypedMatch(e.target.value)}
               placeholder={confirmMatchText}
               aria-label={`Digite ${confirmMatchText} para confirmar`}
-              className="flex h-11 w-full rounded-xl border border-zinc-200 bg-white px-3.5 py-2 text-sm text-zinc-900 shadow-sm focus:outline-none focus:ring-2 focus:ring-orange-500 dark:border-zinc-800 dark:bg-zinc-900 dark:text-zinc-50"
+              className="flex h-11 w-full rounded-control border border-border-control bg-surface px-3.5 py-2 text-base sm:text-sm text-ink placeholder:text-ink-placeholder hover:border-ink-2 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-focus-ring focus-visible:ring-offset-2 focus-visible:ring-offset-raised"
             />
           </div>
         )}

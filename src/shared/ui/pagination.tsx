@@ -25,19 +25,15 @@ export function Pagination({
   return (
     <div
       className={cn(
-        "flex items-center justify-between gap-4 py-3 text-sm text-zinc-600 dark:text-zinc-400 select-none",
+        "flex items-center justify-between gap-4 py-3 text-sm text-ink-2 select-none",
         className,
       )}
     >
-      <div className="text-xs sm:text-sm">
+      <div className="text-xs sm:text-sm tabular-nums">
         {page !== undefined && totalPages !== undefined ? (
           <span>
-            Página{" "}
-            <strong className="text-zinc-900 dark:text-zinc-100">{page}</strong>{" "}
-            de{" "}
-            <strong className="text-zinc-900 dark:text-zinc-100">
-              {totalPages}
-            </strong>
+            Página <strong className="text-ink">{page}</strong> de{" "}
+            <strong className="text-ink">{totalPages}</strong>
           </span>
         ) : null}
       </div>

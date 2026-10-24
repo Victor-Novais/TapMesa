@@ -16,7 +16,7 @@ export const DrawerOverlay = React.forwardRef<
   <DialogPrimitive.Overlay
     ref={ref}
     className={cn(
-      "fixed inset-0 z-50 bg-black/60 backdrop-blur-sm animate-in fade-in-0 duration-200",
+      "fixed inset-0 z-50 bg-overlay data-[state=open]:animate-in data-[state=open]:fade-in-0 data-[state=open]:duration-250 data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=closed]:duration-200",
       className,
     )}
     {...props}
@@ -35,24 +35,25 @@ export const DrawerContent = React.forwardRef<
     <DialogPrimitive.Content
       ref={ref}
       className={cn(
-        "fixed z-50 bg-white p-6 shadow-2xl dark:bg-zinc-900 border-zinc-200 dark:border-zinc-800",
+        "fixed z-50 overscroll-contain border-border bg-raised p-6 text-ink shadow-elevation-3",
+        "data-[state=open]:animate-in data-[state=open]:duration-250 data-[state=open]:ease-out-soft data-[state=closed]:animate-out data-[state=closed]:duration-200 data-[state=closed]:ease-in-soft",
         position === "right" &&
-          "inset-y-0 right-0 h-full w-full max-w-md border-l animate-in slide-in-from-right duration-250 ease-out",
+          "inset-y-0 right-0 h-full w-full max-w-md overflow-y-auto border-l data-[state=open]:slide-in-from-right data-[state=closed]:slide-out-to-right",
         position === "left" &&
-          "inset-y-0 left-0 h-full w-full max-w-xs border-r animate-in slide-in-from-left duration-250 ease-out",
+          "inset-y-0 left-0 h-full w-full max-w-xs overflow-y-auto border-r data-[state=open]:slide-in-from-left data-[state=closed]:slide-out-to-left",
         position === "bottom" &&
-          "inset-x-0 bottom-0 max-h-[85dvh] overflow-y-auto rounded-t-3xl border-t animate-in slide-in-from-bottom duration-250 ease-out",
+          "inset-x-0 bottom-0 max-h-[85dvh] overflow-y-auto rounded-t-sheet border-t pb-[calc(1.5rem+env(safe-area-inset-bottom))] data-[state=open]:slide-in-from-bottom data-[state=closed]:slide-out-to-bottom",
         className,
       )}
       {...props}
     >
       {position === "bottom" && (
-        <div className="mx-auto mb-4 h-1.5 w-12 rounded-full bg-zinc-300 dark:bg-zinc-700" />
+        <div className="mx-auto mb-4 h-1.5 w-12 rounded-full bg-border" />
       )}
-      <div className="flex items-center justify-between pb-4 border-b border-zinc-100 dark:border-zinc-800">
+      <div className="flex items-center justify-between pb-4 border-b border-border-subtle">
         <div className="flex-1" />
-        <DialogPrimitive.Close className="min-h-[44px] min-w-[44px] inline-flex items-center justify-center rounded-xl p-2 text-zinc-400 hover:text-zinc-600 focus:outline-none focus:ring-2 focus:ring-orange-500 dark:text-zinc-500 dark:hover:text-zinc-300">
-          <X className="h-5 w-5" />
+        <DialogPrimitive.Close className="inline-flex min-h-11 min-w-11 items-center justify-center rounded-full text-ink-2 transition-colors duration-150 ease-out-soft hover:bg-nav hover:text-ink focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-focus-ring focus-visible:ring-offset-2 focus-visible:ring-offset-raised">
+          <X className="h-5 w-5" aria-hidden />
           <span className="sr-only">Fechar</span>
         </DialogPrimitive.Close>
       </div>

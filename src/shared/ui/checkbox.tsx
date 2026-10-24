@@ -25,7 +25,7 @@ export const Checkbox = React.forwardRef<
       id={checkboxId}
       disabled={disabled}
       className={cn(
-        "peer h-5 w-5 shrink-0 rounded-md border border-zinc-300 shadow-sm transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-orange-500 focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 data-[state=checked]:bg-orange-600 data-[state=checked]:border-orange-600 data-[state=checked]:text-white dark:border-zinc-700 dark:data-[state=checked]:bg-orange-600",
+        "peer h-5 w-5 shrink-0 rounded-chip border border-border-control bg-surface transition-colors duration-150 ease-out-soft hover:border-ink-2 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-focus-ring focus-visible:ring-offset-2 focus-visible:ring-offset-surface disabled:cursor-not-allowed disabled:border-border disabled:bg-nav data-[state=checked]:border-primary data-[state=checked]:bg-primary data-[state=checked]:text-on-primary",
         className,
       )}
       {...props}
@@ -49,16 +49,12 @@ export const Checkbox = React.forwardRef<
         {label && (
           <label
             htmlFor={checkboxId}
-            className="text-sm font-medium text-zinc-900 dark:text-zinc-100 cursor-pointer select-none"
+            className="text-sm font-medium text-ink cursor-pointer select-none"
           >
             {label}
           </label>
         )}
-        {description && (
-          <p className="text-xs text-zinc-500 dark:text-zinc-400">
-            {description}
-          </p>
-        )}
+        {description && <p className="text-xs text-ink-2">{description}</p>}
       </div>
     </div>
   );

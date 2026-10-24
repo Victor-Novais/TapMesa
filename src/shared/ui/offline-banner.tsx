@@ -15,9 +15,9 @@ export function OfflineBanner() {
     <div
       role="status"
       aria-live="polite"
-      className="relative z-40 flex items-center justify-center gap-2 bg-zinc-900 px-4 py-2 text-center text-xs font-medium text-white shadow-sm dark:bg-zinc-800"
+      className="relative z-40 flex items-center justify-center gap-2 bg-espresso px-4 py-2 text-center text-xs font-medium text-on-espresso"
     >
-      <WifiOff className="h-3.5 w-3.5 text-amber-400" />
+      <WifiOff className="h-3.5 w-3.5 shrink-0 text-warning" aria-hidden />
       <span>
         {UI_MESSAGES.offline.title}: O TapMesa tentará reconectar
         automaticamente.
