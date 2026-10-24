@@ -92,7 +92,7 @@ Use **sempre** os tokens abaixo. A paleta crua do Tailwind (`bg-zinc-100`, `text
 - `BrandLogo` (`src/shared/ui/brand-logo.tsx`) com `<img>` e largura/altura fixas (CLS 0, 0 KB de JS). `tone="auto"` alterna pela classe `dark`; `tone="dark"` para fundos escuros (cabeçalho do admin).
 - `alt="TapMesa"` quando o logo é o único nome visível; `alt=""` quando há texto ao lado.
 - Na tela da mesa, o logo do restaurante tem prioridade; o TapMesa é só o fallback, no tom do fundo do restaurante.
-- Favicon: ver pendência em `PROGRESS_1.md` (16px pouco legível).
+- Favicon: `src/app/favicon.ico` gerado do `Logo-dark.svg` (16/32/48px); a 16px os arcos se fundem, mas o "A" branco sobre o quadrado escuro continua reconhecível.
 
 ## 8. Componentes (`src/shared/ui/`)
 
