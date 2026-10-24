@@ -19,7 +19,16 @@ async function assertNoHorizontalScroll(page: Page, routeName: string) {
   ).toBe(false);
 }
 
+// Credenciais do admin do back-end de teste (nunca fixas no código)
+const ADMIN_USERNAME = process.env.E2E_ADMIN_USERNAME || "admin";
+const ADMIN_PASSWORD = process.env.E2E_ADMIN_PASSWORD;
+
 test.describe("Jornada Completa TapMesa (Smoke E2E contra Back Real)", () => {
+  test.skip(
+    !ADMIN_PASSWORD,
+    "Defina E2E_ADMIN_PASSWORD (e E2E_ADMIN_USERNAME, se não for 'admin') para rodar a jornada completa.",
+  );
+
   test("deve executar o fluxo narrativo ponta a ponta: Admin -> Owner -> Mesas -> Cliente -> Painel -> Confirmação -> Contestação -> Resumo", async ({
     browser,
   }) => {
@@ -51,8 +60,8 @@ test.describe("Jornada Completa TapMesa (Smoke E2E contra Back Real)", () => {
     await adminPage.goto("/login");
     await assertNoHorizontalScroll(adminPage, "/login");
 
-    await adminPage.locator("#login-username").fill("admin");
-    await adminPage.locator("#login-password").fill("Admin@123456");
+    await adminPage.locator("#login-username").fill(ADMIN_USERNAME);
+    await adminPage.locator("#login-password").fill(ADMIN_PASSWORD ?? "");
     await adminPage.getByRole("button", { name: "Entrar no sistema" }).click();
 
     // Redirecionamento automático para o Portal do Administrador

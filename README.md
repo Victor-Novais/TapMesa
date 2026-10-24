@@ -84,6 +84,22 @@ NEXT_TELEMETRY_DISABLED=1
 | `npm run test:e2e`         | Executa a suíte de testes Playwright E2E contra o ambiente real                             |
 | `npm run format`           | Formata o código fonte com Prettier e organiza classes do Tailwind                          |
 
+### 5.1 Variáveis dos testes E2E
+
+Os testes rodam contra um back-end de **teste** (nunca produção) e criam restaurantes, mesas e chamados próprios.
+
+| Variável              | Obrigatória | Padrão                         | Uso                                                                     |
+| :-------------------- | :---------- | :----------------------------- | :---------------------------------------------------------------------- |
+| `E2E_ADMIN_USERNAME`  | Não         | `admin`                        | Usuário do administrador da plataforma no back-end de teste             |
+| `E2E_ADMIN_PASSWORD`  | Sim         | —                              | Senha desse administrador; sem ela a jornada `smoke.spec.ts` é ignorada |
+| `NEXT_PUBLIC_API_URL` | Não         | `http://localhost:3000/api/v1` | API usada pelo `integration.spec.ts` para criar os dados de apoio       |
+
+```bash
+E2E_ADMIN_USERNAME=admin E2E_ADMIN_PASSWORD='<senha-de-teste>' npm run test:e2e
+```
+
+A linha de base atual da suíte (o que passa, o que falha e por quê) está em `docs/design/E2E_BASELINE.md`.
+
 ---
 
 ## 6. Execução com Docker
