@@ -80,7 +80,8 @@ NEXT_TELEMETRY_DISABLED=1
 | `npm run lint`             | Executa a verificação estática de código com o ESLint                                       |
 | `npm run typecheck`        | Executa a checagem rigorosa de tipos TypeScript sem emissão (`tsc --noEmit`)                |
 | `npm run check:boundaries` | Valida as regras de fronteiras arquiteturais e importações permitidas                       |
-| `npm run verify`           | **Quality Gate:** Executa `lint`, `typecheck`, `check:boundaries` e `build`                 |
+| `npm run verify`           | **Quality Gate:** Executa `lint`, `typecheck`, `check:boundaries`, `test:unit` e `build`    |
+| `npm run test:unit`        | Testes unitários com o executor nativo do Node (`node:test`, Node 24)                       |
 | `npm run test:e2e`         | Executa a suíte de testes Playwright E2E contra o ambiente real                             |
 | `npm run format`           | Formata o código fonte com Prettier e organiza classes do Tailwind                          |
 

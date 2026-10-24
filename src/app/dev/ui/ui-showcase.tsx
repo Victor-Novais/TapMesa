@@ -118,22 +118,22 @@ export function UiShowcase() {
   return (
     <ToastProvider>
       <TooltipProvider>
-        <div className="min-h-screen bg-zinc-50 dark:bg-zinc-950 text-zinc-900 dark:text-zinc-100 transition-colors">
+        <div className="min-h-dvh bg-nav text-ink transition-colors">
           {/* Top Control Bar */}
-          <header className="sticky top-0 z-40 border-b border-zinc-200 dark:border-zinc-800 bg-white/90 dark:bg-zinc-900/90 backdrop-blur-md px-4 py-3">
+          <header className="sticky top-0 z-40 border-b border-border bg-surface px-4 py-3">
             <div className="mx-auto flex flex-wrap items-center justify-between gap-4 max-w-7xl">
               <div>
-                <h1 className="text-xl font-bold tracking-tight text-orange-600 dark:text-orange-500">
+                <h1 className="text-xl font-bold tracking-tight text-primary-ink">
                   TapMesa — Design System Showcase
                 </h1>
-                <p className="text-xs text-zinc-500 dark:text-zinc-400">
+                <p className="text-xs text-ink-2">
                   Vitrine viva de tokens, componentes base e validação de
                   responsividade
                 </p>
               </div>
 
               {/* Viewport Width Selector */}
-              <div className="flex flex-wrap items-center gap-1.5 bg-zinc-100 dark:bg-zinc-800 p-1 rounded-xl">
+              <div className="flex flex-wrap items-center gap-1.5 bg-nav p-1 rounded-control">
                 {widths.map((w) => {
                   const Icon = w.icon;
                   const active = viewportWidth === w.value;
@@ -142,10 +142,10 @@ export function UiShowcase() {
                       key={w.value}
                       type="button"
                       onClick={() => setViewportWidth(w.value)}
-                      className={`flex items-center gap-1 px-2.5 py-1 text-xs font-medium rounded-lg transition-all ${
+                      className={`flex items-center gap-1 px-2.5 py-1 text-xs font-medium rounded-control transition-colors ${
                         active
-                          ? "bg-white dark:bg-zinc-900 text-orange-600 dark:text-orange-400 shadow-sm"
-                          : "text-zinc-600 dark:text-zinc-400 hover:text-zinc-900"
+                          ? "bg-surface text-primary-ink"
+                          : "text-ink-2 hover:text-ink"
                       }`}
                     >
                       <Icon className="h-3.5 w-3.5" />
@@ -156,14 +156,14 @@ export function UiShowcase() {
               </div>
 
               {/* Theme Switcher */}
-              <div className="flex items-center gap-1 bg-zinc-100 dark:bg-zinc-800 p-1 rounded-xl">
+              <div className="flex items-center gap-1 bg-nav p-1 rounded-control">
                 <button
                   type="button"
                   onClick={() => setTheme("light")}
-                  className={`p-1.5 rounded-lg transition-all ${
+                  className={`p-1.5 rounded-control transition-colors ${
                     theme === "light"
-                      ? "bg-white dark:bg-zinc-900 text-orange-600 shadow-sm"
-                      : "text-zinc-500 hover:text-zinc-900"
+                      ? "bg-surface text-primary-ink"
+                      : "text-ink-2 hover:text-ink"
                   }`}
                   aria-label="Tema Claro"
                 >
@@ -172,10 +172,10 @@ export function UiShowcase() {
                 <button
                   type="button"
                   onClick={() => setTheme("dark")}
-                  className={`p-1.5 rounded-lg transition-all ${
+                  className={`p-1.5 rounded-control transition-colors ${
                     theme === "dark"
-                      ? "bg-white dark:bg-zinc-900 text-orange-400 shadow-sm"
-                      : "text-zinc-500 hover:text-zinc-100"
+                      ? "bg-surface text-primary-ink"
+                      : "text-ink-2 hover:text-ink"
                   }`}
                   aria-label="Tema Escuro"
                 >
@@ -184,10 +184,10 @@ export function UiShowcase() {
                 <button
                   type="button"
                   onClick={() => setTheme("system")}
-                  className={`p-1.5 rounded-lg transition-all ${
+                  className={`p-1.5 rounded-control transition-colors ${
                     theme === "system"
-                      ? "bg-white dark:bg-zinc-900 text-orange-500 shadow-sm"
-                      : "text-zinc-500 hover:text-zinc-100"
+                      ? "bg-surface text-primary-ink"
+                      : "text-ink-2 hover:text-ink"
                   }`}
                   aria-label="Tema do Sistema"
                 >
@@ -205,15 +205,15 @@ export function UiShowcase() {
                 maxWidth: "100%",
                 transition: "width 0.25s ease-out",
               }}
-              className="space-y-12 bg-white dark:bg-zinc-900/50 p-6 sm:p-8 rounded-3xl border border-zinc-200 dark:border-zinc-800 shadow-sm"
+              className="space-y-12 bg-surface p-6 sm:p-8 rounded-sheet border border-border"
             >
               {/* Section: Tokens */}
               <section className="space-y-4">
-                <div className="border-b border-zinc-200 dark:border-zinc-800 pb-3">
-                  <h2 className="text-lg font-bold text-zinc-900 dark:text-zinc-100">
+                <div className="border-b border-border pb-3">
+                  <h2 className="text-lg font-bold text-ink">
                     1. Tokens de Cor & Semântica
                   </h2>
-                  <p className="text-xs text-zinc-500">
+                  <p className="text-xs text-ink-2">
                     Cores semânticas com contraste AA verificado em claro e
                     escuro
                   </p>
@@ -244,11 +244,11 @@ export function UiShowcase() {
 
               {/* Section: Buttons */}
               <section className="space-y-4">
-                <div className="border-b border-zinc-200 dark:border-zinc-800 pb-3">
-                  <h2 className="text-lg font-bold text-zinc-900 dark:text-zinc-100">
+                <div className="border-b border-border pb-3">
+                  <h2 className="text-lg font-bold text-ink">
                     2. Botões & Alvos de Toque
                   </h2>
-                  <p className="text-xs text-zinc-500">
+                  <p className="text-xs text-ink-2">
                     Alvos de 44px min para o app e 64px para a tela da mesa
                     (/m/[token])
                   </p>
@@ -288,7 +288,7 @@ export function UiShowcase() {
 
                   {/* Mesa variant (64px) */}
                   <div className="space-y-2 pt-2">
-                    <span className="text-xs font-semibold text-zinc-500 uppercase">
+                    <span className="text-xs font-semibold text-ink-2 uppercase">
                       Variante da Tela da Mesa (size=&quot;table&quot; - 64px de
                       altura)
                     </span>
@@ -308,11 +308,11 @@ export function UiShowcase() {
 
               {/* Section: Formulários */}
               <section className="space-y-4">
-                <div className="border-b border-zinc-200 dark:border-zinc-800 pb-3">
-                  <h2 className="text-lg font-bold text-zinc-900 dark:text-zinc-100">
+                <div className="border-b border-border pb-3">
+                  <h2 className="text-lg font-bold text-ink">
                     3. Campos de Formulário & Controles
                   </h2>
-                  <p className="text-xs text-zinc-500">
+                  <p className="text-xs text-ink-2">
                     Tamanho mínimo de 16px no mobile, estados de foco e erro
                     claros
                   </p>
@@ -331,7 +331,7 @@ export function UiShowcase() {
                     error="Insira um endereço de e-mail válido."
                   />
                   <div className="space-y-1.5 text-left">
-                    <label className="block text-sm font-medium text-zinc-700 dark:text-zinc-300">
+                    <label className="block text-sm font-medium text-ink-2">
                       Fuso Horário Operacional
                     </label>
                     <Select defaultValue="sp">
@@ -376,8 +376,8 @@ export function UiShowcase() {
 
               {/* Section: Tabs Demo */}
               <section className="space-y-4">
-                <div className="border-b border-zinc-200 dark:border-zinc-800 pb-3">
-                  <h2 className="text-lg font-bold text-zinc-900 dark:text-zinc-100">
+                <div className="border-b border-border pb-3">
+                  <h2 className="text-lg font-bold text-ink">
                     4. Alternância de Abas (Tabs)
                   </h2>
                 </div>
@@ -425,8 +425,8 @@ export function UiShowcase() {
 
               {/* Section: Badges & Conexão */}
               <section className="space-y-4">
-                <div className="border-b border-zinc-200 dark:border-zinc-800 pb-3">
-                  <h2 className="text-lg font-bold text-zinc-900 dark:text-zinc-100">
+                <div className="border-b border-border pb-3">
+                  <h2 className="text-lg font-bold text-ink">
                     5. Badges, Alertas & Indicadores de Conexão
                   </h2>
                 </div>
@@ -449,11 +449,11 @@ export function UiShowcase() {
 
               {/* Section: StatCards */}
               <section className="space-y-4">
-                <div className="border-b border-zinc-200 dark:border-zinc-800 pb-3">
-                  <h2 className="text-lg font-bold text-zinc-900 dark:text-zinc-100">
+                <div className="border-b border-border pb-3">
+                  <h2 className="text-lg font-bold text-ink">
                     6. Cartões de Estatísticas (StatCard)
                   </h2>
-                  <p className="text-xs text-zinc-500">
+                  <p className="text-xs text-ink-2">
                     Adaptáveis via Container Queries do celular à Smart TV
                   </p>
                 </div>
@@ -494,11 +494,11 @@ export function UiShowcase() {
 
               {/* Section: Diálogos e Modais */}
               <section className="space-y-4">
-                <div className="border-b border-zinc-200 dark:border-zinc-800 pb-3">
-                  <h2 className="text-lg font-bold text-zinc-900 dark:text-zinc-100">
+                <div className="border-b border-border pb-3">
+                  <h2 className="text-lg font-bold text-ink">
                     7. Diálogos, Gavetas & Segurança
                   </h2>
-                  <p className="text-xs text-zinc-500">
+                  <p className="text-xs text-ink-2">
                     Bottom sheet no mobile, modal centralizado no desktop,
                     credenciais seguras
                   </p>
@@ -518,7 +518,7 @@ export function UiShowcase() {
                           cliente.
                         </DialogDescription>
                       </DialogHeader>
-                      <div className="py-4 text-sm text-zinc-600 dark:text-zinc-400">
+                      <div className="py-4 text-sm text-ink-2">
                         Exemplo de conteúdo interno com rolagem segura.
                       </div>
                       <DialogFooter>
@@ -534,7 +534,7 @@ export function UiShowcase() {
                     </DrawerTrigger>
                     <DrawerContent position="right">
                       <h3 className="text-lg font-bold">Chamados Recentes</h3>
-                      <p className="text-xs text-zinc-500 mt-1">
+                      <p className="text-xs text-ink-2 mt-1">
                         Histórico dos últimos 15 atendimentos concluídos.
                       </p>
                     </DrawerContent>
@@ -580,8 +580,8 @@ export function UiShowcase() {
 
               {/* Section: Tabelas & Paginação */}
               <section className="space-y-4">
-                <div className="border-b border-zinc-200 dark:border-zinc-800 pb-3">
-                  <h2 className="text-lg font-bold text-zinc-900 dark:text-zinc-100">
+                <div className="border-b border-border pb-3">
+                  <h2 className="text-lg font-bold text-ink">
                     8. Tabelas de Dados & Paginação
                   </h2>
                 </div>
@@ -636,8 +636,8 @@ export function UiShowcase() {
 
               {/* Section: Skeletons & Estado Vazio */}
               <section className="space-y-4">
-                <div className="border-b border-zinc-200 dark:border-zinc-800 pb-3">
-                  <h2 className="text-lg font-bold text-zinc-900 dark:text-zinc-100">
+                <div className="border-b border-border pb-3">
+                  <h2 className="text-lg font-bold text-ink">
                     9. Estados de Carregamento & Vazio (EmptyState)
                   </h2>
                 </div>
@@ -667,11 +667,11 @@ export function UiShowcase() {
 
               {/* Section: Tela da Mesa - Temas & Estados */}
               <section className="space-y-4">
-                <div className="border-b border-zinc-200 dark:border-zinc-800 pb-3">
-                  <h2 className="text-lg font-bold text-zinc-900 dark:text-zinc-100">
+                <div className="border-b border-border pb-3">
+                  <h2 className="text-lg font-bold text-ink">
                     10. Tela da Mesa (/m/[token]) — Temas & Estados (F06)
                   </h2>
-                  <p className="text-xs text-zinc-500">
+                  <p className="text-xs text-ink-2">
                     Validação dos temas claro, escuro, com imagem de fundo, e
                     estados de erro/pausa com proteção de contraste WCAG 2.1 AA.
                   </p>
@@ -682,12 +682,12 @@ export function UiShowcase() {
 
               {/* Section: Painel de Operação - Cards, TV 3m & Alertas */}
               <section className="space-y-4">
-                <div className="border-b border-zinc-200 dark:border-zinc-800 pb-3">
-                  <h2 className="text-lg font-bold text-zinc-900 dark:text-zinc-100">
+                <div className="border-b border-border pb-3">
+                  <h2 className="text-lg font-bold text-ink">
                     11. Painel de Operação (F10) — Cards, TV 3m & Alertas
                     Semânticos
                   </h2>
-                  <p className="text-xs text-zinc-500">
+                  <p className="text-xs text-ink-2">
                     Validação visual para TV a 3 metros, tablet e mobile. Níveis
                     Normal, Alerta e Urgente (cor + ícone + texto), cronômetros
                     ao vivo, notas e gaveta de recentes.
@@ -925,18 +925,18 @@ function TableScreenDemo() {
         {selectedTheme !== "skeleton" &&
           selectedTheme !== "paused" &&
           selectedTheme !== "not_found" && (
-            <div className="flex items-center gap-1.5 rounded-xl border border-zinc-200 bg-zinc-50 p-1 dark:border-zinc-800 dark:bg-zinc-900">
-              <span className="px-2 text-[11px] font-semibold text-zinc-500 uppercase">
+            <div className="flex items-center gap-1.5 rounded-control border border-border bg-nav p-1">
+              <span className="px-2 text-xs font-semibold text-ink-2 uppercase">
                 Chamados:
               </span>
               <button
                 type="button"
                 onClick={() => setCallScenario("idle")}
                 className={cn(
-                  "px-2 py-1 text-xs font-medium rounded-lg transition-colors",
+                  "px-2 py-1 text-xs font-medium rounded-control transition-colors",
                   callScenario === "idle"
-                    ? "bg-white shadow text-zinc-900 dark:bg-zinc-800 dark:text-zinc-50"
-                    : "text-zinc-600 hover:text-zinc-900 dark:text-zinc-400 dark:hover:text-zinc-200",
+                    ? "bg-surface text-ink"
+                    : "text-ink-2 hover:text-ink",
                 )}
               >
                 Livre
@@ -945,10 +945,10 @@ function TableScreenDemo() {
                 type="button"
                 onClick={() => setCallScenario("waiter")}
                 className={cn(
-                  "px-2 py-1 text-xs font-medium rounded-lg transition-colors",
+                  "px-2 py-1 text-xs font-medium rounded-control transition-colors",
                   callScenario === "waiter"
-                    ? "bg-white shadow text-zinc-900 dark:bg-zinc-800 dark:text-zinc-50"
-                    : "text-zinc-600 hover:text-zinc-900 dark:text-zinc-400 dark:hover:text-zinc-200",
+                    ? "bg-surface text-ink"
+                    : "text-ink-2 hover:text-ink",
                 )}
               >
                 Garçom
@@ -957,10 +957,10 @@ function TableScreenDemo() {
                 type="button"
                 onClick={() => setCallScenario("attended")}
                 className={cn(
-                  "px-2 py-1 text-xs font-medium rounded-lg transition-colors",
+                  "px-2 py-1 text-xs font-medium rounded-control transition-colors",
                   callScenario === "attended"
-                    ? "bg-white shadow text-zinc-900 dark:bg-zinc-800 dark:text-zinc-50"
-                    : "text-zinc-600 hover:text-zinc-900 dark:text-zinc-400 dark:hover:text-zinc-200",
+                    ? "bg-surface text-ink"
+                    : "text-ink-2 hover:text-ink",
                 )}
               >
                 Atendido
@@ -969,10 +969,10 @@ function TableScreenDemo() {
                 type="button"
                 onClick={() => setCallScenario("confirmed")}
                 className={cn(
-                  "px-2 py-1 text-xs font-medium rounded-lg transition-colors",
+                  "px-2 py-1 text-xs font-medium rounded-control transition-colors",
                   callScenario === "confirmed"
-                    ? "bg-white shadow text-zinc-900 dark:bg-zinc-800 dark:text-zinc-50"
-                    : "text-zinc-600 hover:text-zinc-900 dark:text-zinc-400 dark:hover:text-zinc-200",
+                    ? "bg-surface text-ink"
+                    : "text-ink-2 hover:text-ink",
                 )}
               >
                 Confirmado
@@ -981,10 +981,10 @@ function TableScreenDemo() {
                 type="button"
                 onClick={() => setCallScenario("both")}
                 className={cn(
-                  "px-2 py-1 text-xs font-medium rounded-lg transition-colors",
+                  "px-2 py-1 text-xs font-medium rounded-control transition-colors",
                   callScenario === "both"
-                    ? "bg-white shadow text-zinc-900 dark:bg-zinc-800 dark:text-zinc-50"
-                    : "text-zinc-600 hover:text-zinc-900 dark:text-zinc-400 dark:hover:text-zinc-200",
+                    ? "bg-surface text-ink"
+                    : "text-ink-2 hover:text-ink",
                 )}
               >
                 Ambos
@@ -994,7 +994,7 @@ function TableScreenDemo() {
       </div>
 
       {/* transform-gpu cria um bloco de contenção: o fundo `fixed` da mesa fica preso à moldura e não cobre a vitrine */}
-      <div className="relative mx-auto max-w-sm transform-gpu overflow-hidden rounded-3xl border border-zinc-300 shadow-xl dark:border-zinc-700">
+      <div className="relative mx-auto max-w-sm transform-gpu overflow-hidden rounded-sheet border border-border shadow-elevation-2">
         {selectedTheme === "skeleton" ? (
           <TableScreenSkeleton />
         ) : selectedTheme === "paused" ? (
@@ -1289,13 +1289,13 @@ function PanelScreenDemo() {
 
   return (
     <div className="space-y-4">
-      <div className="flex flex-wrap items-center justify-between gap-3 bg-zinc-50 dark:bg-zinc-800/50 p-3 rounded-2xl border border-zinc-200 dark:border-zinc-800">
+      <div className="flex flex-wrap items-center justify-between gap-3 bg-nav p-3 rounded-card border border-border">
         <div className="flex items-center gap-2">
-          <span className="text-xs font-semibold text-zinc-600 dark:text-zinc-300">
+          <span className="text-xs font-semibold text-ink-2">
             Fila ativa: {calls.length} chamados
           </span>
-          <span className="text-xs text-zinc-400">•</span>
-          <span className="text-xs text-zinc-500">
+          <span className="text-xs text-ink-2">•</span>
+          <span className="text-xs text-ink-2">
             Recentes: {recentCalls.length}
           </span>
         </div>
@@ -1323,7 +1323,7 @@ function PanelScreenDemo() {
             size="sm"
             variant="outline"
             onClick={() => playUrgentSound(80)}
-            className="text-xs font-semibold h-8 text-red-600"
+            className="text-xs font-semibold h-8 text-danger-ink"
           >
             🔥 Som Urgente
           </Button>
@@ -1368,7 +1368,7 @@ function PanelScreenDemo() {
             size="sm"
             variant="ghost"
             onClick={handleReset}
-            className="text-xs text-zinc-500 hover:text-zinc-900 dark:hover:text-zinc-100 h-8"
+            className="text-xs text-ink-2 hover:text-ink h-8"
           >
             Resetar Cenário
           </Button>

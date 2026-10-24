@@ -190,3 +190,29 @@ A auditoria de desempenho e segurança confirma que o frontend do **TapMesa** cu
 - **PWA:** Totalmente configurado e em conformidade com as regras de não-cacheamento de dados dinâmicos.
 
 A aplicação está pronta para os testes de integração e smoke E2E da **Tarefa F23**.
+
+---
+
+## 8. Redesign visual (DESIGN_PLAN, out/2026)
+
+Medição própria do redesign: JS de primeiro acesso por rota (gzip nível 9 dos `<script>` baixados, build de produção Turbopack, `design-lab/perf/measure-js.cjs`) e Lighthouse 12.8.2 mobile (mediana de 3, máquina ociosa).
+
+> **Divergência com a seção 3:** a linha de base medida antes do redesign foi **279,6 KB gzip** em `/m/[token]`, não os 128,8 KB registrados na F22. O número da F22 não é reproduzível com o método acima (provavelmente contava só os chunks da rota, sem o framework compartilhado). A meta aprovada para o redesign foi **não aumentar** a partir de 279,6 KB (± 1 KB).
+
+| Rota                  | Linha de base | Após o redesign | Δ       |
+| --------------------- | ------------- | --------------- | ------- |
+| `/m/[token]`          | 279,6 KB      | 279,3 KB        | −0,3 KB |
+| `/login`              | 249,7 KB      | 249,9 KB        | +0,2 KB |
+| `/panel`              | 294,1 KB      | 293,6 KB        | −0,5 KB |
+| `/dashboard`          | 394,2 KB      | 394,2 KB        | 0,0 KB  |
+| `/dashboard/tables`   | 293,8 KB      | 293,8 KB        | 0,0 KB  |
+| `/dashboard/team`     | 291,9 KB      | 291,9 KB        | 0,0 KB  |
+| `/dashboard/settings` | 316,8 KB      | 315,9 KB        | −0,9 KB |
+| `/admin`              | 289,2 KB      | 289,5 KB        | +0,3 KB |
+
+| Lighthouse mobile | Linha de base (perf/a11y) | Após o redesign | CLS                           |
+| ----------------- | ------------------------- | --------------- | ----------------------------- |
+| `/m/[token]`      | 86 / 95                   | 86 / 100        | 0                             |
+| `/login`          | 87 / 93                   | 87 / 100        | 0,012 (igual à linha de base) |
+
+O redesign não adicionou JavaScript: tokens em CSS, `tw-animate-css` só em CSS, logo com `<img>` (sem `next/image`), sem `backdrop-blur`. Por fase: `docs/PROGRESS_1.md`.
