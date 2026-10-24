@@ -155,10 +155,10 @@ export function AuditLogsManager() {
       {/* Header */}
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div>
-          <h1 className="text-2xl font-bold tracking-tight text-zinc-900 dark:text-zinc-50">
+          <h1 className="text-2xl font-bold tracking-tight text-ink">
             Trilha de Auditoria
           </h1>
-          <p className="mt-1 text-sm text-zinc-500 dark:text-zinc-400">
+          <p className="mt-1 text-sm text-ink-2">
             Registro imutável de eventos administrativos, alterações em
             restaurantes e sessões de suporte.
           </p>
@@ -191,7 +191,7 @@ export function AuditLogsManager() {
               placeholder="ex: RESTAURANT_SUSPENDED..."
               value={actionSearch}
               onChange={(e) => setActionSearch(e.target.value)}
-              startAdornment={<Search className="h-4 w-4 text-zinc-400" />}
+              startAdornment={<Search className="h-4 w-4 text-ink-2" />}
               className="h-10 text-xs"
             />
           </div>
@@ -251,12 +251,12 @@ export function AuditLogsManager() {
       {isLoading ? (
         <div className="space-y-3">
           {Array.from({ length: 6 }).map((_, i) => (
-            <Skeleton key={i} className="h-14 w-full rounded-2xl" />
+            <Skeleton key={i} className="h-14 w-full rounded-card" />
           ))}
         </div>
       ) : logs.length === 0 ? (
         <EmptyState
-          icon={<ScrollText className="h-7 w-7 text-zinc-500" />}
+          icon={<ScrollText className="h-7 w-7 text-ink-2" />}
           title="Nenhum log de auditoria encontrado"
           description="Nenhum evento registrado corresponde aos filtros informados."
         />
@@ -283,18 +283,18 @@ export function AuditLogsManager() {
                   return (
                     <TableRow key={log.id} className="group">
                       {/* Data / Hora */}
-                      <TableCell className="font-mono text-xs text-zinc-600 dark:text-zinc-400">
+                      <TableCell className="font-mono text-xs text-ink-2">
                         {formatDate(log.at)}
                       </TableCell>
 
                       {/* Ator */}
                       <TableCell>
                         <div className="flex flex-col">
-                          <span className="font-mono text-xs font-semibold text-zinc-900 dark:text-zinc-100 truncate max-w-[140px]">
+                          <span className="font-mono text-xs font-semibold text-ink truncate max-w-[140px]">
                             {log.actorUserId ?? "Sistema"}
                           </span>
                           {log.ip && (
-                            <span className="font-mono text-[11px] text-zinc-500">
+                            <span className="font-mono text-xs text-ink-2">
                               IP: {log.ip}
                             </span>
                           )}
@@ -304,14 +304,14 @@ export function AuditLogsManager() {
                       {/* Ação */}
                       <TableCell>
                         <div className="flex items-center gap-2">
-                          <span className="font-mono text-xs font-bold text-zinc-900 dark:text-zinc-100">
+                          <span className="font-mono text-xs font-bold text-ink">
                             {log.action}
                           </span>
                           {impersonated && (
                             <Badge
                               variant="danger"
                               size="sm"
-                              className="gap-1 bg-amber-500/10 text-amber-700 border-amber-500/30 dark:text-amber-300"
+                              className="gap-1 bg-warning-tint text-warning-ink border-warning"
                             >
                               <ShieldAlert className="h-3 w-3" />
                               <span>Modo Suporte</span>
@@ -323,11 +323,11 @@ export function AuditLogsManager() {
                       {/* Restaurante */}
                       <TableCell>
                         {log.restaurantId ? (
-                          <span className="font-mono text-xs text-zinc-600 dark:text-zinc-400 truncate block max-w-[160px]">
+                          <span className="font-mono text-xs text-ink-2 truncate block max-w-[160px]">
                             {log.restaurantId}
                           </span>
                         ) : (
-                          <span className="text-xs text-zinc-400 italic">
+                          <span className="text-xs text-ink-2 italic">
                             Global da Plataforma
                           </span>
                         )}
@@ -341,7 +341,7 @@ export function AuditLogsManager() {
                           onClick={() => setSelectedLog(log)}
                           className="h-8 gap-1 text-xs"
                         >
-                          <Eye className="h-3.5 w-3.5 text-zinc-500" />
+                          <Eye className="h-3.5 w-3.5 text-ink-2" />
                           <span>Ver</span>
                         </Button>
                       </TableCell>
@@ -364,23 +364,23 @@ export function AuditLogsManager() {
                   className="p-4 space-y-2 cursor-pointer active:scale-[0.99] transition-transform"
                 >
                   <div className="flex items-start justify-between gap-2">
-                    <span className="font-mono text-xs font-bold text-zinc-900 dark:text-zinc-100">
+                    <span className="font-mono text-xs font-bold text-ink">
                       {log.action}
                     </span>
                     {impersonated && (
                       <Badge
                         variant="danger"
                         size="sm"
-                        className="bg-amber-500/10 text-amber-700 border-amber-500/30"
+                        className="bg-warning-tint text-warning-ink border-warning"
                       >
                         Suporte
                       </Badge>
                     )}
                   </div>
 
-                  <div className="grid grid-cols-2 gap-2 text-[11px] text-zinc-500 pt-1 border-t border-zinc-100 dark:border-zinc-800">
+                  <div className="grid grid-cols-2 gap-2 text-xs text-ink-2 pt-1 border-t border-border-subtle">
                     <div>
-                      <span className="block font-semibold text-zinc-700 dark:text-zinc-300">
+                      <span className="block font-semibold text-ink-2">
                         Ator
                       </span>
                       <span className="font-mono truncate block">
@@ -389,7 +389,7 @@ export function AuditLogsManager() {
                     </div>
 
                     <div className="text-right">
-                      <span className="block font-semibold text-zinc-700 dark:text-zinc-300">
+                      <span className="block font-semibold text-ink-2">
                         Data
                       </span>
                       <span className="font-mono">{formatDate(log.at)}</span>
@@ -422,98 +422,96 @@ export function AuditLogsManager() {
           {selectedLog && (
             <div className="space-y-6">
               <div>
-                <h3 className="text-lg font-bold text-zinc-900 dark:text-zinc-50">
+                <h3 className="text-lg font-bold text-ink">
                   Detalhes do Evento
                 </h3>
-                <p className="text-xs text-zinc-500">
+                <p className="text-xs text-ink-2">
                   Informações completas e metadados capturados na trilha de
                   auditoria.
                 </p>
               </div>
 
               {/* Informações Primárias */}
-              <div className="space-y-3 rounded-2xl bg-zinc-50 p-4 border border-zinc-200 dark:bg-zinc-800/50 dark:border-zinc-700/60 text-xs">
+              <div className="space-y-3 rounded-card bg-nav p-4 border border-border text-xs">
                 <div>
-                  <span className="font-bold uppercase tracking-wider text-zinc-400 text-[10px]">
+                  <span className="font-bold uppercase tracking-wider text-ink-2 text-xs">
                     ID do Evento
                   </span>
-                  <p className="font-mono text-zinc-900 dark:text-zinc-100 font-semibold select-all">
+                  <p className="font-mono text-ink font-semibold select-all">
                     {selectedLog.id}
                   </p>
                 </div>
 
-                <div className="grid grid-cols-2 gap-2 pt-2 border-t border-zinc-200/60 dark:border-zinc-700/40">
+                <div className="grid grid-cols-2 gap-2 pt-2 border-t border-border">
                   <div>
-                    <span className="font-bold uppercase tracking-wider text-zinc-400 text-[10px]">
+                    <span className="font-bold uppercase tracking-wider text-ink-2 text-xs">
                       Ação
                     </span>
-                    <p className="font-mono font-bold text-zinc-900 dark:text-zinc-100">
+                    <p className="font-mono font-bold text-ink">
                       {selectedLog.action}
                     </p>
                   </div>
 
                   <div>
-                    <span className="font-bold uppercase tracking-wider text-zinc-400 text-[10px]">
+                    <span className="font-bold uppercase tracking-wider text-ink-2 text-xs">
                       Alvo
                     </span>
-                    <p className="font-mono text-zinc-900 dark:text-zinc-100 break-all">
+                    <p className="font-mono text-ink break-all">
                       {selectedLog.target ?? "—"}
                     </p>
                   </div>
                 </div>
 
-                <div className="pt-2 border-t border-zinc-200/60 dark:border-zinc-700/40">
-                  <span className="font-bold uppercase tracking-wider text-zinc-400 text-[10px]">
+                <div className="pt-2 border-t border-border">
+                  <span className="font-bold uppercase tracking-wider text-ink-2 text-xs">
                     ID do Ator
                   </span>
-                  <p className="font-mono text-zinc-900 dark:text-zinc-100 select-all">
+                  <p className="font-mono text-ink select-all">
                     {selectedLog.actorUserId ?? "Sistema"}
                   </p>
                 </div>
 
-                <div className="pt-2 border-t border-zinc-200/60 dark:border-zinc-700/40">
-                  <span className="font-bold uppercase tracking-wider text-zinc-400 text-[10px]">
+                <div className="pt-2 border-t border-border">
+                  <span className="font-bold uppercase tracking-wider text-ink-2 text-xs">
                     Restaurante Alvo
                   </span>
-                  <p className="font-mono text-zinc-900 dark:text-zinc-100 select-all">
+                  <p className="font-mono text-ink select-all">
                     {selectedLog.restaurantId ||
                       "Global (Sem restaurante específico)"}
                   </p>
                 </div>
 
-                <div className="pt-2 border-t border-zinc-200/60 dark:border-zinc-700/40">
-                  <span className="font-bold uppercase tracking-wider text-zinc-400 text-[10px]">
+                <div className="pt-2 border-t border-border">
+                  <span className="font-bold uppercase tracking-wider text-ink-2 text-xs">
                     Data e hora
                   </span>
-                  <p className="font-mono text-zinc-900 dark:text-zinc-100">
+                  <p className="font-mono text-ink">
                     {formatDate(selectedLog.at)}
                   </p>
                 </div>
 
-                <div className="pt-2 border-t border-zinc-200/60 dark:border-zinc-700/40">
-                  <span className="font-bold uppercase tracking-wider text-zinc-400 text-[10px]">
+                <div className="pt-2 border-t border-border">
+                  <span className="font-bold uppercase tracking-wider text-ink-2 text-xs">
                     IP de origem
                   </span>
-                  <p className="font-mono text-zinc-900 dark:text-zinc-100">
-                    {selectedLog.ip ?? "—"}
-                  </p>
+                  <p className="font-mono text-ink">{selectedLog.ip ?? "—"}</p>
                 </div>
               </div>
 
               {/* Metadados (Meta JSON escapado) */}
               <div className="space-y-2">
-                <div className="flex items-center gap-1.5 text-xs font-bold text-zinc-800 dark:text-zinc-200">
-                  <Code2 className="h-4 w-4 text-orange-500" />
+                <div className="flex items-center gap-1.5 text-xs font-bold text-ink">
+                  <Code2 className="h-4 w-4 text-primary-ink" />
                   <span>Metadados da Ação (Payload JSON)</span>
                 </div>
 
                 {selectedLog.meta &&
                 Object.keys(selectedLog.meta).length > 0 ? (
-                  <pre className="max-h-64 overflow-auto rounded-xl bg-zinc-950 p-4 font-mono text-xs text-zinc-100 dark:bg-black border border-zinc-800 select-all leading-relaxed">
+                  <pre className="max-h-64 overflow-auto rounded-control border border-border bg-nav p-4 font-mono text-xs text-ink select-all leading-relaxed">
                     {JSON.stringify(selectedLog.meta, null, 2)}
                   </pre>
                 ) : (
-                  <p className="rounded-xl border border-dashed border-zinc-200 p-4 text-xs text-zinc-500 dark:border-zinc-800 text-center">
+                  <p className="rounded-control border border-dashed border-border p-4 text-xs text-ink-2 text-center">
                     Nenhum metadado adicional registrado para este evento.
                   </p>
                 )}

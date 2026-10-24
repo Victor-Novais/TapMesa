@@ -284,16 +284,16 @@ export function RestaurantsManager() {
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div>
           <div className="flex flex-wrap items-center gap-2">
-            <h1 className="text-xl sm:text-2xl font-bold tracking-tight text-zinc-900 dark:text-zinc-50">
+            <h1 className="text-xl sm:text-2xl font-bold tracking-tight text-ink">
               Restaurantes Cadastrados
             </h1>
             {!isLoading && (
-              <span className="rounded-full bg-zinc-100 px-2.5 py-0.5 text-xs font-bold text-zinc-800 dark:bg-zinc-800 dark:text-zinc-200">
+              <span className="rounded-full bg-nav px-2.5 py-0.5 text-xs font-bold text-ink">
                 {restaurants.length} nesta página
               </span>
             )}
           </div>
-          <p className="mt-1 text-sm text-zinc-500 dark:text-zinc-400">
+          <p className="mt-1 text-sm text-ink-2">
             Gestão global de clientes da plataforma, controle de status e acesso
             suporte (impersonação).
           </p>
@@ -311,13 +311,13 @@ export function RestaurantsManager() {
       </div>
 
       {/* Barra de Filtros e Busca */}
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 border-b border-zinc-200 dark:border-zinc-800 pb-4">
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 border-b border-border pb-4">
         <div className="w-full sm:w-72">
           <Input
             placeholder="Buscar por nome ou dono..."
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            startAdornment={<Search className="h-4 w-4 text-zinc-400" />}
+            startAdornment={<Search className="h-4 w-4 text-ink-2" />}
             className="h-9 text-xs"
           />
         </div>
@@ -327,12 +327,12 @@ export function RestaurantsManager() {
       {isLoading ? (
         <div className="space-y-3">
           {Array.from({ length: 5 }).map((_, i) => (
-            <Skeleton key={i} className="h-16 w-full rounded-2xl" />
+            <Skeleton key={i} className="h-16 w-full rounded-card" />
           ))}
         </div>
       ) : restaurants.length === 0 ? (
         <EmptyState
-          icon={<Building2 className="h-7 w-7 text-zinc-500" />}
+          icon={<Building2 className="h-7 w-7 text-ink-2" />}
           title="Nenhum restaurante cadastrado"
           description="Cadastre o primeiro estabelecimento para começar a disponibilizar a plataforma TapMesa."
           action={
@@ -347,8 +347,8 @@ export function RestaurantsManager() {
           }
         />
       ) : filteredRestaurants.length === 0 ? (
-        <div className="rounded-2xl border border-dashed border-zinc-200 p-8 text-center dark:border-zinc-800">
-          <p className="text-sm font-medium text-zinc-600 dark:text-zinc-400">
+        <div className="rounded-card border border-dashed border-border p-8 text-center">
+          <p className="text-sm font-medium text-ink-2">
             Nenhum restaurante encontrado com o termo &ldquo;{search}&rdquo;.
           </p>
           <Button
@@ -384,16 +384,16 @@ export function RestaurantsManager() {
                       {/* Nome do Restaurante e Dono */}
                       <TableCell>
                         <div className="flex items-center gap-3">
-                          <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-zinc-100 text-zinc-700 dark:bg-zinc-800 dark:text-zinc-300">
+                          <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-control bg-nav text-ink-2">
                             <Building2 className="h-5 w-5" />
                           </div>
                           <div>
-                            <p className="font-bold text-zinc-900 dark:text-zinc-100">
+                            <p className="font-bold text-ink">
                               {restaurant.name}
                             </p>
-                            <p className="text-xs text-zinc-500 dark:text-zinc-400">
+                            <p className="text-xs text-ink-2">
                               Dono:{" "}
-                              <span className="font-mono text-zinc-700 dark:text-zinc-300">
+                              <span className="font-mono text-ink-2">
                                 {restaurant.ownerUsername}
                               </span>
                             </p>
@@ -421,7 +421,7 @@ export function RestaurantsManager() {
                       </TableCell>
 
                       {/* Data de Criação */}
-                      <TableCell className="text-xs text-zinc-500 dark:text-zinc-400">
+                      <TableCell className="text-xs text-ink-2">
                         {formatDate(restaurant.createdAt)}
                       </TableCell>
 
@@ -439,7 +439,7 @@ export function RestaurantsManager() {
                                 onClick={() => handleImpersonate(restaurant)}
                                 className="gap-1.5 text-xs font-semibold"
                               >
-                                <ExternalLink className="h-3.5 w-3.5 text-orange-600 dark:text-orange-400" />
+                                <ExternalLink className="h-3.5 w-3.5 text-primary-ink" />
                                 <span>Suporte</span>
                               </Button>
                             </TooltipTrigger>
@@ -461,7 +461,7 @@ export function RestaurantsManager() {
                                     setReactivateTarget(restaurant)
                                   }
                                   aria-label={`Reativar ${restaurant.name}`}
-                                  className="text-emerald-600 hover:bg-emerald-50 dark:hover:bg-emerald-950/40"
+                                  className="text-success hover:bg-success-tint"
                                 >
                                   <Unlock className="h-4 w-4" />
                                 </IconButton>
@@ -478,7 +478,7 @@ export function RestaurantsManager() {
                                   size="sm"
                                   onClick={() => setSuspendTarget(restaurant)}
                                   aria-label={`Suspender ${restaurant.name}`}
-                                  className="text-amber-600 hover:bg-amber-50 dark:hover:bg-amber-950/40"
+                                  className="text-warning-ink hover:bg-warning-tint"
                                 >
                                   <Lock className="h-4 w-4" />
                                 </IconButton>
@@ -500,7 +500,7 @@ export function RestaurantsManager() {
                                 }
                                 aria-label={`Gerar nova senha do dono de ${restaurant.name}`}
                               >
-                                <KeyRound className="h-4 w-4 text-zinc-500" />
+                                <KeyRound className="h-4 w-4 text-ink-2" />
                               </IconButton>
                             </TooltipTrigger>
                             <TooltipContent>
@@ -516,7 +516,7 @@ export function RestaurantsManager() {
                                 size="sm"
                                 onClick={() => setDeleteTarget(restaurant)}
                                 aria-label={`Excluir ${restaurant.name}`}
-                                className="text-zinc-400 hover:bg-red-50 hover:text-red-600 dark:hover:bg-red-950/40 dark:hover:text-red-400"
+                                className="text-ink-2 hover:bg-danger-tint hover:text-danger-ink"
                               >
                                 <Trash2 className="h-4 w-4" />
                               </IconButton>
@@ -544,11 +544,11 @@ export function RestaurantsManager() {
                 <Card key={restaurant.id} className="p-4 space-y-3">
                   <div className="flex items-start justify-between gap-2">
                     <div className="flex items-center gap-3">
-                      <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-zinc-100 text-zinc-700 dark:bg-zinc-800 dark:text-zinc-300">
+                      <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-control bg-nav text-ink-2">
                         <Building2 className="h-5 w-5" />
                       </div>
                       <div>
-                        <h4 className="font-bold text-zinc-900 dark:text-zinc-100">
+                        <h4 className="font-bold text-ink">
                           {restaurant.name}
                         </h4>
                         <div className="mt-1 flex items-center gap-2">
@@ -567,7 +567,7 @@ export function RestaurantsManager() {
                               Ativo
                             </Badge>
                           )}
-                          <span className="font-mono text-xs text-zinc-500">
+                          <span className="font-mono text-xs text-ink-2">
                             {restaurant.ownerUsername}
                           </span>
                         </div>
@@ -590,14 +590,14 @@ export function RestaurantsManager() {
                           disabled={isSuspended}
                           onClick={() => handleImpersonate(restaurant)}
                         >
-                          <ExternalLink className="mr-2 h-4 w-4 text-orange-600" />
+                          <ExternalLink className="mr-2 h-4 w-4 text-primary-ink" />
                           <span>Acessar Modo Suporte</span>
                         </DropdownMenuItem>
 
                         <DropdownMenuItem
                           onClick={() => setResetPasswordTarget(restaurant)}
                         >
-                          <KeyRound className="mr-2 h-4 w-4 text-zinc-600" />
+                          <KeyRound className="mr-2 h-4 w-4 text-ink-2" />
                           <span>Nova Senha do Dono</span>
                         </DropdownMenuItem>
 
@@ -610,12 +610,12 @@ export function RestaurantsManager() {
                         >
                           {isSuspended ? (
                             <>
-                              <Unlock className="mr-2 h-4 w-4 text-emerald-600" />
+                              <Unlock className="mr-2 h-4 w-4 text-success" />
                               <span>Reativar Restaurante</span>
                             </>
                           ) : (
                             <>
-                              <Lock className="mr-2 h-4 w-4 text-amber-600" />
+                              <Lock className="mr-2 h-4 w-4 text-warning-ink" />
                               <span>Suspender Restaurante</span>
                             </>
                           )}
@@ -634,7 +634,7 @@ export function RestaurantsManager() {
                     </DropdownMenu>
                   </div>
 
-                  <div className="flex items-center justify-between pt-3 border-t border-zinc-100 dark:border-zinc-800 text-xs text-zinc-500">
+                  <div className="flex items-center justify-between pt-3 border-t border-border-subtle text-xs text-ink-2">
                     <span>
                       Cadastrado em {formatDate(restaurant.createdAt)}
                     </span>
@@ -646,7 +646,7 @@ export function RestaurantsManager() {
                       onClick={() => handleImpersonate(restaurant)}
                       className="h-8 gap-1.5 text-xs font-semibold"
                     >
-                      <ExternalLink className="h-3 w-3 text-orange-600" />
+                      <ExternalLink className="h-3 w-3 text-primary-ink" />
                       <span>Suporte</span>
                     </Button>
                   </div>
