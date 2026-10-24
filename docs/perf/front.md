@@ -202,17 +202,17 @@ Medição própria do redesign: JS de primeiro acesso por rota (gzip nível 9 do
 | Rota                  | Linha de base | Após o redesign | Δ       |
 | --------------------- | ------------- | --------------- | ------- |
 | `/m/[token]`          | 279,6 KB      | 279,3 KB        | −0,3 KB |
-| `/login`              | 249,7 KB      | 249,9 KB        | +0,2 KB |
-| `/panel`              | 294,1 KB      | 293,6 KB        | −0,5 KB |
-| `/dashboard`          | 394,2 KB      | 394,2 KB        | 0,0 KB  |
+| `/login`              | 249,7 KB      | 250,0 KB        | +0,3 KB |
+| `/panel`              | 294,1 KB      | 293,5 KB        | −0,6 KB |
+| `/dashboard`          | 394,2 KB      | 394,0 KB        | −0,2 KB |
 | `/dashboard/tables`   | 293,8 KB      | 293,8 KB        | 0,0 KB  |
 | `/dashboard/team`     | 291,9 KB      | 291,9 KB        | 0,0 KB  |
-| `/dashboard/settings` | 316,8 KB      | 315,9 KB        | −0,9 KB |
-| `/admin`              | 289,2 KB      | 289,5 KB        | +0,3 KB |
+| `/dashboard/settings` | 316,8 KB      | 315,8 KB        | −1,0 KB |
+| `/admin`              | 289,2 KB      | 289,3 KB        | +0,1 KB |
 
-| Lighthouse mobile | Linha de base (perf/a11y) | Após o redesign | CLS                           |
-| ----------------- | ------------------------- | --------------- | ----------------------------- |
-| `/m/[token]`      | 86 / 95                   | 86 / 100        | 0                             |
-| `/login`          | 87 / 93                   | 87 / 100        | 0,012 (igual à linha de base) |
+| Lighthouse mobile | Linha de base (perf/a11y) | Após o redesign               | CLS                           |
+| ----------------- | ------------------------- | ----------------------------- | ----------------------------- |
+| `/m/[token]`      | 86 / 95                   | 86 / 100                      | 0                             |
+| `/login`          | 87 / 93                   | 86 / 100 (execuções 86/86/87) | 0,012 (igual à linha de base) |
 
 O redesign não adicionou JavaScript: tokens em CSS, `tw-animate-css` só em CSS, logo com `<img>` (sem `next/image`), sem `backdrop-blur`. Por fase: `docs/PROGRESS_1.md`.
