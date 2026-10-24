@@ -36,35 +36,35 @@ export function PanelStartDialog({
   return (
     <Dialog open={open}>
       <DialogContent
-        className="sm:max-w-md p-6 sm:p-8 bg-white dark:bg-zinc-900 border-zinc-200 dark:border-zinc-800 shadow-2xl rounded-3xl"
+        className="sm:max-w-md p-6 sm:p-8 bg-surface border-border shadow-elevation-3 rounded-sheet"
         onEscapeKeyDown={(e) => e.preventDefault()}
         onPointerDownOutside={(e) => e.preventDefault()}
       >
         <DialogHeader className="text-center space-y-3">
-          <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-3xl bg-orange-500/10 text-orange-600 dark:bg-orange-500/20 dark:text-orange-400">
+          <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-sheet bg-brand-tint text-primary-ink">
             <Tv className="h-8 w-8" />
           </div>
 
-          <DialogTitle className="text-2xl font-black tracking-tight text-zinc-900 dark:text-zinc-50">
+          <DialogTitle className="text-2xl font-bold tracking-tight text-ink">
             Iniciar Painel Operacional
           </DialogTitle>
 
-          <DialogDescription className="text-sm text-zinc-500 dark:text-zinc-400 leading-relaxed">
+          <DialogDescription className="text-sm text-ink-2 leading-relaxed">
             Prepare a estação de {restaurantName} para operar continuamente
             durante todo o expediente.
           </DialogDescription>
         </DialogHeader>
 
-        <div className="my-6 space-y-3 rounded-2xl bg-zinc-50 p-4 border border-zinc-100 dark:bg-zinc-800/60 dark:border-zinc-800">
+        <div className="my-6 space-y-3 rounded-card bg-nav p-4 border border-border-subtle">
           <div className="flex items-center gap-3">
-            <div className="flex h-8 w-8 items-center justify-center rounded-xl bg-orange-100 text-orange-700 dark:bg-orange-950 dark:text-orange-400 shrink-0">
+            <div className="flex h-8 w-8 shrink-0 items-center justify-center text-ink-2">
               <Volume2 className="h-4 w-4" />
             </div>
             <div>
-              <p className="text-xs font-bold text-zinc-900 dark:text-zinc-100">
+              <p className="text-sm font-semibold text-ink">
                 Áudio & Voz Desbloqueados
               </p>
-              <p className="text-[11px] text-zinc-500">
+              <p className="text-xs text-ink-2">
                 Sons distintos para garçom, conta e anúncio de mesa em
                 português.
               </p>
@@ -72,28 +72,26 @@ export function PanelStartDialog({
           </div>
 
           <div className="flex items-center gap-3">
-            <div className="flex h-8 w-8 items-center justify-center rounded-xl bg-emerald-100 text-emerald-700 dark:bg-emerald-950 dark:text-emerald-400 shrink-0">
+            <div className="flex h-8 w-8 shrink-0 items-center justify-center text-ink-2">
               <Maximize className="h-4 w-4" />
             </div>
             <div>
-              <p className="text-xs font-bold text-zinc-900 dark:text-zinc-100">
-                Modo Tela Cheia
-              </p>
-              <p className="text-[11px] text-zinc-500">
+              <p className="text-sm font-semibold text-ink">Modo Tela Cheia</p>
+              <p className="text-xs text-ink-2">
                 Ocupa toda a tela da TV ou tablet sem distrações de navegador.
               </p>
             </div>
           </div>
 
           <div className="flex items-center gap-3">
-            <div className="flex h-8 w-8 items-center justify-center rounded-xl bg-amber-100 text-amber-700 dark:bg-amber-950 dark:text-amber-400 shrink-0">
+            <div className="flex h-8 w-8 shrink-0 items-center justify-center text-ink-2">
               <SunMedium className="h-4 w-4" />
             </div>
             <div>
-              <p className="text-xs font-bold text-zinc-900 dark:text-zinc-100">
+              <p className="text-sm font-semibold text-ink">
                 Tela Sempre Ligada (Wake Lock)
               </p>
-              <p className="text-[11px] text-zinc-500">
+              <p className="text-xs text-ink-2">
                 Impede que a TV ou tablet apague ou entre em repouso.
               </p>
             </div>
@@ -108,7 +106,7 @@ export function PanelStartDialog({
             onClick={() => void handleStart(true)}
             isLoading={isStarting}
             disabled={isStarting}
-            className="w-full h-14 min-h-[56px] text-base font-extrabold shadow-lg hover:shadow-orange-500/25 gap-2"
+            className="h-14 min-h-14 w-full gap-2 text-base"
           >
             <Play className="h-5 w-5 fill-current" />
             <span>Iniciar Painel Completo</span>
@@ -120,7 +118,7 @@ export function PanelStartDialog({
             size="sm"
             onClick={() => void handleStart(false)}
             disabled={isStarting}
-            className="w-full text-xs text-zinc-500 hover:text-zinc-900 dark:hover:text-zinc-100"
+            className="w-full text-sm text-ink-2 hover:text-ink"
           >
             Abrir sem entrar em tela cheia
           </Button>

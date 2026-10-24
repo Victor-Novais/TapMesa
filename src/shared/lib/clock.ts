@@ -40,12 +40,15 @@ export function calculateElapsedSec(createdAtIsoString: string): number {
 
 /**
  * Formata quantidade total de segundos em cronômetro mm:ss (com números tabulares).
+ * A partir de 60 min passa a h:mm:ss (ex.: 1:02:06), em vez de minutos acumulados.
  */
 export function formatTimer(totalSeconds: number): string {
   const safeSeconds = Math.max(0, Math.floor(totalSeconds));
-  const minutes = Math.floor(safeSeconds / 60);
+  const hours = Math.floor(safeSeconds / 3600);
+  const minutes = Math.floor(safeSeconds / 60) - hours * 60;
   const seconds = safeSeconds % 60;
-  return `${minutes.toString().padStart(2, "0")}:${seconds.toString().padStart(2, "0")}`;
+  const mmss = `${minutes.toString().padStart(2, "0")}:${seconds.toString().padStart(2, "0")}`;
+  return hours > 0 ? `${hours}:${mmss}` : mmss;
 }
 
 // ============================================================================

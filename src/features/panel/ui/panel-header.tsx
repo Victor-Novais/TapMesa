@@ -127,22 +127,22 @@ export function PanelHeader({
   }, []);
 
   return (
-    <header className="sticky top-0 z-40 w-full border-b border-zinc-200/80 bg-white/95 px-4 sm:px-6 lg:px-8 py-2.5 backdrop-blur dark:border-zinc-800/80 dark:bg-zinc-900/95 shadow-sm">
-      <div className="flex flex-wrap items-center justify-between gap-3 max-w-[3840px] mx-auto">
+    <header className="sticky top-0 z-40 w-full border-b border-border bg-surface px-4 py-2.5 sm:px-6 lg:px-8 3xl:py-4">
+      <div className="mx-auto flex max-w-[3840px] flex-wrap items-center justify-between gap-3">
         {/* Left Section: Branding & Operational Clock */}
-        <div className="flex items-center gap-3 min-w-0">
+        <div className="flex min-w-0 items-center gap-3">
           <div className="flex items-center gap-2">
-            <span className="relative flex h-3 w-3 shrink-0">
-              <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-orange-400 opacity-75" />
-              <span className="relative inline-flex h-3 w-3 rounded-full bg-orange-600" />
-            </span>
-            <span className="truncate text-base sm:text-lg font-black tracking-tight text-zinc-900 dark:text-zinc-50">
+            <span
+              aria-hidden
+              className="inline-flex h-2.5 w-2.5 shrink-0 rounded-full bg-brand"
+            />
+            <span className="truncate text-[length:clamp(1rem,0.75vw+0.5rem,1.75rem)] font-bold tracking-tight text-ink">
               {resolvedRestaurantName}
             </span>
           </div>
 
-          <div className="hidden sm:flex items-center gap-1.5 rounded-xl bg-zinc-100/90 px-3 py-1 font-mono text-xs font-bold text-zinc-700 shadow-inner dark:bg-zinc-800/90 dark:text-zinc-200">
-            <Clock className="h-3.5 w-3.5 text-zinc-400" />
+          <div className="hidden items-center gap-1.5 rounded-control bg-nav px-3 py-1 text-[length:clamp(0.875rem,0.75vw+0.375rem,1.75rem)] font-semibold text-ink sm:flex">
+            <Clock className="h-[1em] w-[1em] text-ink-2" aria-hidden />
             <span className="tabular-nums">{formattedTime}</span>
           </div>
         </div>
@@ -150,27 +150,31 @@ export function PanelHeader({
         {/* Center Section: Operational Counters */}
         <div className="flex items-center gap-2 sm:gap-3">
           {/* Total Counter */}
-          <div className="flex items-center gap-1.5 rounded-xl border border-zinc-200 bg-zinc-50/80 px-2.5 py-1 text-xs font-bold text-zinc-800 dark:border-zinc-800 dark:bg-zinc-800/80 dark:text-zinc-100 shadow-sm">
-            <span className="text-zinc-500 font-medium">Total:</span>
-            <span className="font-mono text-sm tabular-nums">
+          <div className="flex items-center gap-1.5 rounded-control bg-nav px-2.5 py-1 text-[length:clamp(0.875rem,0.75vw+0.375rem,1.5rem)] font-semibold text-ink">
+            <span className="font-medium text-ink-2">Total:</span>
+            <span className="font-bold tabular-nums">
               {counters.activeCallsCount}
             </span>
           </div>
 
           {/* Waiter Counter */}
-          <div className="flex items-center gap-1.5 rounded-xl border border-orange-200/80 bg-orange-50/80 px-2.5 py-1 text-xs font-bold text-orange-900 dark:border-orange-900/50 dark:bg-orange-950/40 dark:text-orange-200 shadow-sm">
-            <Bell className="h-3.5 w-3.5 text-orange-600 dark:text-orange-400" />
-            <span className="hidden md:inline font-medium">Garçom:</span>
-            <span className="font-mono text-sm tabular-nums">
+          <div className="flex items-center gap-1.5 rounded-control bg-nav px-2.5 py-1 text-[length:clamp(0.875rem,0.75vw+0.375rem,1.5rem)] font-semibold text-ink">
+            <Bell className="h-[1em] w-[1em] text-primary-ink" aria-hidden />
+            <span className="hidden font-medium text-ink-2 md:inline">
+              Garçom:
+            </span>
+            <span className="font-bold tabular-nums">
               {counters.waiterCallsCount}
             </span>
           </div>
 
           {/* Bill Counter */}
-          <div className="flex items-center gap-1.5 rounded-xl border border-emerald-200/80 bg-emerald-50/80 px-2.5 py-1 text-xs font-bold text-emerald-900 dark:border-emerald-900/50 dark:bg-emerald-950/40 dark:text-emerald-200 shadow-sm">
-            <Receipt className="h-3.5 w-3.5 text-emerald-600 dark:text-emerald-400" />
-            <span className="hidden md:inline font-medium">Conta:</span>
-            <span className="font-mono text-sm tabular-nums">
+          <div className="flex items-center gap-1.5 rounded-control bg-nav px-2.5 py-1 text-[length:clamp(0.875rem,0.75vw+0.375rem,1.5rem)] font-semibold text-ink">
+            <Receipt className="h-[1em] w-[1em] text-ink-2" aria-hidden />
+            <span className="hidden font-medium text-ink-2 md:inline">
+              Conta:
+            </span>
+            <span className="font-bold tabular-nums">
               {counters.billCallsCount}
             </span>
           </div>
@@ -186,14 +190,14 @@ export function PanelHeader({
             variant="ghost"
             size="sm"
             onClick={handleToggleMute}
-            className="h-10 w-10 min-h-[44px] min-w-[44px] p-0 text-zinc-600 hover:text-zinc-900 dark:text-zinc-400 dark:hover:text-zinc-100"
+            className="h-11 min-h-11 w-11 min-w-11 p-0 text-ink-2 hover:text-ink"
             aria-label={isMuted ? "Ativar som" : "Silenciar som"}
             title={isMuted ? "Ativar som" : "Silenciar som"}
           >
             {isMuted ? (
-              <VolumeX className="h-4 w-4 text-red-500" />
+              <VolumeX className="h-5 w-5 text-danger-ink" aria-hidden />
             ) : (
-              <Volume2 className="h-4 w-4 text-zinc-600 dark:text-zinc-300" />
+              <Volume2 className="h-5 w-5" aria-hidden />
             )}
           </Button>
 
@@ -203,14 +207,14 @@ export function PanelHeader({
             variant="ghost"
             size="sm"
             onClick={() => void handleToggleFullscreen()}
-            className="hidden sm:inline-flex h-10 w-10 min-h-[44px] min-w-[44px] p-0 text-zinc-600 hover:text-zinc-900 dark:text-zinc-400 dark:hover:text-zinc-100"
+            className="hidden h-11 min-h-11 w-11 min-w-11 p-0 text-ink-2 hover:text-ink sm:inline-flex"
             aria-label={isFullscreen ? "Sair da tela cheia" : "Tela cheia"}
             title={isFullscreen ? "Sair da tela cheia" : "Tela cheia"}
           >
             {isFullscreen ? (
-              <Minimize2 className="h-4 w-4" />
+              <Minimize2 className="h-5 w-5" aria-hidden />
             ) : (
-              <Maximize2 className="h-4 w-4" />
+              <Maximize2 className="h-5 w-5" aria-hidden />
             )}
           </Button>
 
@@ -221,11 +225,11 @@ export function PanelHeader({
               variant="ghost"
               size="sm"
               onClick={onOpenSettings}
-              className="h-10 w-10 min-h-[44px] min-w-[44px] p-0 text-zinc-600 hover:text-zinc-900 dark:text-zinc-400 dark:hover:text-zinc-100"
+              className="h-11 min-h-11 w-11 min-w-11 p-0 text-ink-2 hover:text-ink"
               aria-label="Abrir configurações de som e tela do painel"
               title="Configurações do Painel"
             >
-              <Settings className="h-4 w-4" />
+              <Settings className="h-5 w-5" aria-hidden />
             </Button>
           )}
 
@@ -235,15 +239,15 @@ export function PanelHeader({
             variant="outline"
             size="sm"
             onClick={onOpenRecent}
-            className="h-10 min-h-[44px] px-3 text-xs font-bold gap-1.5 border-zinc-200 bg-white shadow-sm hover:bg-zinc-50 dark:border-zinc-800 dark:bg-zinc-900 dark:hover:bg-zinc-800"
+            className="h-11 min-h-11 gap-1.5 px-3 text-sm font-semibold"
             aria-label="Abrir gaveta de chamados recentes"
           >
-            <History className="h-4 w-4 text-zinc-500" />
+            <History className="h-4 w-4 text-ink-2" aria-hidden />
             <span className="hidden sm:inline">Recentes</span>
             {recentCount > 0 && (
               <Badge
                 variant="neutral"
-                className="px-1.5 py-0 text-[10px] font-mono font-bold bg-zinc-200 text-zinc-800 dark:bg-zinc-800 dark:text-zinc-200"
+                className="px-1.5 py-0 text-xs font-semibold tabular-nums"
               >
                 {recentCount}
               </Badge>
@@ -256,10 +260,10 @@ export function PanelHeader({
               asChild
               variant="ghost"
               size="sm"
-              className="hidden xl:inline-flex text-xs font-semibold text-zinc-600 dark:text-zinc-400"
+              className="hidden text-sm font-medium text-ink-2 xl:inline-flex"
             >
               <Link href="/dashboard">
-                <ArrowLeft className="mr-1.5 h-3.5 w-3.5" />
+                <ArrowLeft className="h-4 w-4" aria-hidden />
                 Dashboard
               </Link>
             </Button>

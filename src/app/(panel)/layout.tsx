@@ -10,7 +10,7 @@ export default function PanelLayout({
 }) {
   return (
     <AuthGate allowedRoles={["WAITER", "OWNER", "ADMIN"]}>
-      <div className="min-h-screen bg-zinc-100 text-zinc-900 dark:bg-zinc-950 dark:text-zinc-50 flex flex-col">
+      <div className="flex min-h-dvh flex-col bg-canvas text-ink">
         {children}
       </div>
     </AuthGate>

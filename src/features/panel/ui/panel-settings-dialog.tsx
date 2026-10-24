@@ -57,17 +57,17 @@ export function PanelSettingsDialog({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-md p-6 bg-white dark:bg-zinc-900 border-zinc-200 dark:border-zinc-800 shadow-xl rounded-3xl space-y-5">
-        <DialogHeader className="space-y-1.5 pb-2 border-b border-zinc-100 dark:border-zinc-800">
+      <DialogContent className="sm:max-w-md p-6 bg-surface border-border shadow-elevation-2 rounded-sheet space-y-5">
+        <DialogHeader className="space-y-1.5 pb-2 border-b border-border-subtle">
           <div className="flex items-center gap-2">
-            <div className="flex h-8 w-8 items-center justify-center rounded-xl bg-orange-500/10 text-orange-600 dark:bg-orange-500/20 dark:text-orange-400">
+            <div className="flex h-8 w-8 items-center justify-center rounded-control bg-brand-tint text-primary-ink">
               <Settings className="h-4 w-4" />
             </div>
-            <DialogTitle className="text-lg font-bold text-zinc-900 dark:text-zinc-50">
+            <DialogTitle className="text-lg font-bold text-ink">
               Configurações do Painel
             </DialogTitle>
           </div>
-          <DialogDescription className="text-xs text-zinc-500">
+          <DialogDescription className="text-xs text-ink-2">
             Ajustes locais de som, voz e comportamento para esta tela.
           </DialogDescription>
         </DialogHeader>
@@ -77,13 +77,13 @@ export function PanelSettingsDialog({
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2">
               {preferences.isMuted ? (
-                <VolumeX className="h-4 w-4 text-red-500" />
+                <VolumeX className="h-4 w-4 text-danger-ink" />
               ) : preferences.volume > 50 ? (
-                <Volume2 className="h-4 w-4 text-zinc-700 dark:text-zinc-300" />
+                <Volume2 className="h-4 w-4 text-ink-2" />
               ) : (
-                <Volume1 className="h-4 w-4 text-zinc-700 dark:text-zinc-300" />
+                <Volume1 className="h-4 w-4 text-ink-2" />
               )}
-              <span className="text-sm font-semibold text-zinc-900 dark:text-zinc-100">
+              <span className="text-sm font-semibold text-ink">
                 Silenciar Todos os Sons
               </span>
             </div>
@@ -95,10 +95,10 @@ export function PanelSettingsDialog({
           </div>
 
           {!preferences.isMuted && (
-            <div className="space-y-2 rounded-2xl bg-zinc-50 p-3.5 border border-zinc-100 dark:bg-zinc-800/60 dark:border-zinc-800">
-              <div className="flex items-center justify-between text-xs font-semibold text-zinc-700 dark:text-zinc-300">
+            <div className="space-y-2 rounded-card bg-nav p-3.5 border border-border-subtle">
+              <div className="flex items-center justify-between text-xs font-semibold text-ink-2">
                 <span>Volume dos Alertas</span>
-                <span className="font-mono">{preferences.volume}%</span>
+                <span className="tabular-nums">{preferences.volume}%</span>
               </div>
               <input
                 type="range"
@@ -108,7 +108,7 @@ export function PanelSettingsDialog({
                 value={preferences.volume}
                 onChange={(e) => setVolume(Number(e.target.value))}
                 aria-label="Volume dos alertas sonoros"
-                className="w-full h-2 bg-zinc-200 rounded-lg appearance-none cursor-pointer accent-orange-600 dark:bg-zinc-700"
+                className="w-full h-2 bg-nav rounded-control appearance-none cursor-pointer accent-brand"
               />
             </div>
           )}
@@ -117,15 +117,15 @@ export function PanelSettingsDialog({
           <div className="flex items-center justify-between pt-1">
             <div className="flex items-center gap-2">
               {preferences.voiceEnabled ? (
-                <Mic className="h-4 w-4 text-orange-600 dark:text-orange-400" />
+                <Mic className="h-4 w-4 text-primary-ink" />
               ) : (
-                <MicOff className="h-4 w-4 text-zinc-400" />
+                <MicOff className="h-4 w-4 text-ink-2" />
               )}
               <div>
-                <p className="text-sm font-semibold text-zinc-900 dark:text-zinc-100">
+                <p className="text-sm font-semibold text-ink">
                   Voz em Português
                 </p>
-                <p className="text-[11px] text-zinc-500">
+                <p className="text-xs text-ink-2">
                   Anuncia &ldquo;Mesa X chama o garçom&rdquo;
                 </p>
               </div>
@@ -141,10 +141,10 @@ export function PanelSettingsDialog({
           {/* Urgent Repeat Interval */}
           <div className="space-y-1.5 pt-1">
             <div className="flex items-center justify-between">
-              <span className="text-xs font-semibold text-zinc-700 dark:text-zinc-300">
+              <span className="text-xs font-semibold text-ink-2">
                 Repetição do Alarme Urgente
               </span>
-              <span className="font-mono text-xs text-zinc-500">
+              <span className="tabular-nums text-xs text-ink-2">
                 a cada {preferences.urgentIntervalSec}s
               </span>
             </div>
@@ -169,8 +169,8 @@ export function PanelSettingsDialog({
           </div>
 
           {/* Sound Test Panel */}
-          <div className="space-y-2 pt-2 border-t border-zinc-100 dark:border-zinc-800">
-            <p className="text-xs font-semibold text-zinc-500">
+          <div className="space-y-2 pt-2 border-t border-border-subtle">
+            <p className="text-xs font-semibold text-ink-2">
               Testar Sons e Voz
             </p>
             <div className="grid grid-cols-2 gap-2">
@@ -182,7 +182,7 @@ export function PanelSettingsDialog({
                 onClick={() => testSound("WAITER")}
                 className="text-xs font-bold gap-1.5 h-9"
               >
-                <Bell className="h-3.5 w-3.5 text-orange-600" />
+                <Bell className="h-3.5 w-3.5 text-primary-ink" />
                 <span>Garçom</span>
               </Button>
 
@@ -194,7 +194,7 @@ export function PanelSettingsDialog({
                 onClick={() => testSound("BILL")}
                 className="text-xs font-bold gap-1.5 h-9"
               >
-                <Receipt className="h-3.5 w-3.5 text-emerald-600" />
+                <Receipt className="h-3.5 w-3.5 text-ink-2" />
                 <span>Conta</span>
               </Button>
 
@@ -206,7 +206,7 @@ export function PanelSettingsDialog({
                 onClick={() => testSound("URGENT")}
                 className="text-xs font-bold gap-1.5 h-9"
               >
-                <Flame className="h-3.5 w-3.5 text-red-600" />
+                <Flame className="h-3.5 w-3.5 text-danger-ink" />
                 <span>Urgente</span>
               </Button>
 
@@ -218,22 +218,22 @@ export function PanelSettingsDialog({
                 onClick={testVoice}
                 className="text-xs font-bold gap-1.5 h-9"
               >
-                <Mic className="h-3.5 w-3.5 text-orange-600" />
+                <Mic className="h-3.5 w-3.5 text-primary-ink" />
                 <span>Falar</span>
               </Button>
             </div>
           </div>
 
           {/* Hardware & Display Controls */}
-          <div className="space-y-2 pt-2 border-t border-zinc-100 dark:border-zinc-800">
+          <div className="space-y-2 pt-2 border-t border-border-subtle">
             <div className="flex items-center justify-between text-xs">
-              <span className="font-semibold text-zinc-700 dark:text-zinc-300 flex items-center gap-1.5">
-                <SunMedium className="h-3.5 w-3.5 text-amber-500" />
+              <span className="font-semibold text-ink-2 flex items-center gap-1.5">
+                <SunMedium className="h-3.5 w-3.5 text-warning-ink" />
                 <span>Tela Sempre Ligada (Wake Lock)</span>
               </span>
               <Badge
                 variant={wakeLock.isActive ? "success" : "neutral"}
-                className="text-[10px]"
+                className="text-xs"
               >
                 {wakeLock.isActive
                   ? "Ativo"

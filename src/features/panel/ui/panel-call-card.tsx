@@ -53,28 +53,29 @@ export function PanelCallCard({
   );
   const isBill = call.type === "BILL";
 
+  // Nível por ícone + palavra (legível sem cor); cheio no alerta/urgência, neutro no normal.
+  // Tamanho fluido para leitura a distância na TV (DESIGN_PLAN §2.5).
+  const levelClass =
+    "flex items-center gap-1.5 rounded-chip px-2.5 py-1 font-semibold uppercase tracking-wide text-[length:clamp(0.875rem,0.75vw+0.375rem,1.5rem)] sm:text-[length:clamp(0.875rem,0.75vw+0.375rem,1.5rem)]";
   const alertBadge = isUrgent ? (
     <Badge
       variant="danger"
-      className="flex items-center gap-1.5 px-3 py-1 text-xs font-black uppercase tracking-wider shadow-sm animate-pulse"
+      className={cn(levelClass, "bg-danger text-on-danger")}
     >
-      <Flame className="h-4 w-4" />
+      <Flame className="h-[1.1em] w-[1.1em]" aria-hidden />
       <span>Urgente</span>
     </Badge>
   ) : isAlert ? (
     <Badge
       variant="alert"
-      className="flex items-center gap-1.5 px-3 py-1 text-xs font-black uppercase tracking-wider shadow-sm"
+      className={cn(levelClass, "bg-warning text-on-warning")}
     >
-      <AlertTriangle className="h-4 w-4" />
+      <AlertTriangle className="h-[1.1em] w-[1.1em]" aria-hidden />
       <span>Alerta</span>
     </Badge>
   ) : (
-    <Badge
-      variant="success"
-      className="flex items-center gap-1.5 px-3 py-1 text-xs font-bold uppercase tracking-wider shadow-sm"
-    >
-      <Clock className="h-3.5 w-3.5" />
+    <Badge variant="neutral" className={levelClass}>
+      <Clock className="h-[1.1em] w-[1.1em]" aria-hidden />
       <span>Normal</span>
     </Badge>
   );
@@ -84,88 +85,81 @@ export function PanelCallCard({
       role="region"
       aria-label={`Mesa ${call.tableNumber}, chamado de ${isBill ? "Conta" : "Garçom"}`}
       className={cn(
-        "group relative flex flex-col justify-between overflow-hidden rounded-3xl border bg-white p-5 lg:p-6 shadow-md transition-[border-color,box-shadow,background-color] duration-150 ease-out animate-in fade-in zoom-in-95 dark:bg-zinc-900 select-none",
-        // Níveis visuais de alerta
+        "group relative flex flex-col justify-between overflow-hidden rounded-sheet bg-surface p-4 text-ink shadow-elevation-1 select-none sm:p-5 lg:p-6",
+        "transition-[border-color,box-shadow] duration-200 ease-out-soft animate-in fade-in-0 zoom-in-95",
+        // Nível na borda (1px neutro → 2px alerta → 3px urgente); o fundo continua surface
         isUrgent
-          ? "border-red-500/90 ring-4 ring-red-500/20 shadow-red-500/10 dark:border-red-500 dark:ring-red-950/60"
+          ? "border-[3px] border-danger"
           : isAlert
-            ? "border-amber-400/90 ring-2 ring-amber-400/20 shadow-amber-500/10 dark:border-amber-500 dark:ring-amber-950/40"
-            : isBill
-              ? "border-emerald-300/90 dark:border-emerald-700/80 hover:border-emerald-400"
-              : "border-zinc-200 dark:border-zinc-800 hover:border-zinc-300 dark:hover:border-zinc-700",
+            ? "border-2 border-warning"
+            : "border border-border",
         className,
       )}
     >
-      {/* Top Accent Strip */}
+      {/* Faixa superior de 6px na cor do nível (sem pulso) */}
       <div
+        aria-hidden
         className={cn(
-          "absolute top-0 left-0 right-0 h-1.5",
+          "absolute top-0 right-0 left-0 h-1.5",
           isUrgent
-            ? "bg-red-600 animate-pulse"
+            ? "bg-danger"
             : isAlert
-              ? "bg-amber-500"
+              ? "bg-warning"
               : isBill
-                ? "bg-emerald-500"
-                : "bg-orange-500",
+                ? "bg-espresso dark:bg-ink-3"
+                : "bg-brand",
         )}
       />
 
       <div className="space-y-4">
         {/* Header: Table Number & Alert Level Badge */}
-        <div className="flex items-center justify-between gap-2">
-          <div className="flex items-baseline gap-2">
-            <span className="text-3xl sm:text-4xl lg:text-5xl font-black tracking-tight text-zinc-950 dark:text-zinc-50 font-mono">
-              Mesa {call.tableNumber}
-            </span>
-          </div>
+        <div className="flex items-center justify-between gap-3">
+          <span className="min-w-0 text-[length:clamp(2rem,2.2vw+1rem,4.5rem)] leading-none font-bold tracking-tight whitespace-nowrap text-ink">
+            Mesa {call.tableNumber}
+          </span>
           {alertBadge}
         </div>
 
         {/* Call Type and Live Timer */}
-        <div className="flex items-center justify-between rounded-2xl bg-zinc-50/80 p-3.5 border border-zinc-100 dark:bg-zinc-800/60 dark:border-zinc-800/80">
-          <div className="flex items-center gap-2">
-            {isBill ? (
-              <div className="flex items-center gap-2 text-emerald-700 dark:text-emerald-400 font-black text-base sm:text-lg">
-                <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-emerald-500/10 dark:bg-emerald-500/20 text-emerald-600 dark:text-emerald-400">
-                  <Receipt className="h-5 w-5" />
-                </div>
-                <span>Pedir a Conta</span>
-              </div>
-            ) : (
-              <div className="flex items-center gap-2 text-orange-700 dark:text-orange-400 font-black text-base sm:text-lg">
-                <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-orange-500/10 dark:bg-orange-500/20 text-orange-600 dark:text-orange-400">
-                  <Bell className="h-5 w-5" />
-                </div>
-                <span>Chamar Garçom</span>
-              </div>
-            )}
+        <div className="flex items-center justify-between gap-3 rounded-card bg-nav p-3 sm:p-3.5">
+          <div className="flex min-w-0 flex-col items-start gap-1.5">
+            <div className="flex min-w-0 items-center gap-2 text-[length:clamp(1rem,0.4vw+0.75rem,1.375rem)] font-semibold text-ink">
+              {isBill ? (
+                <Receipt className="h-[1.2em] w-[1.2em] shrink-0" aria-hidden />
+              ) : (
+                <Bell
+                  className="h-[1.2em] w-[1.2em] shrink-0 text-primary-ink"
+                  aria-hidden
+                />
+              )}
+              <span className="text-balance">
+                {isBill ? "Pedir a Conta" : "Chamar Garçom"}
+              </span>
+            </div>
 
             {call.reopenCount > 0 && (
-              <Badge
-                variant="alert"
-                className="text-[11px] font-bold px-2 py-0.5 ml-1"
-              >
+              <Badge variant="alert" size="sm">
                 Reaberto ({call.reopenCount}x)
               </Badge>
             )}
           </div>
 
-          {/* Wait Timer */}
-          <div className="text-right">
+          {/* Wait Timer: nunca encolhe */}
+          <div className="shrink-0 text-right">
             <div
               className={cn(
-                "font-mono text-2xl sm:text-3xl font-extrabold tabular-nums tracking-tight",
+                "text-[length:clamp(1.75rem,1.6vw+1rem,3.5rem)] leading-none font-bold tracking-tight tabular-nums",
                 isUrgent
-                  ? "text-red-600 dark:text-red-400"
+                  ? "text-danger-ink"
                   : isAlert
-                    ? "text-amber-600 dark:text-amber-400"
-                    : "text-zinc-900 dark:text-zinc-100",
+                    ? "text-warning-ink"
+                    : "text-ink",
               )}
               aria-label={`Tempo decorrido: ${timerDisplay}`}
             >
               {timerDisplay}
             </div>
-            <p className="text-[10px] uppercase font-bold text-zinc-400">
+            <p className="mt-1 text-[length:clamp(0.75rem,0.4vw+0.5rem,1.125rem)] font-semibold tracking-wide text-ink-2 uppercase">
               Espera
             </p>
           </div>
@@ -173,9 +167,12 @@ export function PanelCallCard({
 
         {/* Note if provided */}
         {call.note && (
-          <div className="flex items-start gap-2.5 rounded-2xl bg-zinc-100/70 p-3 text-zinc-800 dark:bg-zinc-800/80 dark:text-zinc-200 border border-zinc-200/60 dark:border-zinc-700/60">
-            <MessageSquare className="mt-0.5 h-4 w-4 shrink-0 text-zinc-400 dark:text-zinc-500" />
-            <p className="text-sm font-medium italic break-words leading-relaxed">
+          <div className="flex items-start gap-2.5 rounded-card border border-border-subtle bg-canvas p-3 text-ink">
+            <MessageSquare
+              className="mt-0.5 h-4 w-4 shrink-0 text-ink-2"
+              aria-hidden
+            />
+            <p className="text-sm leading-relaxed font-medium break-words italic lg:text-base">
               &ldquo;{call.note}&rdquo;
             </p>
           </div>
@@ -183,8 +180,8 @@ export function PanelCallCard({
 
         {/* Assumed status indicator */}
         {isAssumed && (
-          <div className="flex items-center gap-2 rounded-xl bg-emerald-50/80 px-3 py-1.5 text-xs font-semibold text-emerald-800 dark:bg-emerald-950/40 dark:text-emerald-300 border border-emerald-200/60 dark:border-emerald-800/60">
-            <UserCheck className="h-4 w-4 text-emerald-600 dark:text-emerald-400" />
+          <div className="flex items-center gap-2 rounded-control bg-success-tint px-3 py-2 text-sm font-semibold text-success">
+            <UserCheck className="h-4 w-4" aria-hidden />
             <span>
               {isAssumedByMe
                 ? "Assumido por você"
@@ -194,8 +191,8 @@ export function PanelCallCard({
         )}
       </div>
 
-      {/* Big Action Buttons (Min height 48px, readable and tactile) */}
-      <div className="mt-6 pt-4 border-t border-zinc-100 dark:border-zinc-800/80 grid grid-cols-2 gap-3">
+      {/* Ações: 56px (64px na TV) */}
+      <div className="mt-5 grid grid-cols-2 gap-3 border-t border-border-subtle pt-4">
         <Button
           type="button"
           size="lg"
@@ -204,8 +201,8 @@ export function PanelCallCard({
           isLoading={isSubmitting && !isAssumed}
           onClick={() => onAssume(call.id)}
           className={cn(
-            "h-12 min-h-[48px] text-sm sm:text-base font-bold shadow-sm transition-all",
-            isAssumed && "opacity-75 cursor-default",
+            "h-14 text-base 3xl:h-16 3xl:text-lg",
+            isAssumed && "cursor-default",
           )}
           aria-label={
             isAssumed
@@ -215,7 +212,7 @@ export function PanelCallCard({
         >
           {isAssumed ? (
             <>
-              <UserCheck className="mr-1.5 h-4 w-4 text-emerald-600" />
+              <UserCheck className="h-4 w-4" aria-hidden />
               <span>Assumido</span>
             </>
           ) : (
@@ -230,7 +227,7 @@ export function PanelCallCard({
           disabled={isSubmitting}
           isLoading={isSubmitting}
           onClick={() => onAttend(call.id)}
-          className="h-12 min-h-[48px] text-sm sm:text-base font-bold shadow-md hover:shadow-lg transition-all"
+          className="h-14 text-base 3xl:h-16 3xl:text-lg"
           aria-label={`Concluir atendimento da mesa ${call.tableNumber}`}
         >
           <span>Atendido</span>
