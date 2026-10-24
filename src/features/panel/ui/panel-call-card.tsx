@@ -56,7 +56,7 @@ export function PanelCallCard({
   // Nível por ícone + palavra (legível sem cor); cheio no alerta/urgência, neutro no normal.
   // Tamanho fluido para leitura a distância na TV (DESIGN_PLAN §2.5).
   const levelClass =
-    "flex items-center gap-1.5 rounded-chip px-2.5 py-1 font-semibold uppercase tracking-wide text-[length:clamp(0.875rem,0.6vw+0.5rem,1.5rem)]";
+    "flex items-center gap-1.5 rounded-chip px-2.5 py-1 font-semibold uppercase tracking-wide text-[length:clamp(0.875rem,0.75vw+0.375rem,1.5rem)] sm:text-[length:clamp(0.875rem,0.75vw+0.375rem,1.5rem)]";
   const alertBadge = isUrgent ? (
     <Badge
       variant="danger"
@@ -123,7 +123,7 @@ export function PanelCallCard({
         {/* Call Type and Live Timer */}
         <div className="flex items-center justify-between gap-3 rounded-card bg-nav p-3 sm:p-3.5">
           <div className="flex min-w-0 flex-col items-start gap-1.5">
-            <div className="flex min-w-0 items-center gap-2 text-[length:clamp(1rem,0.5vw+0.75rem,1.5rem)] font-semibold text-ink">
+            <div className="flex min-w-0 items-center gap-2 text-[length:clamp(1rem,0.4vw+0.75rem,1.375rem)] font-semibold text-ink">
               {isBill ? (
                 <Receipt className="h-[1.2em] w-[1.2em] shrink-0" aria-hidden />
               ) : (
@@ -148,7 +148,7 @@ export function PanelCallCard({
           <div className="shrink-0 text-right">
             <div
               className={cn(
-                "text-[length:clamp(1.75rem,2vw+1rem,4rem)] leading-none font-bold tracking-tight tabular-nums",
+                "text-[length:clamp(1.75rem,1.6vw+1rem,3.5rem)] leading-none font-bold tracking-tight tabular-nums",
                 isUrgent
                   ? "text-danger-ink"
                   : isAlert
