@@ -135,6 +135,7 @@ O valor de 128,8 KB registrado no F22 não se reproduz com o código atual (Reac
 - O back-end devolve uma aparência padrão com cores concretas (`#0f172a`, `#f97316`, `#1e293b`, `#f8fafc`) para restaurantes que nunca personalizaram; o front não distingue "sem personalização" de "escolheu essas cores". Ver Q16.
 - Na TV (1920, 5 colunas), "Mesa 12" quebra em duas linhas.
 - Na mesa com o celular em modo **claro** e o fundo padrão escuro, "Adicionar observação opcional" fica quase ilegível (T1 em sentido inverso).
+- Em 390px, as páginas de Configurações são mais largas que a tela (a lista de abas não cabe e "Notificações" fica cortada). Já existia; ficou visível na Fase 1 porque o fundo do `body` passou a ter cor própria. Correção prevista na Fase 6 (o E2E só verifica rolagem horizontal em `/login`).
 
 Validação: os itens G e T/P/D com arquivo:linha vêm da revisão pela **Web Interface Guidelines** (regras baixadas de `vercel-labs/web-interface-guidelines`); os de hierarquia, cor e densidade vêm da **Taste Skill** (`references/app-screens.md`). Regras de copy das duas skills (reticências, caixa de título) foram ignoradas: textos não mudam.
 

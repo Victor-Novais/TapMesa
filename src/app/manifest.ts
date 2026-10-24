@@ -7,8 +7,8 @@ export default function manifest(): MetadataRoute.Manifest {
     description: "SaaS de chamada de garçom e pedido de conta via QR Code",
     start_url: "/panel",
     display: "standalone",
-    background_color: "#09090b",
-    theme_color: "#ea580c",
+    background_color: "#141615",
+    theme_color: "#D94E34",
     orientation: "any",
     icons: [
       {
