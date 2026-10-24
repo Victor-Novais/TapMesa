@@ -180,7 +180,7 @@ export default function PanelOperationalPage() {
   );
 
   return (
-    <div className="flex min-h-screen flex-col bg-zinc-100 text-zinc-900 dark:bg-zinc-950 dark:text-zinc-50">
+    <div className="flex min-h-dvh flex-col bg-canvas text-ink">
       <SkipLink targetId="main-content" />
 
       {/* Header Operacional Integrado com atalhos de som, tela cheia, gaveta e configurações */}
@@ -211,7 +211,7 @@ export default function PanelOperationalPage() {
       <main
         id="main-content"
         tabIndex={-1}
-        className="flex-1 w-full max-w-[3840px] mx-auto px-4 sm:px-6 md:px-8 xl:px-12 2xl:px-16 py-4 sm:py-6 space-y-4 focus:outline-none"
+        className="mx-auto w-full max-w-[3840px] flex-1 space-y-4 px-4 py-4 focus:outline-none sm:px-6 sm:py-6 md:px-8 xl:px-12 2xl:px-16"
       >
         {/* Banner de Instalação do PWA (aparece se suportado e ainda não instalado) */}
         <PwaInstallPrompt
@@ -223,15 +223,15 @@ export default function PanelOperationalPage() {
         {connectionStatus === "offline" && (
           <aside
             role="alert"
-            className="flex flex-wrap items-center justify-between gap-3 rounded-2xl border-2 border-red-600 bg-red-600 px-4 sm:px-5 py-3 text-white shadow-lg animate-in fade-in"
+            className="flex flex-wrap items-center justify-between gap-3 rounded-card bg-danger px-4 py-3 text-on-danger shadow-elevation-2 animate-in fade-in-0 duration-200 sm:px-5"
           >
             <div className="flex items-center gap-3">
-              <AlertOctagon className="h-5 w-5 shrink-0 animate-bounce text-white" />
+              <AlertOctagon className="h-6 w-6 shrink-0" aria-hidden />
               <div>
-                <p className="text-xs sm:text-sm font-black tracking-wide uppercase">
+                <p className="text-sm font-bold sm:text-base">
                   Painel Desconectado — Chamados podem não aparecer
                 </p>
-                <p className="text-[11px] sm:text-xs text-red-100 font-medium">
+                <p className="text-xs font-medium opacity-90 sm:text-sm">
                   Verifique a conexão de rede da estação ou reconecte
                   manualmente.
                 </p>
@@ -242,7 +242,7 @@ export default function PanelOperationalPage() {
               size="sm"
               variant="outline"
               onClick={reconnect}
-              className="h-8 text-xs font-black uppercase bg-white text-red-700 hover:bg-red-50 border-white shadow-sm"
+              className="h-11 border-white bg-white px-4 text-sm font-semibold text-danger-ink hover:bg-white/90 hover:text-danger-ink"
             >
               Reconectar Agora
             </Button>
@@ -253,10 +253,10 @@ export default function PanelOperationalPage() {
         {isPollingFallback && connectionStatus !== "offline" && (
           <aside
             role="alert"
-            className="flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-amber-300 bg-amber-50 px-4 sm:px-5 py-3 text-amber-900 shadow-sm dark:border-amber-800 dark:bg-amber-950/60 dark:text-amber-200"
+            className="flex flex-wrap items-center justify-between gap-3 rounded-card border border-warning/40 bg-warning-tint px-4 py-3 text-warning-ink sm:px-5"
           >
-            <div className="flex items-center gap-2.5">
-              <RefreshCw className="h-4 w-4 shrink-0 animate-spin text-amber-600 dark:text-amber-400" />
+            <div className="flex items-center gap-3">
+              <RefreshCw className="h-5 w-5 shrink-0" aria-hidden />
               <p className="text-xs sm:text-sm font-semibold">
                 Conexão em tempo real instável. Operando em modo de contingência
                 com atualização a cada 10s.
@@ -267,7 +267,7 @@ export default function PanelOperationalPage() {
               size="sm"
               variant="outline"
               onClick={reconnect}
-              className="h-8 text-xs font-bold border-amber-300 bg-white hover:bg-amber-100 dark:border-amber-700 dark:bg-zinc-900 shadow-xs"
+              className="h-11 bg-surface px-4 text-sm font-semibold"
             >
               Reconectar SSE
             </Button>
@@ -281,16 +281,18 @@ export default function PanelOperationalPage() {
         >
           {calls.length === 0 ? (
             /* Estado Vazio Positivo (Tudo em dia!) */
-            <Card className="flex min-h-[420px] flex-col items-center justify-center p-8 sm:p-12 text-center border-dashed border-zinc-200 bg-white/70 dark:border-zinc-800 dark:bg-zinc-900/50 shadow-sm">
-              <div className="flex h-20 w-20 items-center justify-center rounded-3xl bg-emerald-100 text-emerald-600 shadow-inner dark:bg-emerald-950/50 dark:text-emerald-400 animate-in zoom-in-75 duration-300">
-                <Sparkles className="h-10 w-10 animate-pulse" />
-              </div>
+            <Card className="flex min-h-[420px] flex-col items-center justify-center p-8 text-center sm:p-12">
+              <Sparkles
+                className="h-10 w-10 text-success"
+                strokeWidth={1.75}
+                aria-hidden
+              />
 
-              <h2 className="mt-6 text-2xl sm:text-3xl font-black tracking-tight text-zinc-900 dark:text-zinc-50">
+              <h2 className="mt-5 text-2xl font-bold tracking-tight text-balance text-ink sm:text-3xl">
                 Tudo em dia no salão!
               </h2>
 
-              <p className="mt-2 text-sm sm:text-base text-zinc-500 dark:text-zinc-400 max-w-md leading-relaxed">
+              <p className="mt-2 max-w-md text-base leading-relaxed text-pretty text-ink-2">
                 Não há chamados de garçom ou pedidos de conta aguardando
                 atendimento neste momento.
               </p>
@@ -301,20 +303,20 @@ export default function PanelOperationalPage() {
                   variant="outline"
                   size="sm"
                   onClick={() => setIsDrawerOpen(true)}
-                  className="text-xs font-bold gap-2"
+                  className="gap-2"
                 >
-                  <CheckCircle2 className="h-4 w-4 text-emerald-600" />
+                  <CheckCircle2 className="h-4 w-4 text-success" aria-hidden />
                   <span>Ver últimos atendimentos ({recent.length})</span>
                 </Button>
 
                 <Button
                   type="button"
-                  variant="ghost"
+                  variant="outline"
                   size="sm"
                   onClick={reconnect}
-                  className="text-xs text-zinc-500 hover:text-zinc-900 dark:hover:text-zinc-100"
+                  className="gap-2"
                 >
-                  <RefreshCw className="mr-1.5 h-3.5 w-3.5" />
+                  <RefreshCw className="h-4 w-4" aria-hidden />
                   Atualizar status
                 </Button>
               </div>
@@ -323,10 +325,10 @@ export default function PanelOperationalPage() {
             /* Grade de Cards Operacionais:
                - Mobile (< 640px): 1 coluna
                - Tablet Retrato (640px-1024px): 2 colunas
-               - Tablet Paisagem / Desktop (1024px-1440px): 3 colunas
-               - TV / Telas Grandes (>= 1440px / 1920px / 3840px): 4 a 5 colunas
+               - Tablet Paisagem / Desktop (1024px-1919px): 3 colunas
+               - TV (>= 1920px): 4 colunas; >= 2560px: 5 colunas
             */
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5 gap-4 sm:gap-6">
+            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 sm:gap-6 lg:grid-cols-3 3xl:grid-cols-4 4xl:grid-cols-5">
               {calls.map((call) => (
                 <PanelCallCard
                   key={call.id}

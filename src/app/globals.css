@@ -320,6 +320,8 @@
   --radius-sheet: 20px;
 
   --breakpoint-xs: 25rem; /* 400px — botão "Painel" no cabeçalho (Q11) */
+  --breakpoint-3xl: 120rem; /* 1920px — painel em modo TV (4 colunas, botões 64px) */
+  --breakpoint-4xl: 160rem; /* 2560px — painel em TV grande (5 colunas) */
 }
 
 body {

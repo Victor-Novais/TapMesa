@@ -58,19 +58,19 @@ export function RecentCallsDrawer({
     <Drawer open={open} onOpenChange={onOpenChange}>
       <DrawerContent
         position="right"
-        className="w-full sm:max-w-md p-6 flex flex-col h-full bg-white dark:bg-zinc-900 border-l border-zinc-200 dark:border-zinc-800"
+        className="w-full sm:max-w-md p-6 flex flex-col h-full bg-surface border-l border-border"
       >
         {/* Drawer Header */}
-        <div className="flex items-center justify-between pb-4 border-b border-zinc-100 dark:border-zinc-800">
+        <div className="flex items-center justify-between pb-4 border-b border-border-subtle">
           <div className="flex items-center gap-2">
-            <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-orange-500/10 text-orange-600 dark:bg-orange-500/20 dark:text-orange-400">
+            <div className="flex h-9 w-9 items-center justify-center rounded-control bg-brand-tint text-primary-ink">
               <History className="h-5 w-5" />
             </div>
             <div>
-              <h3 className="text-base font-bold text-zinc-900 dark:text-zinc-50">
+              <h3 className="text-base font-bold text-ink">
                 Chamados Recentes
               </h3>
-              <p className="text-xs text-zinc-500">
+              <p className="text-xs text-ink-2">
                 Últimos atendimentos e avaliações do cliente
               </p>
             </div>
@@ -81,14 +81,14 @@ export function RecentCallsDrawer({
             variant="ghost"
             onClick={onRefresh}
             disabled={isLoading}
-            className="h-10 w-10 min-h-[44px] min-w-[44px] p-0 text-zinc-500 hover:text-zinc-900 dark:hover:text-zinc-100"
+            className="h-11 w-11 min-h-11 min-w-11 p-0 text-ink-2 hover:text-ink"
             aria-label="Atualizar lista de recentes"
             title="Atualizar lista"
           >
             <RefreshCw
               className={cn(
                 "h-4 w-4",
-                isLoading && "animate-spin text-orange-600",
+                isLoading && "animate-spin text-primary-ink",
               )}
             />
           </Button>
@@ -98,13 +98,13 @@ export function RecentCallsDrawer({
         <div className="flex-1 overflow-y-auto py-4 space-y-3 pr-1">
           {recentCalls.length === 0 ? (
             <div className="flex flex-col items-center justify-center py-12 text-center">
-              <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-zinc-100 dark:bg-zinc-800 text-zinc-400">
+              <div className="flex h-12 w-12 items-center justify-center rounded-card bg-nav text-ink-2">
                 <History className="h-6 w-6" />
               </div>
-              <p className="mt-3 text-sm font-semibold text-zinc-700 dark:text-zinc-300">
+              <p className="mt-3 text-sm font-semibold text-ink-2">
                 Nenhum chamado atendido ainda
               </p>
-              <p className="mt-1 text-xs text-zinc-500 max-w-xs">
+              <p className="mt-1 text-xs text-ink-2 max-w-xs">
                 Assim que a equipe clicar em &ldquo;Atendido&rdquo;, o histórico
                 e status de confirmação aparecerão aqui.
               </p>
@@ -121,22 +121,25 @@ export function RecentCallsDrawer({
               return (
                 <div
                   key={call.id}
-                  className="rounded-2xl border border-zinc-200/90 bg-zinc-50/70 p-4 transition-[background-color,border-color] duration-150 ease-out dark:border-zinc-800 dark:bg-zinc-800/50 hover:bg-zinc-50 dark:hover:bg-zinc-800/80"
+                  className="rounded-card border border-border bg-canvas p-4 transition-colors duration-150 ease-out-soft hover:bg-nav"
                 >
                   <div className="flex items-center justify-between pb-2">
                     <div className="flex items-center gap-2">
-                      <span className="text-base font-extrabold text-zinc-900 dark:text-zinc-50 font-mono">
+                      <span className="text-base font-bold text-ink">
                         Mesa {call.tableNumber}
                       </span>
-                      <span className="flex items-center gap-1 text-xs font-semibold text-zinc-600 dark:text-zinc-400">
+                      <span className="flex items-center gap-1 text-xs font-semibold text-ink-2">
                         {call.type === "WAITER" ? (
                           <>
-                            <Bell className="h-3.5 w-3.5 text-orange-600" />
+                            <Bell
+                              className="h-3.5 w-3.5 text-primary-ink"
+                              aria-hidden
+                            />
                             Garçom
                           </>
                         ) : (
                           <>
-                            <Receipt className="h-3.5 w-3.5 text-emerald-600" />
+                            <Receipt className="h-3.5 w-3.5" aria-hidden />
                             Conta
                           </>
                         )}
@@ -144,19 +147,19 @@ export function RecentCallsDrawer({
                     </div>
 
                     {formattedTime && (
-                      <span className="text-xs font-mono text-zinc-500">
+                      <span className="text-xs text-ink-2 tabular-nums">
                         {formattedTime}
                       </span>
                     )}
                   </div>
 
                   {/* Confirmation Status */}
-                  <div className="mt-2 flex items-center justify-between pt-2 border-t border-zinc-200/50 dark:border-zinc-700/50">
+                  <div className="mt-2 flex items-center justify-between border-t border-border-subtle pt-2">
                     <div className="flex items-center gap-1.5">
                       {isConfirmed ? (
                         <Badge
                           variant="success"
-                          className="flex items-center gap-1 text-[11px] font-semibold"
+                          className="flex items-center gap-1 text-xs font-semibold"
                         >
                           <CheckCircle2 className="h-3 w-3" />
                           <span>Confirmado</span>
@@ -164,7 +167,7 @@ export function RecentCallsDrawer({
                       ) : isContested ? (
                         <Badge
                           variant="danger"
-                          className="flex items-center gap-1 text-[11px] font-semibold"
+                          className="flex items-center gap-1 text-xs font-semibold"
                         >
                           <RotateCcw className="h-3 w-3" />
                           <span>Contestado</span>
@@ -172,7 +175,7 @@ export function RecentCallsDrawer({
                       ) : isClosed ? (
                         <Badge
                           variant="neutral"
-                          className="flex items-center gap-1 text-[11px] font-semibold"
+                          className="flex items-center gap-1 text-xs font-semibold"
                         >
                           <Clock className="h-3 w-3" />
                           <span>Encerrado</span>
@@ -180,7 +183,7 @@ export function RecentCallsDrawer({
                       ) : (
                         <Badge
                           variant="alert"
-                          className="flex items-center gap-1 text-[11px] font-semibold animate-pulse"
+                          className="flex items-center gap-1 text-xs font-semibold"
                         >
                           <Hourglass className="h-3 w-3" />
                           <span>Aguardando cliente</span>
@@ -188,14 +191,17 @@ export function RecentCallsDrawer({
                       )}
 
                       {call.rating && (
-                        <span className="flex items-center gap-0.5 font-bold text-xs text-amber-600 dark:text-amber-400">
-                          <Star className="h-3 w-3 fill-amber-500 text-amber-500" />
+                        <span className="flex items-center gap-0.5 font-bold text-xs text-warning-ink">
+                          <Star
+                            className="h-3.5 w-3.5 fill-warning text-warning"
+                            aria-hidden
+                          />
                           <span>{call.rating}/3</span>
                         </span>
                       )}
                     </div>
 
-                    <span className="text-[11px] font-mono text-zinc-500">
+                    <span className="text-xs text-ink-2 tabular-nums">
                       {durationStr}
                     </span>
                   </div>
@@ -206,8 +212,8 @@ export function RecentCallsDrawer({
         </div>
 
         {/* Drawer Footer */}
-        <div className="pt-3 border-t border-zinc-100 dark:border-zinc-800 text-center">
-          <p className="text-[11px] text-zinc-400">
+        <div className="pt-3 border-t border-border-subtle text-center">
+          <p className="text-xs text-ink-2">
             Mostrando até 15 atendimentos mais recentes
           </p>
         </div>

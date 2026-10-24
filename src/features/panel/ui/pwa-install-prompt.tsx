@@ -35,19 +35,19 @@ export function PwaInstallPrompt({
     <aside
       role="region"
       aria-label="Convite para instalar o aplicativo TapMesa"
-      className={`flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-orange-200 bg-orange-50/90 px-4 py-2.5 text-orange-950 shadow-sm dark:border-orange-900/60 dark:bg-orange-950/40 dark:text-orange-100 ${
+      className={`flex flex-wrap items-center justify-between gap-3 rounded-card border border-border bg-surface px-4 py-2.5 text-ink ${
         className || ""
       }`}
     >
       <div className="flex items-center gap-2.5">
-        <div className="flex h-8 w-8 items-center justify-center rounded-xl bg-orange-500 text-white shrink-0 shadow-xs">
-          <Download className="h-4 w-4" />
+        <div className="flex h-8 w-8 shrink-0 items-center justify-center text-primary-ink">
+          <Download className="h-5 w-5" aria-hidden />
         </div>
         <div>
-          <p className="text-xs font-bold leading-tight">
+          <p className="text-sm font-semibold leading-tight">
             Instalar TapMesa nesta Estação ou TV
           </p>
-          <p className="text-[11px] text-orange-800 dark:text-orange-300">
+          <p className="text-xs text-ink-2">
             Acesse rapidamente em tela cheia direto da tela inicial.
           </p>
         </div>
@@ -60,7 +60,7 @@ export function PwaInstallPrompt({
           variant="primary"
           onClick={() => void handleInstall()}
           isLoading={isInstalling}
-          className="h-7 text-xs font-bold px-3"
+          className="px-4"
         >
           Instalar App
         </Button>
@@ -70,10 +70,10 @@ export function PwaInstallPrompt({
           size="sm"
           variant="ghost"
           onClick={() => setIsDismissed(true)}
-          className="h-7 w-7 p-0 text-orange-700 hover:text-orange-900 dark:text-orange-400 dark:hover:text-orange-100"
+          className="h-11 w-11 min-h-11 p-0 text-ink-2 hover:text-ink"
           aria-label="Fechar convite de instalação"
         >
-          <X className="h-4 w-4" />
+          <X className="h-5 w-5" aria-hidden />
         </Button>
       </div>
     </aside>
