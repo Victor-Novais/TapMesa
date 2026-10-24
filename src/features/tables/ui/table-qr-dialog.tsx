@@ -115,30 +115,30 @@ export function TableQrDialog({
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-md w-full p-6 text-center">
         <DialogHeader className="text-center sm:text-center">
-          <div className="mx-auto mb-2 flex h-12 w-12 items-center justify-center rounded-2xl bg-orange-100 text-orange-600 dark:bg-orange-950/60 dark:text-orange-400">
+          <div className="mx-auto mb-2 flex h-12 w-12 items-center justify-center rounded-card bg-brand-tint text-primary-ink">
             <QrCode className="h-6 w-6" />
           </div>
-          <DialogTitle className="text-xl font-bold text-zinc-900 dark:text-zinc-50">
+          <DialogTitle className="text-xl font-bold text-ink">
             QR Code da Mesa {table.number}
           </DialogTitle>
-          <DialogDescription className="text-sm text-zinc-500 dark:text-zinc-400">
+          <DialogDescription className="text-sm text-ink-2">
             Aponte a câmera do celular para abrir o autoatendimento da mesa.
           </DialogDescription>
         </DialogHeader>
 
         {/* Área do QR Code com proteção contra XSS (SVG via Data URI) */}
-        <div className="my-5 flex flex-col items-center justify-center rounded-2xl border border-zinc-200 bg-white p-6 shadow-inner dark:border-zinc-800 dark:bg-zinc-950">
+        <div className="my-5 flex flex-col items-center justify-center rounded-card border border-border bg-surface p-6">
           {isLoadingSvg ? (
             <div className="flex flex-col items-center gap-3">
-              <Skeleton className="h-56 w-56 rounded-xl" />
-              <p className="text-xs text-zinc-400 animate-pulse">
+              <Skeleton className="h-56 w-56 rounded-control" />
+              <p className="text-xs text-ink-2 motion-safe:animate-pulse">
                 Carregando QR Code...
               </p>
             </div>
           ) : hasError ? (
             <div className="flex flex-col items-center gap-2 py-8 text-center">
-              <AlertCircle className="h-10 w-10 text-red-500" />
-              <p className="text-sm font-medium text-zinc-800 dark:text-zinc-200">
+              <AlertCircle className="h-10 w-10 text-danger-ink" />
+              <p className="text-sm font-medium text-ink">
                 Não foi possível carregar o QR Code
               </p>
               <Button variant="outline" size="sm" onClick={() => refetch()}>
@@ -151,9 +151,9 @@ export function TableQrDialog({
               <img
                 src={svgDataUri}
                 alt={`QR Code para autoatendimento da Mesa ${table.number}`}
-                className="h-56 w-56 object-contain"
+                className="h-56 w-56 rounded-control bg-white object-contain p-3"
               />
-              <span className="mt-2 text-xs font-semibold uppercase tracking-wider text-zinc-400">
+              <span className="mt-2 text-xs font-semibold uppercase tracking-wider text-ink-2">
                 Mesa {table.number}
               </span>
             </div>
@@ -161,14 +161,12 @@ export function TableQrDialog({
         </div>
 
         {/* Caixa com o link direto */}
-        <div className="mb-4 flex items-center justify-between gap-2 rounded-xl border border-zinc-200 bg-zinc-50 p-2.5 text-left dark:border-zinc-800 dark:bg-zinc-900/60">
+        <div className="mb-4 flex items-center justify-between gap-2 rounded-control border border-border bg-nav p-2.5 text-left">
           <div className="min-w-0 flex-1 px-1">
-            <p className="text-[11px] font-medium text-zinc-400 uppercase tracking-wider">
+            <p className="text-xs font-medium text-ink-2 uppercase tracking-wider">
               Link de autoatendimento
             </p>
-            <p className="truncate font-mono text-xs text-zinc-700 dark:text-zinc-300">
-              {tableUrl}
-            </p>
+            <p className="truncate font-mono text-xs text-ink-2">{tableUrl}</p>
           </div>
           <Button
             type="button"
@@ -180,14 +178,12 @@ export function TableQrDialog({
           >
             {copied ? (
               <>
-                <Check className="h-3.5 w-3.5 text-emerald-600 dark:text-emerald-400" />
-                <span className="text-emerald-600 dark:text-emerald-400">
-                  Copiado
-                </span>
+                <Check className="h-3.5 w-3.5 text-success" />
+                <span className="text-success">Copiado</span>
               </>
             ) : (
               <>
-                <Copy className="h-3.5 w-3.5 text-zinc-500" />
+                <Copy className="h-3.5 w-3.5 text-ink-2" />
                 <span>Copiar</span>
               </>
             )}

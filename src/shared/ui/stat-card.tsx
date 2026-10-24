@@ -14,6 +14,8 @@ export interface StatCardProps {
   goalStatus?: "met" | "unmet" | "neutral";
   goalLabel?: string;
   icon?: React.ReactNode;
+  /** KPI líder da faixa: número maior e faixa superior na cor da marca (DESIGN_PLAN Q8) */
+  emphasis?: boolean;
   className?: string;
 }
 
@@ -25,13 +27,20 @@ export function StatCard({
   goalStatus,
   goalLabel,
   icon,
+  emphasis = false,
   className,
 }: StatCardProps) {
   const isPositive = variation && variation.value > 0;
   const isNegative = variation && variation.value < 0;
 
   return (
-    <Card className={cn("@container overflow-hidden", className)}>
+    <Card
+      className={cn(
+        "@container overflow-hidden",
+        emphasis && "border-t-[3px] border-t-brand",
+        className,
+      )}
+    >
       <CardContent className="p-5 sm:p-6">
         <div className="flex items-center justify-between gap-2">
           <p className="text-xs sm:text-sm font-medium text-ink-2">{title}</p>
@@ -46,7 +55,12 @@ export function StatCard({
         </div>
 
         <div className="mt-3 flex items-baseline justify-between gap-2">
-          <p className="text-2xl sm:text-3xl font-semibold tracking-tight text-ink tabular-nums">
+          <p
+            className={cn(
+              "font-semibold tracking-tight text-ink tabular-nums",
+              emphasis ? "text-3xl sm:text-4xl" : "text-2xl sm:text-3xl",
+            )}
+          >
             {value}
           </p>
 

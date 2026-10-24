@@ -47,7 +47,7 @@ export default function DashboardLayout({
           <main
             id="main-content"
             tabIndex={-1}
-            className="flex-1 px-4 py-6 sm:px-6 lg:px-8 pb-24 lg:pb-8 max-w-7xl w-full mx-auto print:p-0 print:m-0 print:max-w-none print:w-full focus:outline-none"
+            className="flex-1 px-4 py-6 sm:px-6 lg:px-8 pb-24 lg:pb-8 has-[[data-pending-bar]]:pb-60 lg:has-[[data-pending-bar]]:pb-32 max-w-7xl w-full mx-auto print:p-0 print:m-0 print:max-w-none print:w-full focus:outline-none"
           >
             {children}
           </main>

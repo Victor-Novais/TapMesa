@@ -98,20 +98,20 @@ export function TeamMembersList({
                   {/* Nome de usuário e avatar */}
                   <TableCell className="font-medium">
                     <div className="flex items-center gap-2.5">
-                      <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-zinc-100 text-zinc-600 dark:bg-zinc-800 dark:text-zinc-300">
+                      <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-control bg-nav text-ink-2">
                         {member.role === "OWNER" ? (
-                          <ShieldCheck className="h-4 w-4 text-orange-600 dark:text-orange-400" />
+                          <ShieldCheck className="h-4 w-4 text-primary-ink" />
                         ) : (
-                          <UtensilsCrossed className="h-4 w-4 text-zinc-600 dark:text-zinc-400" />
+                          <UtensilsCrossed className="h-4 w-4 text-ink-2" />
                         )}
                       </div>
                       <div className="flex flex-col">
                         <div className="flex items-center gap-1.5">
-                          <span className="font-bold text-zinc-900 dark:text-zinc-100">
+                          <span className="font-bold text-ink">
                             {member.username}
                           </span>
                           {self && (
-                            <span className="rounded-md bg-orange-100 px-1.5 py-0.2 text-[10px] font-semibold text-orange-800 dark:bg-orange-950/60 dark:text-orange-300">
+                            <span className="rounded-chip bg-brand-tint px-1.5 py-0.5 text-xs font-semibold text-primary-ink">
                               Você
                             </span>
                           )}
@@ -149,7 +149,7 @@ export function TeamMembersList({
                   </TableCell>
 
                   {/* Data */}
-                  <TableCell className="text-xs text-zinc-500 dark:text-zinc-400 tabular-nums">
+                  <TableCell className="text-xs text-ink-2 tabular-nums">
                     {formatDate(member.createdAt)}
                   </TableCell>
 
@@ -167,7 +167,7 @@ export function TeamMembersList({
                                 disabled
                                 aria-label="Ação desabilitada para a sua própria conta"
                               >
-                                <Lock className="h-4 w-4 text-zinc-300 dark:text-zinc-600" />
+                                <Lock className="h-4 w-4 text-ink-3" />
                               </IconButton>
                             </span>
                           </TooltipTrigger>
@@ -190,8 +190,8 @@ export function TeamMembersList({
                               }
                               className={
                                 member.active
-                                  ? "text-amber-600 hover:bg-amber-50 dark:hover:bg-amber-950/40"
-                                  : "text-emerald-600 hover:bg-emerald-50 dark:hover:bg-emerald-950/40"
+                                  ? "text-warning-ink hover:bg-warning-tint"
+                                  : "text-success hover:bg-success-tint"
                               }
                             >
                               {member.active ? (
@@ -218,7 +218,7 @@ export function TeamMembersList({
                             onClick={() => onResetPassword(member)}
                             className="gap-1.5 text-xs font-semibold"
                           >
-                            <KeyRound className="h-3.5 w-3.5 text-orange-600 dark:text-orange-400" />
+                            <KeyRound className="h-3.5 w-3.5 text-primary-ink" />
                             <span>Nova Senha</span>
                           </Button>
                         </TooltipTrigger>
@@ -238,7 +238,7 @@ export function TeamMembersList({
                                 disabled
                                 aria-label="Não é possível excluir o próprio usuário logado"
                               >
-                                <Trash2 className="h-4 w-4 text-zinc-300 dark:text-zinc-600" />
+                                <Trash2 className="h-4 w-4 text-ink-3" />
                               </IconButton>
                             </span>
                           </TooltipTrigger>
@@ -254,7 +254,7 @@ export function TeamMembersList({
                               size="sm"
                               onClick={() => onDelete(member)}
                               aria-label={`Excluir ${member.username}`}
-                              className="text-zinc-400 hover:bg-red-50 hover:text-red-600 dark:hover:bg-red-950/40 dark:hover:text-red-400"
+                              className="text-ink-2 hover:bg-danger-tint hover:text-danger-ink"
                             >
                               <Trash2 className="h-4 w-4" />
                             </IconButton>
@@ -280,16 +280,14 @@ export function TeamMembersList({
             <Card key={member.id} className="p-4 flex flex-col justify-between">
               <div className="flex items-start justify-between gap-2">
                 <div className="flex items-center gap-2.5">
-                  <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-zinc-100 text-zinc-600 dark:bg-zinc-800 dark:text-zinc-300">
+                  <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-control bg-nav text-ink-2">
                     <User className="h-5 w-5" />
                   </div>
                   <div>
                     <div className="flex items-center gap-1.5">
-                      <h4 className="font-bold text-zinc-900 dark:text-zinc-50">
-                        {member.username}
-                      </h4>
+                      <h4 className="font-bold text-ink">{member.username}</h4>
                       {self && (
-                        <span className="rounded-md bg-orange-100 px-1.5 py-0.2 text-[10px] font-semibold text-orange-800 dark:bg-orange-950/60 dark:text-orange-300">
+                        <span className="rounded-chip bg-brand-tint px-1.5 py-0.5 text-xs font-semibold text-primary-ink">
                           Você
                         </span>
                       )}
@@ -332,7 +330,7 @@ export function TeamMembersList({
                   </DropdownMenuTrigger>
                   <DropdownMenuContent align="end" className="w-48">
                     <DropdownMenuItem onClick={() => onResetPassword(member)}>
-                      <KeyRound className="mr-2 h-4 w-4 text-orange-600" />
+                      <KeyRound className="mr-2 h-4 w-4 text-primary-ink" />
                       <span>Gerar nova senha</span>
                     </DropdownMenuItem>
                     {!self && (
@@ -342,12 +340,12 @@ export function TeamMembersList({
                         >
                           {member.active ? (
                             <>
-                              <Lock className="mr-2 h-4 w-4 text-amber-600" />
+                              <Lock className="mr-2 h-4 w-4 text-warning-ink" />
                               <span>Bloquear acesso</span>
                             </>
                           ) : (
                             <>
-                              <Unlock className="mr-2 h-4 w-4 text-emerald-600" />
+                              <Unlock className="mr-2 h-4 w-4 text-success" />
                               <span>Ativar acesso</span>
                             </>
                           )}
@@ -366,7 +364,7 @@ export function TeamMembersList({
                 </DropdownMenu>
               </div>
 
-              <div className="mt-4 flex items-center justify-between pt-3 border-t border-zinc-100 dark:border-zinc-800 text-xs text-zinc-500">
+              <div className="mt-4 flex items-center justify-between pt-3 border-t border-border-subtle text-xs text-ink-2">
                 <span>Cadastrado em {formatDate(member.createdAt)}</span>
                 <Button
                   variant="outline"

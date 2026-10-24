@@ -126,7 +126,7 @@ export function CallsTable({
       case "PENDING":
         return (
           <Badge variant="alert" size="sm" className="gap-1.5">
-            <Clock className="h-3 w-3 animate-pulse" />
+            <Clock className="h-3 w-3" aria-hidden />
             Pendente
           </Badge>
         );
@@ -157,16 +157,16 @@ export function CallsTable({
   };
 
   const renderRating = (rating: number | null) => {
-    if (!rating) return <span className="text-zinc-400 text-xs">--</span>;
+    if (!rating) return <span className="text-ink-2 text-xs">--</span>;
     return (
-      <div className="flex items-center gap-1 font-mono text-xs font-semibold">
+      <div className="flex items-center gap-1 tabular-nums text-xs font-semibold">
         <Star
           className={`h-3.5 w-3.5 ${
             rating === 3
-              ? "fill-yellow-400 text-yellow-500"
+              ? "fill-warning text-warning-ink"
               : rating === 2
-                ? "fill-amber-300 text-amber-500"
-                : "fill-red-300 text-red-500"
+                ? "fill-warning text-warning-ink"
+                : "fill-danger text-danger-ink"
           }`}
         />
         <span>
@@ -181,7 +181,7 @@ export function CallsTable({
       className={`space-y-4 ${isLoading ? "opacity-60 pointer-events-none" : ""}`}
     >
       {/* Barra de Filtros */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 rounded-2xl border border-zinc-200 bg-white p-3 shadow-xs dark:border-zinc-800 dark:bg-zinc-900">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 rounded-card border border-border bg-surface p-3">
         <div className="flex flex-wrap items-center gap-2">
           {/* Filtro de Tipo */}
           <select
@@ -195,7 +195,7 @@ export function CallsTable({
                     : (e.target.value as CallType),
               })
             }
-            className="h-8 rounded-lg border border-zinc-200 bg-white px-2.5 text-xs text-zinc-900 focus:outline-none focus:ring-2 focus:ring-orange-500 dark:border-zinc-800 dark:bg-zinc-900 dark:text-zinc-100"
+            className="h-8 rounded-control border border-border bg-surface px-2.5 text-xs text-ink focus:outline-none focus:ring-2 focus:ring-focus-ring"
             aria-label="Filtrar por tipo de chamado"
           >
             <option value="all">Todos os tipos</option>
@@ -215,7 +215,7 @@ export function CallsTable({
                     : (e.target.value as CallStatus),
               })
             }
-            className="h-8 rounded-lg border border-zinc-200 bg-white px-2.5 text-xs text-zinc-900 focus:outline-none focus:ring-2 focus:ring-orange-500 dark:border-zinc-800 dark:bg-zinc-900 dark:text-zinc-100"
+            className="h-8 rounded-control border border-border bg-surface px-2.5 text-xs text-ink focus:outline-none focus:ring-2 focus:ring-focus-ring"
             aria-label="Filtrar por status"
           >
             <option value="all">Todos os status</option>
@@ -227,7 +227,7 @@ export function CallsTable({
             <option value="CLOSED_UNCONFIRMED">Encerrados</option>
           </select>
           {totalCount !== undefined && (
-            <span className="text-xs text-zinc-500 dark:text-zinc-400">
+            <span className="text-xs text-ink-2">
               {totalCount} {totalCount === 1 ? "chamado" : "chamados"}
             </span>
           )}
@@ -247,7 +247,7 @@ export function CallsTable({
                 <button
                   type="button"
                   onClick={() => handleTableSearchChange("")}
-                  className="rounded-md p-1 text-zinc-400 hover:text-zinc-700"
+                  className="rounded-chip p-1 text-ink-2 hover:text-ink"
                 >
                   <X className="h-3 w-3" />
                 </button>
@@ -260,8 +260,8 @@ export function CallsTable({
 
       {/* Conteúdo: Tabela Desktop / Cards Mobile */}
       {calls.length === 0 ? (
-        <div className="p-8 text-center border border-dashed border-zinc-200 rounded-2xl dark:border-zinc-800">
-          <p className="text-sm font-medium text-zinc-500">
+        <div className="p-8 text-center border border-dashed border-border rounded-card">
+          <p className="text-sm font-medium text-ink-2">
             Nenhum chamado encontrado com os filtros aplicados.
           </p>
         </div>
@@ -288,10 +288,10 @@ export function CallsTable({
                 {calls.map((call) => (
                   <TableRow
                     key={call.id}
-                    className="cursor-pointer hover:bg-zinc-50/75 dark:hover:bg-zinc-800/40"
+                    className="cursor-pointer hover:bg-nav"
                     onClick={() => setSelectedCall(call)}
                   >
-                    <TableCell className="font-mono font-bold">
+                    <TableCell className="tabular-nums font-bold">
                       Mesa {call.tableNumber}
                     </TableCell>
 
@@ -299,12 +299,12 @@ export function CallsTable({
                       <div className="flex items-center gap-1.5 text-xs font-semibold">
                         {call.type === "BILL" ? (
                           <>
-                            <Receipt className="h-3.5 w-3.5 text-emerald-600 dark:text-emerald-400" />
+                            <Receipt className="h-3.5 w-3.5 text-success" />
                             <span>Conta</span>
                           </>
                         ) : (
                           <>
-                            <Bell className="h-3.5 w-3.5 text-orange-600 dark:text-orange-400" />
+                            <Bell className="h-3.5 w-3.5 text-primary-ink" />
                             <span>Garçom</span>
                           </>
                         )}
@@ -313,28 +313,28 @@ export function CallsTable({
 
                     <TableCell>{renderStatusBadge(call.status)}</TableCell>
 
-                    <TableCell className="text-xs text-zinc-500 font-mono">
+                    <TableCell className="text-xs text-ink-2 tabular-nums">
                       <span>{formatCallTime(call.createdAt)}</span>
                       {call.attendedAt && (
-                        <span className="text-zinc-400">
+                        <span className="text-ink-2">
                           {" "}
                           ➔ {formatCallTime(call.attendedAt)}
                         </span>
                       )}
                       {call.confirmedAt && (
-                        <span className="text-emerald-600 dark:text-emerald-400">
+                        <span className="text-success">
                           {" "}
                           ➔ {formatCallTime(call.confirmedAt)}
                         </span>
                       )}
                     </TableCell>
 
-                    <TableCell className="text-right font-mono text-xs">
-                      <span className="text-zinc-900 dark:text-zinc-100 font-semibold">
+                    <TableCell className="text-right tabular-nums text-xs">
+                      <span className="text-ink font-semibold">
                         {formatDurationSec(call.reactionTimeSec)}
                       </span>
                       {call.executionTimeSec !== null && (
-                        <span className="text-zinc-400 text-[11px] block">
+                        <span className="text-ink-2 text-xs block">
                           total: {formatDurationSec(call.executionTimeSec)}
                         </span>
                       )}
@@ -359,14 +359,14 @@ export function CallsTable({
               >
                 <div className="flex items-center justify-between gap-2">
                   <div className="flex items-center gap-2">
-                    <span className="font-mono font-bold text-sm text-zinc-900 dark:text-zinc-50">
+                    <span className="tabular-nums font-bold text-sm text-ink">
                       Mesa {call.tableNumber}
                     </span>
-                    <span className="flex items-center gap-1 text-xs text-zinc-500">
+                    <span className="flex items-center gap-1 text-xs text-ink-2">
                       {call.type === "BILL" ? (
-                        <Receipt className="h-3.5 w-3.5 text-emerald-600" />
+                        <Receipt className="h-3.5 w-3.5 text-success" />
                       ) : (
-                        <Bell className="h-3.5 w-3.5 text-orange-600" />
+                        <Bell className="h-3.5 w-3.5 text-primary-ink" />
                       )}
                       {call.type === "BILL" ? "Conta" : "Garçom"}
                     </span>
@@ -374,7 +374,7 @@ export function CallsTable({
                   {renderStatusBadge(call.status)}
                 </div>
 
-                <div className="mt-2.5 flex items-center justify-between text-xs text-zinc-500 font-mono">
+                <div className="mt-2.5 flex items-center justify-between text-xs text-ink-2 tabular-nums">
                   <span>Criado: {formatCallTime(call.createdAt)}</span>
                   <span>Espera: {formatDurationSec(call.reactionTimeSec)}</span>
                 </div>
@@ -421,36 +421,34 @@ export function CallsTable({
             <div className="space-y-4">
               <div className="flex items-center justify-between">
                 <div>
-                  <h3 className="text-lg font-bold text-zinc-900 dark:text-zinc-50">
+                  <h3 className="text-lg font-bold text-ink">
                     Mesa {selectedCall.tableNumber} ·{" "}
                     {selectedCall.type === "BILL" ? "Conta" : "Garçom"}
                   </h3>
-                  <p className="text-xs text-zinc-400">ID: {selectedCall.id}</p>
+                  <p className="text-xs text-ink-2">ID: {selectedCall.id}</p>
                 </div>
                 {renderStatusBadge(selectedCall.status)}
               </div>
 
               {/* Linha do Tempo */}
-              <div className="rounded-xl border border-zinc-100 bg-zinc-50 p-4 dark:border-zinc-800 dark:bg-zinc-800/40 space-y-3 text-xs">
-                <p className="font-semibold text-zinc-900 dark:text-zinc-100">
-                  Linha do Tempo:
-                </p>
-                <div className="space-y-2 font-mono">
+              <div className="rounded-control border border-border-subtle bg-nav p-4 space-y-3 text-xs">
+                <p className="font-semibold text-ink">Linha do Tempo:</p>
+                <div className="space-y-2 tabular-nums">
                   <div className="flex items-center justify-between">
-                    <span className="text-zinc-500">Solicitado:</span>
-                    <span className="text-zinc-900 dark:text-zinc-200">
+                    <span className="text-ink-2">Solicitado:</span>
+                    <span className="text-ink">
                       {formatFullDate(selectedCall.createdAt)}
                     </span>
                   </div>
                   <div className="flex items-center justify-between">
-                    <span className="text-zinc-500">Atendido:</span>
-                    <span className="text-zinc-900 dark:text-zinc-200">
+                    <span className="text-ink-2">Atendido:</span>
+                    <span className="text-ink">
                       {formatFullDate(selectedCall.attendedAt)}
                     </span>
                   </div>
                   <div className="flex items-center justify-between">
-                    <span className="text-zinc-500">Confirmado:</span>
-                    <span className="text-zinc-900 dark:text-zinc-200">
+                    <span className="text-ink-2">Confirmado:</span>
+                    <span className="text-ink">
                       {formatFullDate(selectedCall.confirmedAt)}
                     </span>
                   </div>
@@ -459,15 +457,15 @@ export function CallsTable({
 
               {/* Métricas do Chamado */}
               <div className="grid grid-cols-2 gap-3 text-xs">
-                <div className="rounded-xl border border-zinc-200 p-3 dark:border-zinc-800">
-                  <span className="text-zinc-500">Tempo de Reação:</span>
-                  <p className="font-mono text-base font-bold text-zinc-900 dark:text-zinc-50 mt-1">
+                <div className="rounded-control border border-border p-3">
+                  <span className="text-ink-2">Tempo de Reação:</span>
+                  <p className="tabular-nums text-base font-bold text-ink mt-1">
                     {formatDurationSec(selectedCall.reactionTimeSec)}
                   </p>
                 </div>
 
-                <div className="rounded-xl border border-zinc-200 p-3 dark:border-zinc-800">
-                  <span className="text-zinc-500">Avaliação do Cliente:</span>
+                <div className="rounded-control border border-border p-3">
+                  <span className="text-ink-2">Avaliação do Cliente:</span>
                   <div className="mt-1">
                     {renderRating(selectedCall.rating)}
                   </div>
@@ -475,7 +473,7 @@ export function CallsTable({
               </div>
 
               {selectedCall.reopenCount > 0 && (
-                <div className="rounded-xl bg-amber-50 p-3 text-xs text-amber-800 dark:bg-amber-950/40 dark:text-amber-300">
+                <div className="rounded-control bg-warning-tint p-3 text-xs text-warning-ink">
                   Chamado contestado pelo cliente e reaberto{" "}
                   <strong>{selectedCall.reopenCount} vez(es)</strong>.
                 </div>

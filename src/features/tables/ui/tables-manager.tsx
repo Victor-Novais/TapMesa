@@ -148,10 +148,10 @@ export function TablesManager() {
       {/* Cabeçalho da página */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
-          <h1 className="text-2xl sm:text-3xl font-extrabold tracking-tight text-zinc-900 dark:text-zinc-50">
+          <h1 className="text-2xl sm:text-3xl font-bold tracking-tight text-ink">
             Gestão de Mesas
           </h1>
-          <p className="mt-1 text-sm text-zinc-500 dark:text-zinc-400">
+          <p className="mt-1 text-sm text-ink-2">
             Cadastre novas mesas, visualize QR Codes e pause atendimentos
             temporariamente.
           </p>
@@ -169,7 +169,7 @@ export function TablesManager() {
           <Button
             variant="primary"
             onClick={() => setIsBatchOpen(true)}
-            className="gap-2 shadow-sm"
+            className="gap-2"
           >
             <PlusCircle className="h-4 w-4" />
             <span>Criar em lote</span>
@@ -179,20 +179,20 @@ export function TablesManager() {
 
       {/* Barra de Filtros e Busca */}
       {totalCount > 0 && (
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 rounded-2xl border border-zinc-200 bg-white p-3 shadow-xs dark:border-zinc-800 dark:bg-zinc-900/70">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 rounded-card border border-border bg-surface p-3">
           {/* Seletor de Status (Tabs Pílula) */}
           <div className="flex items-center gap-1.5 overflow-x-auto p-0.5">
             <button
               type="button"
               onClick={() => setStatusFilter("all")}
-              className={`inline-flex items-center gap-1.5 rounded-xl px-3 py-1.5 text-xs font-semibold transition-colors ${
+              className={`inline-flex items-center gap-1.5 rounded-control px-3 py-1.5 text-xs font-semibold transition-colors ${
                 statusFilter === "all"
-                  ? "bg-zinc-900 text-white dark:bg-zinc-100 dark:text-zinc-900 shadow-xs"
-                  : "text-zinc-600 hover:bg-zinc-100 dark:text-zinc-400 dark:hover:bg-zinc-800"
+                  ? "bg-ink text-canvas"
+                  : "text-ink-2 hover:bg-nav"
               }`}
             >
               <span>Todas</span>
-              <span className="rounded-full bg-zinc-700/20 px-1.5 py-0.2 font-mono text-[11px] dark:bg-zinc-300/20">
+              <span className="rounded-full bg-current/15 px-1.5 py-0.5 text-xs tabular-nums">
                 {totalCount}
               </span>
             </button>
@@ -200,14 +200,14 @@ export function TablesManager() {
             <button
               type="button"
               onClick={() => setStatusFilter("active")}
-              className={`inline-flex items-center gap-1.5 rounded-xl px-3 py-1.5 text-xs font-semibold transition-colors ${
+              className={`inline-flex items-center gap-1.5 rounded-control px-3 py-1.5 text-xs font-semibold transition-colors ${
                 statusFilter === "active"
-                  ? "bg-emerald-600 text-white shadow-xs"
-                  : "text-zinc-600 hover:bg-zinc-100 dark:text-zinc-400 dark:hover:bg-zinc-800"
+                  ? "bg-success text-white"
+                  : "text-ink-2 hover:bg-nav"
               }`}
             >
               <span>Ativas</span>
-              <span className="rounded-full bg-emerald-700/30 px-1.5 py-0.2 font-mono text-[11px]">
+              <span className="rounded-full bg-success-tint px-1.5 py-0.5 tabular-nums text-xs">
                 {activeCount}
               </span>
             </button>
@@ -215,14 +215,14 @@ export function TablesManager() {
             <button
               type="button"
               onClick={() => setStatusFilter("paused")}
-              className={`inline-flex items-center gap-1.5 rounded-xl px-3 py-1.5 text-xs font-semibold transition-colors ${
+              className={`inline-flex items-center gap-1.5 rounded-control px-3 py-1.5 text-xs font-semibold transition-colors ${
                 statusFilter === "paused"
-                  ? "bg-amber-600 text-white shadow-xs"
-                  : "text-zinc-600 hover:bg-zinc-100 dark:text-zinc-400 dark:hover:bg-zinc-800"
+                  ? "bg-warning text-white"
+                  : "text-ink-2 hover:bg-nav"
               }`}
             >
               <span>Pausadas</span>
-              <span className="rounded-full bg-amber-700/30 px-1.5 py-0.2 font-mono text-[11px]">
+              <span className="rounded-full bg-warning-tint px-1.5 py-0.5 tabular-nums text-xs">
                 {pausedCount}
               </span>
             </button>
@@ -240,7 +240,7 @@ export function TablesManager() {
                   <button
                     type="button"
                     onClick={() => setSearch("")}
-                    className="rounded-md p-1 text-zinc-400 hover:text-zinc-700 dark:hover:text-zinc-200"
+                    className="rounded-chip p-1 text-ink-2 hover:text-ink"
                     aria-label="Limpar busca"
                   >
                     <X className="h-3.5 w-3.5" />
@@ -256,24 +256,24 @@ export function TablesManager() {
       {/* Conteúdo Principal */}
       {isLoading ? (
         <div className="space-y-3">
-          <div className="rounded-2xl border border-zinc-200 bg-white p-6 shadow-xs dark:border-zinc-800 dark:bg-zinc-900">
+          <div className="rounded-card border border-border bg-surface p-6">
             <div className="space-y-4">
-              <Skeleton className="h-8 w-48 rounded-lg" />
+              <Skeleton className="h-8 w-48 rounded-control" />
               <div className="space-y-2">
                 {[1, 2, 3, 4, 5].map((i) => (
-                  <Skeleton key={i} className="h-12 w-full rounded-xl" />
+                  <Skeleton key={i} className="h-12 w-full rounded-control" />
                 ))}
               </div>
             </div>
           </div>
         </div>
       ) : isError ? (
-        <div className="rounded-2xl border border-red-200 bg-red-50/50 p-8 text-center dark:border-red-950/60 dark:bg-red-950/20">
-          <AlertCircle className="mx-auto h-10 w-10 text-red-600 dark:text-red-400" />
-          <h3 className="mt-3 text-base font-semibold text-zinc-900 dark:text-zinc-100">
+        <div className="rounded-card border border-danger/40 bg-danger-tint p-8 text-center">
+          <AlertCircle className="mx-auto h-10 w-10 text-danger-ink" />
+          <h3 className="mt-3 text-base font-semibold text-ink">
             Não foi possível carregar as mesas
           </h3>
-          <p className="mt-1 text-sm text-zinc-500 max-w-sm mx-auto">
+          <p className="mt-1 text-sm text-ink-2 max-w-sm mx-auto">
             {error instanceof Error
               ? error.message
               : "Verifique a conexão com o servidor e tente novamente."}
@@ -291,9 +291,7 @@ export function TablesManager() {
       ) : totalCount === 0 ? (
         /* Estado Vazio: Nenhuma mesa cadastrada ainda */
         <EmptyState
-          icon={
-            <QrCode className="h-8 w-8 text-orange-600 dark:text-orange-400" />
-          }
+          icon={<QrCode className="h-8 w-8 text-primary-ink" />}
           title="Nenhuma mesa cadastrada"
           description="Cadastre suas mesas para gerar QR Codes individuais e começar a receber chamados de clientes em tempo real."
           action={
@@ -310,7 +308,7 @@ export function TablesManager() {
       ) : filteredTables.length === 0 ? (
         /* Estado Vazio de Busca: Filtro não retornou nada */
         <EmptyState
-          icon={<Search className="h-7 w-7 text-zinc-400" />}
+          icon={<Search className="h-7 w-7 text-ink-2" />}
           title="Nenhuma mesa encontrada"
           description={`Nenhum resultado corresponde à busca "${search}".`}
           action={

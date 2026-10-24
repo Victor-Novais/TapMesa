@@ -70,18 +70,18 @@ export function LivePhonePreview({
     <div className={cn("flex flex-col items-center gap-4", className)}>
       {/* Controles de Cenário da Mesa */}
       <div className="flex flex-col items-center gap-1.5">
-        <span className="text-xs font-semibold text-zinc-500 dark:text-zinc-400">
+        <span className="text-xs font-semibold text-ink-2">
           Simular Estado da Mesa do Cliente:
         </span>
-        <div className="flex items-center gap-1 rounded-xl bg-zinc-100 p-1 dark:bg-zinc-800">
+        <div className="flex items-center gap-1 rounded-control bg-nav p-1">
           <button
             type="button"
             onClick={() => setScenario("idle")}
             className={cn(
-              "rounded-lg px-3 py-1 text-xs font-semibold transition-all",
+              "rounded-control px-3 py-1 text-xs font-semibold transition-colors",
               scenario === "idle"
-                ? "bg-white text-zinc-900 shadow-sm dark:bg-zinc-700 dark:text-zinc-50"
-                : "text-zinc-600 hover:text-zinc-900 dark:text-zinc-400 dark:hover:text-zinc-100",
+                ? "bg-surface text-ink shadow-elevation-1"
+                : "text-ink-2 hover:text-ink",
             )}
           >
             Livre
@@ -90,10 +90,10 @@ export function LivePhonePreview({
             type="button"
             onClick={() => setScenario("pending")}
             className={cn(
-              "rounded-lg px-3 py-1 text-xs font-semibold transition-all",
+              "rounded-control px-3 py-1 text-xs font-semibold transition-colors",
               scenario === "pending"
-                ? "bg-amber-500 text-white shadow-sm"
-                : "text-zinc-600 hover:text-zinc-900 dark:text-zinc-400 dark:hover:text-zinc-100",
+                ? "bg-surface text-ink shadow-elevation-1"
+                : "text-ink-2 hover:text-ink",
             )}
           >
             Pendente
@@ -102,10 +102,10 @@ export function LivePhonePreview({
             type="button"
             onClick={() => setScenario("attended")}
             className={cn(
-              "rounded-lg px-3 py-1 text-xs font-semibold transition-all",
+              "rounded-control px-3 py-1 text-xs font-semibold transition-colors",
               scenario === "attended"
-                ? "bg-blue-600 text-white shadow-sm"
-                : "text-zinc-600 hover:text-zinc-900 dark:text-zinc-400 dark:hover:text-zinc-100",
+                ? "bg-surface text-ink shadow-elevation-1"
+                : "text-ink-2 hover:text-ink",
             )}
           >
             Atendido
@@ -114,15 +114,15 @@ export function LivePhonePreview({
       </div>
 
       {/* Mockup do Smartphone (Moldura Física Realista) */}
-      <div className="relative mx-auto w-[330px] sm:w-[360px] h-[670px] overflow-hidden rounded-[48px] border-[10px] border-zinc-900 bg-zinc-950 p-1 shadow-2xl dark:border-zinc-800 ring-1 ring-zinc-700/50 select-none">
+      <div className="relative mx-auto w-[330px] sm:w-[360px] h-[670px] overflow-hidden rounded-[48px] border-[10px] border-black bg-black p-1 shadow-elevation-3 ring-1 ring-border select-none">
         {/* Dynamic Island / Notch do Topo */}
-        <div className="absolute top-3 left-1/2 -translate-x-1/2 z-30 flex h-5 w-24 items-center justify-between rounded-full bg-black px-2 shadow-inner">
-          <div className="h-2.5 w-2.5 rounded-full bg-zinc-900 ring-1 ring-zinc-800" />
-          <div className="h-2 w-2 rounded-full bg-blue-900/40" />
+        <div className="absolute top-3 left-1/2 -translate-x-1/2 z-30 flex h-5 w-24 items-center justify-between rounded-full bg-black px-2">
+          <div className="h-2.5 w-2.5 rounded-full bg-black ring-1 ring-white/10" />
+          <div className="h-2 w-2 rounded-full bg-white/10" />
         </div>
 
         {/* Barra de Status Superior */}
-        <div className="absolute top-2 left-6 right-6 z-20 flex items-center justify-between text-[11px] font-bold text-zinc-900 dark:text-zinc-100 pointer-events-none opacity-80 pt-1">
+        <div className="absolute top-2 left-6 right-6 z-20 flex items-center justify-between text-xs font-bold text-ink pointer-events-none opacity-80 pt-1">
           <span>9:41</span>
           <div className="flex items-center gap-1.5">
             <Wifi className="h-3 w-3" />
@@ -131,7 +131,7 @@ export function LivePhonePreview({
         </div>
 
         {/* Tela Interna do Dispositivo */}
-        <div className="relative h-full w-full overflow-y-auto rounded-[38px] overflow-x-hidden bg-white dark:bg-zinc-900 no-scrollbar">
+        <div className="relative h-full w-full overflow-y-auto rounded-[38px] overflow-x-hidden bg-surface no-scrollbar">
           <TableThemeProvider appearance={appearance}>
             <TableScreen
               tableNumber={tableNumber}
@@ -149,7 +149,7 @@ export function LivePhonePreview({
                       backgroundColor: appearance.colors?.primary || "#C4452D",
                       color: appearance.colors?.primaryText || "#ffffff",
                     }}
-                    className="flex h-16 w-full items-center justify-center gap-3 rounded-2xl px-6 text-base font-bold shadow-lg transition-transform active:scale-[0.98]"
+                    className="flex h-16 w-full items-center justify-center gap-3 rounded-card px-6 text-base font-bold shadow-elevation-1 transition-transform active:scale-[0.98]"
                   >
                     <Bell className="h-5 w-5" />
                     <span>{waiterButtonText}</span>
@@ -163,7 +163,7 @@ export function LivePhonePreview({
                         appearance.colors?.secondary || "#2A2421",
                       color: "#ffffff",
                     }}
-                    className="flex h-14 w-full items-center justify-center gap-3 rounded-2xl px-6 text-sm font-semibold shadow-md transition-transform active:scale-[0.98]"
+                    className="flex h-14 w-full items-center justify-center gap-3 rounded-card px-6 text-sm font-semibold shadow-elevation-1 transition-transform active:scale-[0.98]"
                   >
                     <Receipt className="h-4 w-4" />
                     <span>{billButtonText}</span>
@@ -196,11 +196,11 @@ export function LivePhonePreview({
         </div>
 
         {/* Barra de Navegação Inferior (Home Bar) */}
-        <div className="absolute bottom-2 left-1/2 -translate-x-1/2 z-30 h-1 w-32 rounded-full bg-zinc-600/60 pointer-events-none" />
+        <div className="absolute bottom-2 left-1/2 -translate-x-1/2 z-30 h-1 w-32 rounded-full bg-black/40 pointer-events-none" />
       </div>
 
-      <div className="flex items-center gap-1.5 text-[11px] text-zinc-500 dark:text-zinc-400 text-center">
-        <Sparkles className="h-3 w-3 text-orange-500" />
+      <div className="flex items-center gap-1.5 text-xs text-ink-2 text-center">
+        <Sparkles className="h-3 w-3 text-primary-ink" />
         <span>
           Pré-visualização fiel ao smartphone do cliente na Mesa {tableNumber}
         </span>

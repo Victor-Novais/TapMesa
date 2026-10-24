@@ -155,21 +155,21 @@ export function AppearanceSettingsForm() {
   if (isLoading) {
     return (
       <div className="space-y-6">
-        <Skeleton className="h-44 w-full rounded-2xl" />
-        <Skeleton className="h-64 w-full rounded-2xl" />
-        <Skeleton className="h-44 w-full rounded-2xl" />
+        <Skeleton className="h-44 w-full rounded-card" />
+        <Skeleton className="h-64 w-full rounded-card" />
+        <Skeleton className="h-44 w-full rounded-card" />
       </div>
     );
   }
 
   if (isError || !appearance) {
     return (
-      <Card className="p-8 text-center border-red-200 dark:border-red-900/40">
-        <AlertTriangle className="mx-auto h-8 w-8 text-red-500" />
-        <h3 className="mt-3 text-base font-bold text-zinc-900 dark:text-zinc-100">
+      <Card className="p-8 text-center border-danger/40">
+        <AlertTriangle className="mx-auto h-8 w-8 text-danger-ink" />
+        <h3 className="mt-3 text-base font-bold text-ink">
           Não foi possível carregar as configurações de aparência
         </h3>
-        <p className="mt-1 text-sm text-zinc-500">
+        <p className="mt-1 text-sm text-ink-2">
           Ocorreu um erro ao buscar os dados visuais. Por favor, tente
           recarregar.
         </p>
@@ -491,12 +491,12 @@ function AppearanceSettingsEditor({
   return (
     <div className="space-y-6 pb-24">
       {/* Botões de Ação Superiores: Restaurar Padrão */}
-      <div className="flex items-center justify-between border-b border-zinc-100 dark:border-zinc-800 pb-3">
+      <div className="flex items-center justify-between border-b border-border-subtle pb-3">
         <div>
-          <h2 className="text-lg font-bold text-zinc-900 dark:text-zinc-50">
+          <h2 className="text-lg font-bold text-ink">
             Aparência da Tela da Mesa
           </h2>
-          <p className="text-xs text-zinc-500">
+          <p className="text-xs text-ink-2">
             Personalize logotipo, cores da marca e mensagens que os clientes
             visualizam pelo QR Code.
           </p>
@@ -508,7 +508,7 @@ function AppearanceSettingsEditor({
           size="sm"
           onClick={() => setShowResetConfirm(true)}
           disabled={resetMutation.isPending}
-          className="gap-1.5 text-xs text-zinc-600 hover:text-red-600 dark:text-zinc-400 dark:hover:text-red-400"
+          className="gap-1.5 text-xs text-ink-2 hover:text-danger-ink"
         >
           <RotateCcw className="h-3.5 w-3.5" />
           <span>Restaurar Padrão</span>
@@ -516,14 +516,12 @@ function AppearanceSettingsEditor({
       </div>
 
       {/* Alternância em Mobile: Formulário vs Pré-visualização */}
-      <div className="flex lg:hidden items-center justify-center gap-2 p-1 bg-zinc-100 rounded-xl dark:bg-zinc-800">
+      <div className="flex lg:hidden items-center justify-center gap-2 p-1 bg-nav rounded-control">
         <button
           type="button"
           onClick={() => setMobileTab("form")}
-          className={`flex-1 flex items-center justify-center gap-2 py-2 text-xs font-bold rounded-lg transition-all ${
-            mobileTab === "form"
-              ? "bg-white text-zinc-900 shadow-sm dark:bg-zinc-700 dark:text-zinc-50"
-              : "text-zinc-600 dark:text-zinc-400"
+          className={`flex-1 flex items-center justify-center gap-2 py-2 text-xs font-bold rounded-control transition-colors ${
+            mobileTab === "form" ? "bg-surface text-ink" : "text-ink-2"
           }`}
         >
           <Edit3 className="h-4 w-4" />
@@ -532,10 +530,8 @@ function AppearanceSettingsEditor({
         <button
           type="button"
           onClick={() => setMobileTab("preview")}
-          className={`flex-1 flex items-center justify-center gap-2 py-2 text-xs font-bold rounded-lg transition-all ${
-            mobileTab === "preview"
-              ? "bg-white text-zinc-900 shadow-sm dark:bg-zinc-700 dark:text-zinc-50"
-              : "text-zinc-600 dark:text-zinc-400"
+          className={`flex-1 flex items-center justify-center gap-2 py-2 text-xs font-bold rounded-control transition-colors ${
+            mobileTab === "preview" ? "bg-surface text-ink" : "text-ink-2"
           }`}
         >
           <Eye className="h-4 w-4" />
@@ -554,23 +550,23 @@ function AppearanceSettingsEditor({
           <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
             {/* 1. Identidade e Logotipo */}
             <Card className="p-6 space-y-6">
-              <div className="flex items-center gap-3 border-b border-zinc-100 pb-4 dark:border-zinc-800">
-                <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-orange-100 text-orange-600 dark:bg-orange-950/60 dark:text-orange-400">
+              <div className="flex items-center gap-3 border-b border-border-subtle pb-4">
+                <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-control bg-brand-tint text-primary-ink">
                   <Palette className="h-5 w-5" />
                 </div>
                 <div>
-                  <h3 className="text-base font-bold text-zinc-900 dark:text-zinc-100">
+                  <h3 className="text-base font-bold text-ink">
                     Identidade do Estabelecimento
                   </h3>
-                  <p className="text-xs text-zinc-500 dark:text-zinc-400">
+                  <p className="text-xs text-ink-2">
                     Nome e logotipo exibidos no topo da tela do cliente.
                   </p>
                 </div>
               </div>
 
               {/* Upload de Logotipo */}
-              <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4 p-4 rounded-2xl bg-zinc-50 dark:bg-zinc-800/40 border border-zinc-200/70 dark:border-zinc-800">
-                <div className="relative flex h-16 w-16 shrink-0 items-center justify-center rounded-2xl bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-700 overflow-hidden shadow-sm">
+              <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4 p-4 rounded-card bg-nav border border-border">
+                <div className="relative flex h-16 w-16 shrink-0 items-center justify-center rounded-card bg-surface border border-border overflow-hidden">
                   {liveAppearance.logoUrl ? (
                     <Image
                       src={liveAppearance.logoUrl}
@@ -581,15 +577,15 @@ function AppearanceSettingsEditor({
                       unoptimized
                     />
                   ) : (
-                    <ImageIcon className="h-7 w-7 text-zinc-400" />
+                    <ImageIcon className="h-7 w-7 text-ink-2" />
                   )}
                 </div>
 
                 <div className="space-y-1 flex-1">
-                  <p className="text-sm font-bold text-zinc-900 dark:text-zinc-100">
+                  <p className="text-sm font-bold text-ink">
                     Logotipo do Restaurante
                   </p>
-                  <p className="text-xs text-zinc-500">
+                  <p className="text-xs text-ink-2">
                     PNG, JPG ou WebP de até 2 MB. Proporção quadrada ou redonda
                     recomendada.
                   </p>
@@ -639,15 +635,15 @@ function AppearanceSettingsEditor({
 
             {/* 2. Cores da Marca e Acessibilidade (WCAG AA) */}
             <Card className="p-6 space-y-6">
-              <div className="flex items-center gap-3 border-b border-zinc-100 pb-4 dark:border-zinc-800">
-                <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-orange-100 text-orange-600 dark:bg-orange-950/60 dark:text-orange-400">
+              <div className="flex items-center gap-3 border-b border-border-subtle pb-4">
+                <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-control bg-brand-tint text-primary-ink">
                   <Palette className="h-5 w-5" />
                 </div>
                 <div>
-                  <h3 className="text-base font-bold text-zinc-900 dark:text-zinc-100">
+                  <h3 className="text-base font-bold text-ink">
                     Paleta de Cores & Contraste
                   </h3>
-                  <p className="text-xs text-zinc-500 dark:text-zinc-400">
+                  <p className="text-xs text-ink-2">
                     Cores personalizadas com validação automática de contraste
                     WCAG AA.
                   </p>
@@ -658,14 +654,14 @@ function AppearanceSettingsEditor({
               {textBgRatio < 4.5 && (
                 <div
                   role="alert"
-                  className="flex items-start gap-2.5 rounded-xl border border-amber-200 bg-amber-50/90 p-3 text-xs text-amber-900 dark:border-amber-900/60 dark:bg-amber-950/40 dark:text-amber-200"
+                  className="flex items-start gap-2.5 rounded-control border border-warning/40 bg-warning-tint p-3 text-xs text-warning-ink"
                 >
-                  <AlertTriangle className="h-4 w-4 shrink-0 text-amber-600 dark:text-amber-400 mt-0.5" />
+                  <AlertTriangle className="h-4 w-4 shrink-0 text-warning-ink mt-0.5" />
                   <div>
                     <p className="font-semibold">
                       Contraste de leitura reduzido ({textBgRatio.toFixed(1)}:1)
                     </p>
-                    <p className="mt-0.5 leading-relaxed text-[11px]">
+                    <p className="mt-0.5 leading-relaxed text-xs">
                       A diretriz WCAG 2.1 AA recomenda no mínimo 4.5:1 entre a
                       cor do texto e a cor de fundo para garantir que pessoas
                       com dificuldades visuais ou em ambientes ensolarados
@@ -678,15 +674,15 @@ function AppearanceSettingsEditor({
               {buttonContrastRatio < 3.0 && (
                 <div
                   role="alert"
-                  className="flex items-start gap-2.5 rounded-xl border border-amber-200 bg-amber-50/90 p-3 text-xs text-amber-900 dark:border-amber-900/60 dark:bg-amber-950/40 dark:text-amber-200"
+                  className="flex items-start gap-2.5 rounded-control border border-warning/40 bg-warning-tint p-3 text-xs text-warning-ink"
                 >
-                  <AlertTriangle className="h-4 w-4 shrink-0 text-amber-600 dark:text-amber-400 mt-0.5" />
+                  <AlertTriangle className="h-4 w-4 shrink-0 text-warning-ink mt-0.5" />
                   <div>
                     <p className="font-semibold">
                       Contraste baixo no botão principal (
                       {buttonContrastRatio.toFixed(1)}:1)
                     </p>
-                    <p className="mt-0.5 leading-relaxed text-[11px]">
+                    <p className="mt-0.5 leading-relaxed text-xs">
                       O botão &ldquo;Chamar Garçom&rdquo; utiliza texto branco.
                       Cores muito claras como primária reduzem a legibilidade do
                       botão.
@@ -756,15 +752,15 @@ function AppearanceSettingsEditor({
 
             {/* 3. Estilo de Fundo do Salão */}
             <Card className="p-6 space-y-6">
-              <div className="flex items-center gap-3 border-b border-zinc-100 pb-4 dark:border-zinc-800">
-                <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-purple-100 text-purple-600 dark:bg-purple-950/60 dark:text-purple-400">
+              <div className="flex items-center gap-3 border-b border-border-subtle pb-4">
+                <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-control bg-nav text-ink-2">
                   <ImageIcon className="h-5 w-5" />
                 </div>
                 <div>
-                  <h3 className="text-base font-bold text-zinc-900 dark:text-zinc-100">
+                  <h3 className="text-base font-bold text-ink">
                     Estilo de Fundo do Salão
                   </h3>
-                  <p className="text-xs text-zinc-500 dark:text-zinc-400">
+                  <p className="text-xs text-ink-2">
                     Escolha entre cor sólida, presets elegantes com textura ou
                     foto própria do ambiente.
                   </p>
@@ -780,13 +776,13 @@ function AppearanceSettingsEditor({
                     setValue("backgroundType", "color", { shouldDirty: true });
                     setValue("backgroundValue", null, { shouldDirty: true });
                   }}
-                  className={`flex flex-col items-center justify-center p-3 rounded-xl border text-xs font-bold transition-all ${
+                  className={`flex flex-col items-center justify-center p-3 rounded-control border text-xs font-bold transition-colors ${
                     bgMode === "color"
-                      ? "border-orange-500 bg-orange-50/50 text-orange-950 dark:border-orange-500 dark:bg-orange-950/30 dark:text-orange-200 ring-2 ring-orange-500/20"
-                      : "border-zinc-200 bg-white text-zinc-700 hover:bg-zinc-50 dark:border-zinc-800 dark:bg-zinc-900 dark:text-zinc-300"
+                      ? "border-brand bg-brand-tint text-primary-ink ring-2 ring-focus-ring"
+                      : "border-border bg-surface text-ink-2 hover:bg-nav"
                   }`}
                 >
-                  <Palette className="h-5 w-5 mb-1.5 text-zinc-500" />
+                  <Palette className="h-5 w-5 mb-1.5 text-ink-2" />
                   <span>Cor Sólida</span>
                 </button>
 
@@ -801,13 +797,13 @@ function AppearanceSettingsEditor({
                       });
                     }
                   }}
-                  className={`flex flex-col items-center justify-center p-3 rounded-xl border text-xs font-bold transition-all ${
+                  className={`flex flex-col items-center justify-center p-3 rounded-control border text-xs font-bold transition-colors ${
                     bgMode === "preset"
-                      ? "border-orange-500 bg-orange-50/50 text-orange-950 dark:border-orange-500 dark:bg-orange-950/30 dark:text-orange-200 ring-2 ring-orange-500/20"
-                      : "border-zinc-200 bg-white text-zinc-700 hover:bg-zinc-50 dark:border-zinc-800 dark:bg-zinc-900 dark:text-zinc-300"
+                      ? "border-brand bg-brand-tint text-primary-ink ring-2 ring-focus-ring"
+                      : "border-border bg-surface text-ink-2 hover:bg-nav"
                   }`}
                 >
-                  <Smartphone className="h-5 w-5 mb-1.5 text-zinc-500" />
+                  <Smartphone className="h-5 w-5 mb-1.5 text-ink-2" />
                   <span>Presets Prontos</span>
                 </button>
 
@@ -817,13 +813,13 @@ function AppearanceSettingsEditor({
                     setBgModeOverride("image");
                     setValue("backgroundType", "image", { shouldDirty: true });
                   }}
-                  className={`flex flex-col items-center justify-center p-3 rounded-xl border text-xs font-bold transition-all ${
+                  className={`flex flex-col items-center justify-center p-3 rounded-control border text-xs font-bold transition-colors ${
                     bgMode === "image"
-                      ? "border-orange-500 bg-orange-50/50 text-orange-950 dark:border-orange-500 dark:bg-orange-950/30 dark:text-orange-200 ring-2 ring-orange-500/20"
-                      : "border-zinc-200 bg-white text-zinc-700 hover:bg-zinc-50 dark:border-zinc-800 dark:bg-zinc-900 dark:text-zinc-300"
+                      ? "border-brand bg-brand-tint text-primary-ink ring-2 ring-focus-ring"
+                      : "border-border bg-surface text-ink-2 hover:bg-nav"
                   }`}
                 >
-                  <Upload className="h-5 w-5 mb-1.5 text-zinc-500" />
+                  <Upload className="h-5 w-5 mb-1.5 text-ink-2" />
                   <span>Foto Própria</span>
                 </button>
               </div>
@@ -831,7 +827,7 @@ function AppearanceSettingsEditor({
               {/* Opções de Presets */}
               {bgMode === "preset" && (
                 <div className="space-y-3 pt-2">
-                  <label className="block text-xs font-bold uppercase tracking-wider text-zinc-500">
+                  <label className="block text-xs font-bold uppercase tracking-wider text-ink-2">
                     Selecione o Preset de Textura:
                   </label>
                   <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
@@ -846,13 +842,13 @@ function AppearanceSettingsEditor({
                               shouldDirty: true,
                             })
                           }
-                          className={`group relative flex flex-col overflow-hidden rounded-xl border text-left transition-all ${
+                          className={`group relative flex flex-col overflow-hidden rounded-control border text-left transition-colors ${
                             isSelected
-                              ? "border-orange-600 ring-2 ring-orange-500"
-                              : "border-zinc-200 hover:border-zinc-300 dark:border-zinc-800"
+                              ? "border-brand ring-2 ring-focus-ring"
+                              : "border-border hover:border-border-control"
                           }`}
                         >
-                          <div className="relative h-20 w-full overflow-hidden bg-zinc-900">
+                          <div className="relative h-20 w-full overflow-hidden bg-black">
                             <Image
                               src={preset.url}
                               alt={preset.name}
@@ -863,12 +859,12 @@ function AppearanceSettingsEditor({
                             />
                             <div className="absolute inset-0 bg-black/40" />
                             {isSelected && (
-                              <div className="absolute top-1.5 right-1.5 flex h-5 w-5 items-center justify-center rounded-full bg-orange-600 text-white shadow-sm">
+                              <div className="absolute top-1.5 right-1.5 flex h-5 w-5 items-center justify-center rounded-full bg-primary text-white">
                                 <Check className="h-3 w-3" />
                               </div>
                             )}
                           </div>
-                          <span className="p-2 text-[11px] font-bold text-zinc-900 dark:text-zinc-100 truncate">
+                          <span className="p-2 text-xs font-bold text-ink truncate">
                             {preset.name}
                           </span>
                         </button>
@@ -881,7 +877,7 @@ function AppearanceSettingsEditor({
               {/* Upload de Foto Própria */}
               {bgMode === "image" && (
                 <div className="space-y-4 pt-2">
-                  <div className="flex flex-col sm:flex-row items-center gap-4 p-4 rounded-2xl bg-zinc-50 dark:bg-zinc-800/40 border border-zinc-200/70 dark:border-zinc-800">
+                  <div className="flex flex-col sm:flex-row items-center gap-4 p-4 rounded-card bg-nav border border-border">
                     <input
                       ref={fileBgRef}
                       type="file"
@@ -891,10 +887,10 @@ function AppearanceSettingsEditor({
                     />
 
                     <div className="space-y-1 flex-1 text-left">
-                      <p className="text-sm font-bold text-zinc-900 dark:text-zinc-100">
+                      <p className="text-sm font-bold text-ink">
                         Foto em Alta Resolução do Restaurante
                       </p>
-                      <p className="text-xs text-zinc-500">
+                      <p className="text-xs text-ink-2">
                         Uma película protetora translúcida (overlay) é aplicada
                         automaticamente sobre a foto para manter a legibilidade
                         dos botões e textos.
@@ -919,15 +915,15 @@ function AppearanceSettingsEditor({
 
             {/* 4. Textos Personalizados */}
             <Card className="p-6 space-y-6">
-              <div className="flex items-center gap-3 border-b border-zinc-100 pb-4 dark:border-zinc-800">
-                <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-blue-100 text-blue-600 dark:bg-blue-950/60 dark:text-blue-400">
+              <div className="flex items-center gap-3 border-b border-border-subtle pb-4">
+                <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-control bg-nav text-ink-2">
                   <Type className="h-5 w-5" />
                 </div>
                 <div>
-                  <h3 className="text-base font-bold text-zinc-900 dark:text-zinc-100">
+                  <h3 className="text-base font-bold text-ink">
                     Textos e Rótulos na Mesa
                   </h3>
-                  <p className="text-xs text-zinc-500 dark:text-zinc-400">
+                  <p className="text-xs text-ink-2">
                     Personalize o tom de voz e as chamadas para ação dos botões.
                   </p>
                 </div>
@@ -965,15 +961,15 @@ function AppearanceSettingsEditor({
 
             {/* 5. Redes Sociais e Wi-Fi (RF-D12) */}
             <Card className="p-6 space-y-6">
-              <div className="flex items-center gap-3 border-b border-zinc-100 pb-4 dark:border-zinc-800">
-                <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-emerald-100 text-emerald-600 dark:bg-emerald-950/60 dark:text-emerald-400">
+              <div className="flex items-center gap-3 border-b border-border-subtle pb-4">
+                <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-control bg-success-tint text-success">
                   <Wifi className="h-5 w-5" />
                 </div>
                 <div>
-                  <h3 className="text-base font-bold text-zinc-900 dark:text-zinc-100">
+                  <h3 className="text-base font-bold text-ink">
                     Wi-Fi e Redes Sociais
                   </h3>
-                  <p className="text-xs text-zinc-500 dark:text-zinc-400">
+                  <p className="text-xs text-ink-2">
                     Facilidades que aparecem no rodapé da mesa para os seus
                     clientes.
                   </p>
@@ -1016,16 +1012,17 @@ function AppearanceSettingsEditor({
               <div
                 role="region"
                 aria-label="Barra de alterações pendentes de aparência"
-                className="fixed bottom-4 left-4 right-4 z-40 mx-auto max-w-4xl rounded-2xl border border-zinc-200 bg-white/95 p-4 shadow-2xl backdrop-blur-md dark:border-zinc-800 dark:bg-zinc-900/95 animate-in fade-in-0 slide-in-from-bottom-4 duration-200 ease-out"
+                data-pending-bar
+                className="fixed right-4 bottom-[calc(4.75rem+env(safe-area-inset-bottom))] left-4 z-40 mx-auto max-w-4xl rounded-card border border-border bg-surface p-4 shadow-elevation-3 animate-in fade-in-0 slide-in-from-bottom-4 duration-200 ease-out-soft lg:bottom-4"
               >
                 <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
-                  <div className="flex items-center gap-2.5 text-xs text-zinc-600 dark:text-zinc-400">
-                    <span className="flex h-2.5 w-2.5 rounded-full bg-orange-500 animate-pulse" />
+                  <div className="flex items-center gap-2.5 text-xs text-ink-2">
+                    <span className="flex h-2.5 w-2.5 rounded-full bg-primary" />
                     <div>
-                      <p className="font-semibold text-zinc-900 dark:text-zinc-100">
+                      <p className="font-semibold text-ink">
                         Você possui alterações de aparência não salvas
                       </p>
-                      <p className="text-[11px] text-zinc-500">
+                      <p className="text-xs text-ink-2">
                         As novidades só serão visualizadas pelos clientes na
                         mesa após clicar em Salvar.
                       </p>

@@ -95,23 +95,23 @@ export function AttendantMetricsView({
   const renderSortIcon = (field: SortField) => {
     if (sortField !== field) {
       return (
-        <ArrowUpDown className="ml-1 h-3.5 w-3.5 text-zinc-400 opacity-0 group-hover:opacity-100 transition-opacity" />
+        <ArrowUpDown className="ml-1 h-3.5 w-3.5 text-ink-2 opacity-0 group-hover:opacity-100 transition-opacity" />
       );
     }
     return sortDirection === "asc" ? (
-      <ArrowUp className="ml-1 h-3.5 w-3.5 text-orange-600 dark:text-orange-400" />
+      <ArrowUp className="ml-1 h-3.5 w-3.5 text-primary-ink" />
     ) : (
-      <ArrowDown className="ml-1 h-3.5 w-3.5 text-orange-600 dark:text-orange-400" />
+      <ArrowDown className="ml-1 h-3.5 w-3.5 text-primary-ink" />
     );
   };
 
   if (isLoading) {
     return (
       <div className="space-y-4">
-        <Skeleton className="h-20 w-full rounded-2xl" />
+        <Skeleton className="h-20 w-full rounded-card" />
         <div className="space-y-2">
           {Array.from({ length: 4 }).map((_, i) => (
-            <Skeleton key={i} className="h-14 w-full rounded-xl" />
+            <Skeleton key={i} className="h-14 w-full rounded-control" />
           ))}
         </div>
       </div>
@@ -124,11 +124,11 @@ export function AttendantMetricsView({
       <div
         role="region"
         aria-label="Nota de uso responsável das métricas"
-        className="flex items-start gap-3 rounded-2xl border border-amber-200 bg-amber-50/80 p-4 text-xs text-amber-900 dark:border-amber-900/50 dark:bg-amber-950/30 dark:text-amber-200"
+        className="flex items-start gap-3 rounded-card border border-warning/40 bg-warning-tint p-4 text-xs text-warning-ink"
       >
-        <Info className="h-4 w-4 shrink-0 text-amber-600 dark:text-amber-400 mt-0.5" />
+        <Info className="h-4 w-4 shrink-0 text-warning-ink mt-0.5" />
         <div className="space-y-1">
-          <p className="font-semibold text-amber-950 dark:text-amber-100">
+          <p className="font-semibold text-warning-ink">
             Uso Responsável das Métricas Individuais
           </p>
           <p className="leading-relaxed">
@@ -143,7 +143,7 @@ export function AttendantMetricsView({
 
       {metrics.length === 0 ? (
         <EmptyState
-          icon={<Users className="h-6 w-6 text-zinc-500" />}
+          icon={<Users className="h-6 w-6 text-ink-2" />}
           title="Nenhum atendimento registrado"
           description="Assim que os garçons assumirem e concluírem chamados pelo painel, os dados de desempenho serão consolidados aqui."
         />
@@ -151,17 +151,17 @@ export function AttendantMetricsView({
         <>
           {/* Seletor de ordenação rápido no Mobile */}
           <div className="flex flex-col gap-2 md:hidden">
-            <span className="text-xs font-semibold text-zinc-500 dark:text-zinc-400">
+            <span className="text-xs font-semibold text-ink-2">
               Ordenar por:
             </span>
             <div className="flex flex-wrap gap-1.5">
               <button
                 type="button"
                 onClick={() => handleSort("totalCallsAttended")}
-                className={`rounded-lg px-2.5 py-1 text-xs font-medium transition-colors ${
+                className={`rounded-control px-2.5 py-1 text-xs font-medium transition-colors ${
                   sortField === "totalCallsAttended"
-                    ? "bg-orange-600 text-white"
-                    : "bg-zinc-100 text-zinc-700 hover:bg-zinc-200 dark:bg-zinc-800 dark:text-zinc-300"
+                    ? "bg-primary text-white"
+                    : "bg-nav text-ink-2 hover:bg-nav"
                 }`}
               >
                 Mais Atendidos
@@ -169,10 +169,10 @@ export function AttendantMetricsView({
               <button
                 type="button"
                 onClick={() => handleSort("avgResponseTimeSec")}
-                className={`rounded-lg px-2.5 py-1 text-xs font-medium transition-colors ${
+                className={`rounded-control px-2.5 py-1 text-xs font-medium transition-colors ${
                   sortField === "avgResponseTimeSec"
-                    ? "bg-orange-600 text-white"
-                    : "bg-zinc-100 text-zinc-700 hover:bg-zinc-200 dark:bg-zinc-800 dark:text-zinc-300"
+                    ? "bg-primary text-white"
+                    : "bg-nav text-ink-2 hover:bg-nav"
                 }`}
               >
                 Resposta Rápida
@@ -180,10 +180,10 @@ export function AttendantMetricsView({
               <button
                 type="button"
                 onClick={() => handleSort("slowestResponseSec")}
-                className={`rounded-lg px-2.5 py-1 text-xs font-medium transition-colors ${
+                className={`rounded-control px-2.5 py-1 text-xs font-medium transition-colors ${
                   sortField === "slowestResponseSec"
-                    ? "bg-orange-600 text-white"
-                    : "bg-zinc-100 text-zinc-700 hover:bg-zinc-200 dark:bg-zinc-800 dark:text-zinc-300"
+                    ? "bg-primary text-white"
+                    : "bg-nav text-ink-2 hover:bg-nav"
                 }`}
               >
                 Maior Espera
@@ -200,7 +200,7 @@ export function AttendantMetricsView({
                     <button
                       type="button"
                       onClick={() => handleSort("username")}
-                      className="group flex items-center font-semibold text-zinc-900 dark:text-zinc-100 hover:text-orange-600 dark:hover:text-orange-400"
+                      className="group flex items-center font-semibold text-ink hover:text-primary-ink"
                     >
                       <span>Garçom</span>
                       {renderSortIcon("username")}
@@ -210,7 +210,7 @@ export function AttendantMetricsView({
                     <button
                       type="button"
                       onClick={() => handleSort("totalCallsAttended")}
-                      className="group ml-auto flex items-center font-semibold text-zinc-900 dark:text-zinc-100 hover:text-orange-600 dark:hover:text-orange-400"
+                      className="group ml-auto flex items-center font-semibold text-ink hover:text-primary-ink"
                     >
                       <span>Atendimentos</span>
                       {renderSortIcon("totalCallsAttended")}
@@ -220,7 +220,7 @@ export function AttendantMetricsView({
                     <button
                       type="button"
                       onClick={() => handleSort("avgResponseTimeSec")}
-                      className="group ml-auto flex items-center font-semibold text-zinc-900 dark:text-zinc-100 hover:text-orange-600 dark:hover:text-orange-400"
+                      className="group ml-auto flex items-center font-semibold text-ink hover:text-primary-ink"
                     >
                       <span>Tempo Médio</span>
                       {renderSortIcon("avgResponseTimeSec")}
@@ -230,7 +230,7 @@ export function AttendantMetricsView({
                     <button
                       type="button"
                       onClick={() => handleSort("fastestResponseSec")}
-                      className="group ml-auto flex items-center font-semibold text-zinc-900 dark:text-zinc-100 hover:text-orange-600 dark:hover:text-orange-400"
+                      className="group ml-auto flex items-center font-semibold text-ink hover:text-primary-ink"
                     >
                       <span>Mais Rápido</span>
                       {renderSortIcon("fastestResponseSec")}
@@ -240,7 +240,7 @@ export function AttendantMetricsView({
                     <button
                       type="button"
                       onClick={() => handleSort("slowestResponseSec")}
-                      className="group ml-auto flex items-center font-semibold text-zinc-900 dark:text-zinc-100 hover:text-orange-600 dark:hover:text-orange-400"
+                      className="group ml-auto flex items-center font-semibold text-ink hover:text-primary-ink"
                     >
                       <span>Mais Lento</span>
                       {renderSortIcon("slowestResponseSec")}
@@ -253,23 +253,27 @@ export function AttendantMetricsView({
                   <TableRow key={attendant.userId}>
                     <TableCell className="font-medium">
                       <div className="flex items-center gap-2">
-                        <span className="font-semibold text-zinc-900 dark:text-zinc-100">
+                        <span className="font-semibold text-ink">
                           {attendant.username}
                         </span>
                       </div>
                     </TableCell>
                     <TableCell className="text-right">
-                      <Badge variant="neutral" size="sm" className="font-mono">
+                      <Badge
+                        variant="neutral"
+                        size="sm"
+                        className="tabular-nums"
+                      >
                         {attendant.totalCallsAttended} chamados
                       </Badge>
                     </TableCell>
-                    <TableCell className="text-right font-mono text-xs text-zinc-700 dark:text-zinc-300">
+                    <TableCell className="text-right tabular-nums text-xs text-ink-2">
                       {formatDuration(attendant.avgResponseTimeSec)}
                     </TableCell>
-                    <TableCell className="text-right font-mono text-xs text-zinc-700 dark:text-zinc-300">
+                    <TableCell className="text-right tabular-nums text-xs text-ink-2">
                       {formatDuration(attendant.fastestResponseSec)}
                     </TableCell>
-                    <TableCell className="text-right font-mono text-xs text-zinc-700 dark:text-zinc-300">
+                    <TableCell className="text-right tabular-nums text-xs text-ink-2">
                       {formatDuration(attendant.slowestResponseSec)}
                     </TableCell>
                   </TableRow>
@@ -283,42 +287,42 @@ export function AttendantMetricsView({
             {sortedMetrics.map((attendant) => (
               <Card key={attendant.userId} className="p-4 space-y-3">
                 <div className="flex items-center justify-between">
-                  <h4 className="font-bold text-zinc-900 dark:text-zinc-100 text-sm">
+                  <h4 className="font-bold text-ink text-sm">
                     {attendant.username}
                   </h4>
-                  <Badge variant="neutral" size="sm" className="font-mono">
-                    <CheckCircle2 className="mr-1 h-3 w-3 text-emerald-600" />
+                  <Badge variant="neutral" size="sm" className="tabular-nums">
+                    <CheckCircle2 className="mr-1 h-3 w-3 text-success" />
                     {attendant.totalCallsAttended} atendidos
                   </Badge>
                 </div>
 
-                <div className="grid grid-cols-3 gap-2 pt-2 border-t border-zinc-100 dark:border-zinc-800 text-center">
-                  <div className="rounded-xl bg-zinc-50 dark:bg-zinc-800/50 p-2">
-                    <div className="flex items-center justify-center gap-1 text-[10px] text-zinc-500">
-                      <Clock className="h-3 w-3 text-blue-500" />
+                <div className="grid grid-cols-3 gap-2 pt-2 border-t border-border-subtle text-center">
+                  <div className="rounded-control bg-nav p-2">
+                    <div className="flex items-center justify-center gap-1 text-xs text-ink-2">
+                      <Clock className="h-3 w-3 text-ink-2" />
                       <span>Média</span>
                     </div>
-                    <p className="mt-1 font-mono text-xs font-bold text-zinc-900 dark:text-zinc-100">
+                    <p className="mt-1 tabular-nums text-xs font-bold text-ink">
                       {formatDuration(attendant.avgResponseTimeSec)}
                     </p>
                   </div>
 
-                  <div className="rounded-xl bg-zinc-50 dark:bg-zinc-800/50 p-2">
-                    <div className="flex items-center justify-center gap-1 text-[10px] text-zinc-500">
-                      <Zap className="h-3 w-3 text-amber-500" />
+                  <div className="rounded-control bg-nav p-2">
+                    <div className="flex items-center justify-center gap-1 text-xs text-ink-2">
+                      <Zap className="h-3 w-3 text-warning-ink" />
                       <span>Mais rápido</span>
                     </div>
-                    <p className="mt-1 font-mono text-xs font-bold text-zinc-900 dark:text-zinc-100">
+                    <p className="mt-1 tabular-nums text-xs font-bold text-ink">
                       {formatDuration(attendant.fastestResponseSec)}
                     </p>
                   </div>
 
-                  <div className="rounded-xl bg-zinc-50 dark:bg-zinc-800/50 p-2">
-                    <div className="flex items-center justify-center gap-1 text-[10px] text-zinc-500">
-                      <Hourglass className="h-3 w-3 text-red-500" />
+                  <div className="rounded-control bg-nav p-2">
+                    <div className="flex items-center justify-center gap-1 text-xs text-ink-2">
+                      <Hourglass className="h-3 w-3 text-danger-ink" />
                       <span>Mais lento</span>
                     </div>
-                    <p className="mt-1 font-mono text-xs font-bold text-zinc-900 dark:text-zinc-100">
+                    <p className="mt-1 tabular-nums text-xs font-bold text-ink">
                       {formatDuration(attendant.slowestResponseSec)}
                     </p>
                   </div>

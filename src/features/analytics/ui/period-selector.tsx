@@ -51,17 +51,17 @@ export function PeriodSelector({
   };
 
   return (
-    <div className="flex flex-col gap-3 rounded-2xl border border-zinc-200 bg-white p-4 shadow-xs dark:border-zinc-800 dark:bg-zinc-900">
+    <div className="flex flex-col gap-3 rounded-card border border-border bg-surface p-4">
       <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-3">
         {/* Seletor de Presets (Tabs Pílula) */}
         <div className="flex flex-wrap items-center gap-1.5">
           <button
             type="button"
             onClick={() => onPresetChange("today")}
-            className={`rounded-xl px-3 py-1.5 text-xs font-semibold transition-colors ${
+            className={`rounded-control px-3 py-1.5 text-xs font-semibold transition-colors ${
               preset === "today"
-                ? "bg-zinc-900 text-white dark:bg-zinc-100 dark:text-zinc-900 shadow-xs"
-                : "text-zinc-600 hover:bg-zinc-100 dark:text-zinc-400 dark:hover:bg-zinc-800"
+                ? "bg-ink text-canvas"
+                : "text-ink-2 hover:bg-nav"
             }`}
           >
             Hoje
@@ -70,10 +70,10 @@ export function PeriodSelector({
           <button
             type="button"
             onClick={() => onPresetChange("yesterday")}
-            className={`rounded-xl px-3 py-1.5 text-xs font-semibold transition-colors ${
+            className={`rounded-control px-3 py-1.5 text-xs font-semibold transition-colors ${
               preset === "yesterday"
-                ? "bg-zinc-900 text-white dark:bg-zinc-100 dark:text-zinc-900 shadow-xs"
-                : "text-zinc-600 hover:bg-zinc-100 dark:text-zinc-400 dark:hover:bg-zinc-800"
+                ? "bg-ink text-canvas"
+                : "text-ink-2 hover:bg-nav"
             }`}
           >
             Ontem
@@ -82,10 +82,8 @@ export function PeriodSelector({
           <button
             type="button"
             onClick={() => onPresetChange("7d")}
-            className={`rounded-xl px-3 py-1.5 text-xs font-semibold transition-colors ${
-              preset === "7d"
-                ? "bg-zinc-900 text-white dark:bg-zinc-100 dark:text-zinc-900 shadow-xs"
-                : "text-zinc-600 hover:bg-zinc-100 dark:text-zinc-400 dark:hover:bg-zinc-800"
+            className={`rounded-control px-3 py-1.5 text-xs font-semibold transition-colors ${
+              preset === "7d" ? "bg-ink text-canvas" : "text-ink-2 hover:bg-nav"
             }`}
           >
             7 dias
@@ -94,10 +92,10 @@ export function PeriodSelector({
           <button
             type="button"
             onClick={() => onPresetChange("30d")}
-            className={`rounded-xl px-3 py-1.5 text-xs font-semibold transition-colors ${
+            className={`rounded-control px-3 py-1.5 text-xs font-semibold transition-colors ${
               preset === "30d"
-                ? "bg-zinc-900 text-white dark:bg-zinc-100 dark:text-zinc-900 shadow-xs"
-                : "text-zinc-600 hover:bg-zinc-100 dark:text-zinc-400 dark:hover:bg-zinc-800"
+                ? "bg-ink text-canvas"
+                : "text-ink-2 hover:bg-nav"
             }`}
           >
             30 dias
@@ -106,10 +104,10 @@ export function PeriodSelector({
           <button
             type="button"
             onClick={() => onPresetChange("custom")}
-            className={`rounded-xl px-3 py-1.5 text-xs font-semibold transition-colors ${
+            className={`rounded-control px-3 py-1.5 text-xs font-semibold transition-colors ${
               preset === "custom"
-                ? "bg-zinc-900 text-white dark:bg-zinc-100 dark:text-zinc-900 shadow-xs"
-                : "text-zinc-600 hover:bg-zinc-100 dark:text-zinc-400 dark:hover:bg-zinc-800"
+                ? "bg-ink text-canvas"
+                : "text-ink-2 hover:bg-nav"
             }`}
           >
             Personalizado
@@ -117,10 +115,10 @@ export function PeriodSelector({
 
           {/* Badge de tempo real */}
           {isLive && (
-            <div className="ml-1 inline-flex items-center gap-1.5 rounded-lg bg-emerald-50 px-2 py-1 text-[11px] font-semibold text-emerald-700 dark:bg-emerald-950/50 dark:text-emerald-300">
+            <div className="ml-1 inline-flex items-center gap-1.5 rounded-control bg-success-tint px-2 py-1 text-xs font-semibold text-success">
               <span className="relative flex h-2 w-2">
-                <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-emerald-400 opacity-75" />
-                <span className="relative inline-flex h-2 w-2 rounded-full bg-emerald-500" />
+                <span className="absolute inline-flex h-full w-full rounded-full bg-success opacity-75" />
+                <span className="relative inline-flex h-2 w-2 rounded-full bg-success" />
               </span>
               <span>Tempo real (30s)</span>
             </div>
@@ -144,32 +142,32 @@ export function PeriodSelector({
 
       {/* Inputs de Data para modo Personalizado */}
       {preset === "custom" && (
-        <div className="flex flex-col sm:flex-row items-center gap-3 pt-3 border-t border-zinc-100 dark:border-zinc-800 text-xs animate-in fade-in-0 duration-150">
+        <div className="flex flex-col sm:flex-row items-center gap-3 pt-3 border-t border-border-subtle text-xs animate-in fade-in-0 duration-150">
           <div className="flex items-center gap-2 w-full sm:w-auto">
-            <span className="text-zinc-500 font-medium">De:</span>
+            <span className="text-ink-2 font-medium">De:</span>
             <Input
               type="date"
               value={range.from}
               onChange={(e) =>
                 onCustomRangeChange({ ...range, from: e.target.value })
               }
-              className="h-9 w-full sm:w-44 text-xs font-mono"
+              className="h-9 w-full sm:w-44 text-xs tabular-nums"
             />
           </div>
 
           <div className="flex items-center gap-2 w-full sm:w-auto">
-            <span className="text-zinc-500 font-medium">Até:</span>
+            <span className="text-ink-2 font-medium">Até:</span>
             <Input
               type="date"
               value={range.to}
               onChange={(e) =>
                 onCustomRangeChange({ ...range, to: e.target.value })
               }
-              className="h-9 w-full sm:w-44 text-xs font-mono"
+              className="h-9 w-full sm:w-44 text-xs tabular-nums"
             />
           </div>
 
-          <div className="text-[11px] text-zinc-400 ml-auto hidden sm:block">
+          <div className="text-xs text-ink-2 ml-auto hidden sm:block">
             Datas calculadas no fuso horário do restaurante
           </div>
         </div>

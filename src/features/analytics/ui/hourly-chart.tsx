@@ -54,18 +54,20 @@ function CustomTooltip({ active, payload, label }: CustomTooltipProps) {
       payload.find((p) => p.dataKey === "averageResponseTimeSec")?.value || 0;
 
     return (
-      <div className="rounded-xl border border-zinc-200 bg-white p-3 shadow-lg dark:border-zinc-800 dark:bg-zinc-900 text-xs">
-        <p className="font-bold text-zinc-900 dark:text-zinc-100 mb-1">
+      <div className="rounded-control border border-border bg-surface p-3 shadow-elevation-1 text-xs">
+        <p className="font-bold text-ink mb-1">
           Horário: {label}h:00 às {label}h:59
         </p>
         <div className="space-y-1">
-          <p className="flex items-center justify-between gap-4 text-orange-600 dark:text-orange-400">
+          <p className="flex items-center justify-between gap-4 text-primary-ink">
             <span>Volume de chamados:</span>
-            <strong className="font-mono">{totalCalls}</strong>
+            <strong className="tabular-nums">{totalCalls}</strong>
           </p>
-          <p className="flex items-center justify-between gap-4 text-zinc-600 dark:text-zinc-400">
+          <p className="flex items-center justify-between gap-4 text-ink-2">
             <span>Espera média:</span>
-            <strong className="font-mono">{formatDurationSec(waitSec)}</strong>
+            <strong className="tabular-nums">
+              {formatDurationSec(waitSec)}
+            </strong>
           </p>
         </div>
       </div>
@@ -93,11 +95,11 @@ export function HourlyChart({ hourly }: HourlyChartProps) {
     <Card className="overflow-hidden">
       <CardHeader className="flex flex-col sm:flex-row sm:items-center justify-between pb-2 gap-2">
         <div>
-          <CardTitle className="text-base font-bold text-zinc-900 dark:text-zinc-100 flex items-center gap-2">
-            <BarChart3 className="h-4 w-4 text-orange-600 dark:text-orange-400" />
+          <CardTitle className="text-base font-bold text-ink flex items-center gap-2">
+            <BarChart3 className="h-4 w-4 text-primary-ink" />
             <span>Distribuição de Chamados por Hora</span>
           </CardTitle>
-          <CardDescription className="text-xs text-zinc-500 dark:text-zinc-400">
+          <CardDescription className="text-xs text-ink-2">
             Identifique os horários de pico e gargalos de atendimento no salão
           </CardDescription>
         </div>
@@ -130,8 +132,8 @@ export function HourlyChart({ hourly }: HourlyChartProps) {
 
       <CardContent className="pt-4">
         {!hasData ? (
-          <div className="flex h-64 flex-col items-center justify-center rounded-xl border border-dashed border-zinc-200 text-center dark:border-zinc-800">
-            <p className="text-sm font-medium text-zinc-500">
+          <div className="flex h-64 flex-col items-center justify-center rounded-control border border-dashed border-border text-center">
+            <p className="text-sm font-medium text-ink-2">
               Nenhum chamado registrado nas horas deste período.
             </p>
           </div>
@@ -153,13 +155,13 @@ export function HourlyChart({ hourly }: HourlyChartProps) {
               <TableBody>
                 {chartData.map((row) => (
                   <TableRow key={row.hour}>
-                    <TableCell className="font-mono font-medium">
+                    <TableCell className="tabular-nums font-medium">
                       {row.hourLabel}
                     </TableCell>
-                    <TableCell className="text-right font-mono">
+                    <TableCell className="text-right tabular-nums">
                       {row.totalCalls}
                     </TableCell>
-                    <TableCell className="text-right font-mono">
+                    <TableCell className="text-right tabular-nums">
                       {formatDurationSec(row.averageResponseTimeSec)}
                     </TableCell>
                   </TableRow>
@@ -178,18 +180,17 @@ export function HourlyChart({ hourly }: HourlyChartProps) {
                 <CartesianGrid
                   strokeDasharray="3 3"
                   vertical={false}
-                  stroke="#e4e4e7"
-                  className="dark:stroke-zinc-800"
+                  stroke="var(--border)"
                 />
                 <XAxis
                   dataKey="hourLabel"
-                  tick={{ fontSize: 11, fill: "#71717a" }}
+                  tick={{ fontSize: 11, fill: "var(--ink-2)" }}
                   tickLine={false}
-                  axisLine={{ stroke: "#e4e4e7" }}
+                  axisLine={{ stroke: "var(--border)" }}
                 />
                 <YAxis
                   allowDecimals={false}
-                  tick={{ fontSize: 11, fill: "#71717a" }}
+                  tick={{ fontSize: 11, fill: "var(--ink-2)" }}
                   tickLine={false}
                   axisLine={false}
                 />
@@ -202,7 +203,7 @@ export function HourlyChart({ hourly }: HourlyChartProps) {
                 <Bar
                   dataKey="totalCalls"
                   name="Total de Chamados"
-                  fill="#ea580c"
+                  fill="var(--brand)"
                   radius={[4, 4, 0, 0]}
                   maxBarSize={32}
                 />
