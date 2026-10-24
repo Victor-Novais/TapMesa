@@ -123,3 +123,15 @@ A validação foi conduzida simulando os três principais leitores de tela do me
 ## 7. Conclusão e Próximos Passos
 
 Com a eliminação de todos os achados críticos e médios e a implementação transversal de tokens acessíveis, skip links, áreas de toque expandidas e independência de cores, a plataforma TapMesa atende integralmente ao critério de aceite da tarefa **F20** e está pronta para o polimento final de movimento e acabamento na tarefa **F21**.
+
+---
+
+## 8. Redesign visual (DESIGN_PLAN, out/2026)
+
+- **Contraste:** paleta nova validada em WCAG AA nos dois temas — texto secundário `#5C5852` (6,66:1 no canvas, 6,16:1 no nav), botão primário `#C4452D` com branco (4,96:1), contorno de campo `#8F887E` (3,5:1), alerta preenchido com tinta escura (6,21:1), badges tint + tinta ≥ 5,1:1, `#948F87` só em ícones/desabilitado. Tabela completa em `docs/design/DESIGN.md` §2.
+- **Tela da mesa:** segue só o tema do restaurante (o modo escuro do celular não interfere); "Chamar garçom" mantém a proteção de contraste do rótulo e ganha borda de 2px quando o botão tem menos de 3:1 contra o fundo; `<main>` aninhado corrigido; botões de avaliação de 64px e fechar de 44px.
+- **Painel:** nível legível sem cor (ícone + palavra + espessura da borda); nada pisca em repouso; cronômetro `h:mm:ss` acima de 60 min.
+- **Alvos de toque:** 44px em ações de cabeçalho, banners, gavetas e diálogos; 56/64px no painel.
+- **Movimento:** só transform/opacity/cor, `prefers-reduced-motion` respeitado, sem `animate-pulse`/`ping`/`bounce` fora de carregamento.
+- **Lighthouse acessibilidade (mobile):** `/m/[token]` 95 → 100, `/login` 93 → 100.
+- **Garantia contínua:** regra de ESLint bloqueia paleta crua do Tailwind fora de `globals.css`.

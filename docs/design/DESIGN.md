@@ -1,110 +1,101 @@
 # TapMesa — Design System & Diretrizes Visuais
 
-_Documento de referência oficial de identidade, tokens, tipografia, componentes e padrões de interação do TapMesa Frontend._
+_Referência de identidade, tokens, tipografia, componentes e padrões de interação do TapMesa Frontend. Fonte da verdade dos valores: `src/app/globals.css`. Plano e decisões: [`DESIGN_PLAN.md`](./DESIGN_PLAN.md)._
 
 ## 1. Visão e Personalidade
 
-- **Contextos de Uso:**
-  1. **Cliente na mesa com celular:** Acesso imediato via QR Code, sem cadastro. Iluminação diversa (penumbra de bar a sol de praia). Botões ultra-acessíveis com alvos de 64px, feedback sonoro/tátil leve e contagem regressiva visível.
-  2. **Garçom no salão (Tablet / TV):** Dispositivo em movimento contínuo ou TV afixada na parede (distância de leitura de até 3 metros). Cards com alto contraste, número da mesa em destaque, cores semânticas acompanhadas sempre de ícones e textos explícitos (Normal, Alerta, Urgente).
-  3. **Dono no escritório (Desktop / Celular):** Foco em inteligência analítica, rapidez na tomada de decisão (Resumo do Dia, métricas de equipe, lote de mesas e customização visual com pré-visualização ao vivo).
-- **Personalidade da Interface:**
-  - _Calma:_ Interface despoluída, sem poluição visual ou alarmismo estressante.
-  - _Confiável:_ Transparência do estado da rede (ConnectionIndicator), tratamento tolerante a falhas e confirmação clara em todas as mutações.
-  - _Rápida:_ Interações táteis instantâneas (INP < 100ms), transições curtas e objetivas (150ms–200ms), suporte a teclado e foco visível.
+- **Contextos de uso:**
+  1. **Cliente na mesa com celular:** acesso por QR Code, sem cadastro, em qualquer luz. Botões de 64px, feedback imediato e tempo de espera visível. A tela segue **só o tema do restaurante**, nunca o modo escuro do celular.
+  2. **Garçom no salão (tablet/TV):** leitura a até 3 m. Número da mesa e cronômetro grandes, nível sempre com ícone + palavra (Normal, Alerta, Urgente), nada piscando.
+  3. **Dono no escritório (desktop/celular):** Resumo do Dia, equipe, mesas e aparência com pré-visualização ao vivo.
+- **Personalidade:** calma (sem alarmismo), confiável (estado da conexão sempre visível) e rápida (transições de 150–250 ms).
 
-## 2. Referências de Design (Awesome Design & Taste)
+## 2. Cores
 
-1. **Linear:** Precisão tipográfica, espaçamento rigoroso, ausência de bordas pesadas e hierarquia equilibrada de superfícies em modo claro e escuro.
-2. **Stripe & Wise:** Clareza e densidade de dados analíticos, tabelas com paginação fluida e diálogos de segurança de segredo único (`OneTimeSecretDialog`).
-3. **Toast POS:** Alvos de toque generosos, feedback imediato em ambientes de alto ritmo e estados visuais claros para chamados críticos.
+Use **sempre** os tokens abaixo. A paleta crua do Tailwind (`bg-zinc-100`, `text-red-600`…) é bloqueada pelo ESLint fora de `globals.css` (exceção: `table-print-card.tsx`, que é papel).
 
-## 3. Tokens de Design
+### 2.1 Tokens (claro / escuro)
 
-### 3.1 Cores Semânticas
+| Token (utilitário)                       | Claro     | Escuro    | Uso                                                     |
+| ---------------------------------------- | --------- | --------- | ------------------------------------------------------- |
+| `bg-canvas`                              | `#F9F8F6` | `#141615` | Fundo da página                                         |
+| `bg-nav`                                 | `#F2EFE9` | `#1F1D1B` | Sidebar, trilhos de abas, blocos de apoio               |
+| `bg-surface`                             | `#FFFFFF` | `#2A2421` | Cards, tabelas, cabeçalhos                              |
+| `bg-raised`                              | `#FFFFFF` | `#36302C` | Diálogos, menus, gavetas                                |
+| `bg-espresso` / `text-on-espresso`       | `#2A2421` | `#2A2421` | Cabeçalho do admin                                      |
+| `text-ink`                               | `#141615` | `#F9F8F6` | Texto principal                                         |
+| `text-ink-2`                             | `#5C5852` | `#C9C3BA` | Texto secundário (≥ 4,5:1)                              |
+| `text-ink-3`                             | `#948F87` | `#A39C92` | Só ícones, desabilitado ou texto ≥ 24px                 |
+| `bg-brand` / `text-brand`                | `#D94E34` | `#D94E34` | Marca, destaques gráficos, foco                         |
+| `bg-primary` / `text-on-primary`         | `#C4452D` | —         | Botão primário (branco 4,96:1)                          |
+| `text-primary-ink`                       | `#B23E29` | `#E86E55` | Terracotta como texto/link                              |
+| `bg-success` / `text-success`            | `#2E6F40` | `#62B079` | Sucesso, "assumido por você", confirmado                |
+| `bg-warning` / `text-on-warning`         | `#D9822B` | `#E39343` | Alerta (preenchido com tinta escura)                    |
+| `text-warning-ink`                       | `#8F531A` | `#E39343` | Alerta como texto                                       |
+| `bg-danger` / `text-on-danger`           | `#C92A2A` | `#EC7066` | Urgente, destrutivo                                     |
+| `text-danger-ink`                        | `#A82424` | `#EC7066` | Erro como texto                                         |
+| `bg-{success,warning,danger,brand}-tint` | claros    | escuros   | Fundos de badge e aviso (sempre com a tinta da família) |
+| `border-border` / `border-border-subtle` | `#E6E1D8` | `#433D3B` | Divisórias e contornos de card                          |
+| `border-border-control`                  | `#8F887E` | `#7A736D` | Contorno de campo (3,5:1)                               |
+| `ring-focus-ring`                        | `#D94E34` | `#E86E55` | Anel de foco 2px com afastamento                        |
 
-Tokens baseados em variáveis CSS compatíveis com claro e escuro:
+### 2.2 Regras de uso
 
-- **Superfície & Fundo:**
-  - `bg-background` (`--bg-background`): `#ffffff` (claro) / `#09090b` (escuro)
-  - `bg-surface` (`--bg-surface`): `#f4f4f5` (claro) / `#18181b` (escuro)
-  - `bg-surface-elevated` (`--bg-surface-elevated`): `#ffffff` (claro) / `#27272a` (escuro)
-- **Texto:**
-  - `text-foreground` (`--text-foreground`): `#09090b` (claro) / `#fafafa` (escuro)
-  - `text-muted` (`--text-muted`): `#71717a` (claro) / `#a1a1aa` (escuro)
-- **Bordas & Divisores:**
-  - `border-default` (`--border-default`): `#e4e4e7` (claro) / `#27272a` (escuro)
-  - `border-subtle` (`--border-subtle`): `#f4f4f5` (claro) / `#1f1f23` (escuro)
-- **Cores de Marca & Ação:**
-  - `primary` (`--color-primary`): `#ea580c` (Laranja quente TapMesa — acolhedor, vibrante, alta visibilidade em ambientes gastronômicos)
-  - `primary-hover`: `#c2410c`
-  - `primary-foreground`: `#ffffff`
-- **Feedback Semântico:**
-  - `success`: `#16a34a` (claro) / `#22c55e` (escuro)
-  - `alert` (Alerta do Painel): `#eab308` (claro) / `#facc15` (escuro)
-  - `danger` / `urgent` (Urgência do Painel / Exclusão): `#dc2626` (claro) / `#ef4444` (escuro)
-  - `info`: `#2563eb` (claro) / `#3b82f6` (escuro)
+- Cor nunca é o único sinal: nível, status e erro levam ícone e palavra.
+- Verde é reservado a sucesso/confirmado. "Conta" não é verde (ícone de recibo + texto).
+- Tint + tinta da mesma família para badges; preenchimento cheio só para estado crítico (Urgente, desconectado).
+- Sem gradientes, `backdrop-blur` ou sombras coloridas. Sobre imagem de fundo do restaurante, só um filme escuro (`bg-black/60`).
 
-### 3.2 Tipografia
+### 2.3 Tela da mesa e personalização do restaurante
 
-- Fonte principal de UI: `Inter` (sans-serif)
-- Fonte de dados tabulares, códigos e timers: `JetBrains Mono` ou `ui-monospace` com `tabular-nums`
-- Escala:
-  - `text-xs`: 12px (0.75rem)
-  - `text-sm`: 14px (0.875rem)
-  - `text-base`: 16px (1rem) — tamanho mínimo para formulários no iOS (evita zoom indesejado)
-  - `text-lg`: 18px (1.125rem)
-  - `text-xl`: 20px (1.25rem)
-  - `text-2xl`: 24px (1.5rem)
-  - `text-3xl`: 30px (1.875rem)
-  - `text-4xl`: 36px (2.25rem) — cabeçalhos de TV e destaques de mesa
-  - `text-5xl`: 48px (3rem) — número da mesa no painel em TV
+- O restaurante sobrepõe `background`, `primary`, `primaryText`, `secondary` e `text`. Os padrões TapMesa (`#F9F8F6`, `#C4452D`, `#FFFFFF`, `#2A2421`, `#141615`) valem só quando o campo vem ausente/nulo.
+- `TableThemeProvider` decide o tom pela luminância do fundo (`data-surface="table-light|table-dark"`, também no `<html>` em `/m`). Os tokens dentro da tela seguem esse tom; o modo escuro do celular é ignorado.
+- "Chamar garçom" usa a cor primária do restaurante; o rótulo passa pela proteção de contraste e, se o botão tiver menos de 3:1 contra o fundo, ganha borda de 2px na cor do texto.
+- Proposta de paleta padrão para o back-end: [`TABLE_DEFAULT_PALETTE.md`](./TABLE_DEFAULT_PALETTE.md).
 
-### 3.3 Espaçamento & Dimensões
+## 3. Tipografia
 
-- Escala base de 4px: `0.25rem` (4px), `0.5rem` (8px), `0.75rem` (12px), `1rem` (16px), `1.5rem` (24px), `2rem` (32px), `3rem` (48px), `4rem` (64px).
-- **Alvos de toque:**
-  - Base / Dashboard / Admin: mínimo **44px** × 44px
-  - Tela da Mesa (`/m/[token]`): mínimo **64px** de altura para os botões de ação principal
+- Fonte única: **Inter**. Números em `tabular-nums`; `font-mono` só para URLs, códigos, IDs e credenciais (o E2E depende de `p.font-mono` e `span.font-mono.text-lg` no diálogo de credenciais).
+- Escala: 12 (mínimo para texto), 14, 16 (campos e corpo), 18, 20, 24 (título de página), 30, 36.
+- Painel em TV: tamanhos fluidos com `clamp()` — número da mesa `clamp(2rem, 2.2vw + 1rem, 4.5rem)`, cronômetro `clamp(1.75rem, 1.6vw + 1rem, 3.5rem)`, nível `clamp(0.875rem, 0.75vw + 0.375rem, 1.5rem)` (≥ 20px a 1920).
+- Cronômetro: `mm:ss` até 59:59, depois `h:mm:ss` (ex.: `1:02:06`).
 
-### 3.4 Breakpoints Responsivos
+## 4. Forma, espaço e elevação
 
-- `sm`: 390px (Smartphones modernos)
-- `md`: 600px (Tablets em modo retrato)
-- `lg`: 900px (Tablets em paisagem / Laptops compactos)
-- `xl`: 1280px (Desktop Full HD)
-- `2xl`: 1920px (Monitores grandes e Smart TVs)
-- `3xl`: 3840px (TVs 4K)
+- Raios: `rounded-chip` 6px · `rounded-control` 10px · `rounded-card` 14px · `rounded-sheet` 20px.
+- Elevação: `shadow-elevation-1` (cards em destaque), `-2` (barras flutuantes, toasts), `-3` (diálogos). No escuro a elevação 1 some; a superfície mais clara faz o papel.
+- Espaçamento em múltiplos de 4px. Gutter: 16 (mobile), 24 (tablet), 32 (desktop), 48–64 (TV).
+- Alvos de toque: 44px no dashboard/admin/painel; 64px nos botões principais da mesa; 56px (64px em TV) nas ações do card do painel.
 
-### 3.5 Movimento & Transições (Emil Kowalski)
+## 5. Breakpoints
 
-- Duração padrão: 150ms a 200ms
-- Easing: `cubic-bezier(0.16, 1, 0.3, 1)`
-- `prefers-reduced-motion`: Animações transformam-se em opacidade instantânea (0.01ms), preservando a acessibilidade.
+| Nome  | Largura | Uso principal                            |
+| ----- | ------- | ---------------------------------------- |
+| `xs`  | 400px   | Botão "Painel" no cabeçalho do dashboard |
+| `sm`  | 640px   | Painel em 2 colunas                      |
+| `md`  | 768px   | Tablet retrato                           |
+| `lg`  | 1024px  | Sidebar fixa; painel em 3 colunas        |
+| `xl`  | 1280px  | Desktop                                  |
+| `2xl` | 1536px  | Desktop largo                            |
+| `3xl` | 1920px  | Painel em TV: 4 colunas, botões 64px     |
+| `4xl` | 2560px  | TV grande: 5 colunas                     |
 
-## 4. Componentes Base do Design System
+## 6. Movimento
 
-Construídos sobre Radix UI e Tailwind CSS em `src/shared/ui/`:
+- Durações: 100 (feedback de toque), 150 (saída), 200 (entrada de diálogo/gaveta), 250 ms (toast). Easing de entrada `ease-out-soft` (`cubic-bezier(0.16, 1, 0.3, 1)`).
+- Só `transform`, `opacity` e cor; nunca `transition-all`.
+- Nada pisca em repouso: sem `animate-pulse`/`ping`/`bounce` fora de esqueletos e carregamentos (`motion-safe:`).
+- `prefers-reduced-motion`: animações e transições caem para ~0 ms.
 
-1. `Button` (variantes: primary, secondary, outline, ghost, danger; tamanhos: sm, md, lg, table [64px])
-2. `IconButton` (acessível com aria-label obrigatório)
-3. `Input` (estados hover, focus-visible, error, disabled)
-4. `Textarea` (com contador de caracteres)
-5. `Select` (Radix Select com teclado acessível)
-6. `Switch` (Radix Switch com rótulo descritivo)
-7. `Checkbox` (Radix Checkbox)
-8. `Badge` (neutral, success, alert, danger, info)
-9. `Card` (Card, CardHeader, CardTitle, CardDescription, CardContent, CardFooter)
-10. `Dialog` (Radix Dialog; vira bottom-sheet responsivo em mobile)
-11. `Drawer` (Bottom sheet para ações e detalhes mobile)
-12. `Tabs` (Radix Tabs para alternância de visualizações)
-13. `Toast` (Notificações não-bloqueantes com `sonner` ou Radix Toast)
-14. `Tooltip` (Radix Tooltip para dicas pontuais)
-15. `Skeleton` (Esqueleto de carregamento com animação de pulso sutil)
-16. `EmptyState` (Ícone, título, descrição e botão de ação primária)
-17. `DataTable` (Tabela acessível com ordenação e container scrollável)
-18. `Pagination` (Controles de cursor e páginas)
-19. `StatCard` (Exibição de métricas analíticas com variação e meta)
-20. `ConnectionIndicator` (Status: conectado, reconectando, offline)
-21. `ConfirmDialog` (Diálogo de confirmação para ações destrutivas)
-22. `OneTimeSecretDialog` (Exibição de credenciais temporárias uma única vez com botão de cópia)
+## 7. Logos
+
+- `BrandLogo` (`src/shared/ui/brand-logo.tsx`) com `<img>` e largura/altura fixas (CLS 0, 0 KB de JS). `tone="auto"` alterna pela classe `dark`; `tone="dark"` para fundos escuros (cabeçalho do admin).
+- `alt="TapMesa"` quando o logo é o único nome visível; `alt=""` quando há texto ao lado.
+- Na tela da mesa, o logo do restaurante tem prioridade; o TapMesa é só o fallback, no tom do fundo do restaurante.
+- Favicon: ver pendência em `PROGRESS_1.md` (16px pouco legível).
+
+## 8. Componentes (`src/shared/ui/`)
+
+Button (primary, secondary, outline, ghost, danger, success; sm/md/lg/table), IconButton (44px, `aria-label` obrigatório), Input, Textarea, Select, Switch, Checkbox, Badge (neutral, success, alert, danger, info, primary), Card, Dialog, Drawer, Tabs (padrão e segmentado), Toast, Tooltip, Skeleton, EmptyState, DataTable, Pagination, StatCard (`emphasis` para o KPI líder), ConnectionIndicator, ConfirmDialog, OneTimeSecretDialog, BrandLogo, SkipLink, OfflineBanner.
+
+A vitrine viva fica em `/dev/ui` (só em desenvolvimento), com os tokens, os componentes e a tela da mesa nos temas claro, escuro e com imagem.
