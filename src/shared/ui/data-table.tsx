@@ -5,7 +5,7 @@ export const Table = React.forwardRef<
   HTMLTableElement,
   React.HTMLAttributes<HTMLTableElement>
 >(({ className, ...props }, ref) => (
-  <div className="relative w-full overflow-auto rounded-xl border border-zinc-200 dark:border-zinc-800">
+  <div className="relative w-full overflow-auto rounded-card border border-border bg-surface">
     <table
       ref={ref}
       className={cn("w-full caption-bottom text-sm text-left", className)}
@@ -21,10 +21,7 @@ export const TableHeader = React.forwardRef<
 >(({ className, ...props }, ref) => (
   <thead
     ref={ref}
-    className={cn(
-      "border-b border-zinc-200 bg-zinc-50/75 dark:border-zinc-800 dark:bg-zinc-800/50",
-      className,
-    )}
+    className={cn("border-b border-border", className)}
     {...props}
   />
 ));
@@ -48,10 +45,7 @@ export const TableFooter = React.forwardRef<
 >(({ className, ...props }, ref) => (
   <tfoot
     ref={ref}
-    className={cn(
-      "border-t border-zinc-200 bg-zinc-50/50 font-medium dark:border-zinc-800 dark:bg-zinc-800/50",
-      className,
-    )}
+    className={cn("border-t border-border bg-canvas font-medium", className)}
     {...props}
   />
 ));
@@ -64,7 +58,7 @@ export const TableRow = React.forwardRef<
   <tr
     ref={ref}
     className={cn(
-      "border-b border-zinc-100 transition-colors hover:bg-zinc-50/60 data-[state=selected]:bg-zinc-100 dark:border-zinc-800 dark:hover:bg-zinc-800/50 dark:data-[state=selected]:bg-zinc-800",
+      "border-b border-border-subtle transition-colors duration-150 ease-out-soft hover:bg-canvas data-[state=selected]:bg-nav",
       className,
     )}
     {...props}
@@ -79,7 +73,7 @@ export const TableHead = React.forwardRef<
   <th
     ref={ref}
     className={cn(
-      "h-11 px-4 text-left align-middle font-semibold text-zinc-600 dark:text-zinc-400 [&:has([role=checkbox])]:pr-0",
+      "h-11 px-4 text-left align-middle text-xs font-medium text-ink-2 [&:has([role=checkbox])]:pr-0",
       className,
     )}
     {...props}
@@ -94,7 +88,7 @@ export const TableCell = React.forwardRef<
   <td
     ref={ref}
     className={cn(
-      "p-4 align-middle text-zinc-900 dark:text-zinc-100 has-[[role=checkbox]]:pr-0",
+      "px-4 py-3 align-middle text-ink has-[[role=checkbox]]:pr-0",
       className,
     )}
     {...props}

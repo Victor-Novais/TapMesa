@@ -8,7 +8,8 @@ export function Skeleton({
   return (
     <div
       className={cn(
-        "animate-pulse rounded-xl bg-zinc-200/80 dark:bg-zinc-800/80",
+        // Bloco no formato do conteúdo; pulso suave só sem prefers-reduced-motion
+        "rounded-control bg-nav motion-safe:animate-pulse",
         className,
       )}
       {...props}

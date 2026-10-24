@@ -12,29 +12,25 @@ export function Badge({
   size = "md",
   ...props
 }: BadgeProps) {
+  // Fundo tint + tinta da mesma família (contraste ≥ 4,5:1 nos dois temas)
   const variantStyles = {
-    neutral:
-      "bg-zinc-100 text-zinc-800 border-zinc-200 dark:bg-zinc-800 dark:text-zinc-200 dark:border-zinc-700",
-    success:
-      "bg-emerald-50 text-emerald-800 border-emerald-200 dark:bg-emerald-950/60 dark:text-emerald-300 dark:border-emerald-800",
-    alert:
-      "bg-amber-50 text-amber-800 border-amber-200 dark:bg-amber-950/60 dark:text-amber-300 dark:border-amber-800",
-    danger:
-      "bg-red-50 text-red-800 border-red-200 dark:bg-red-950/60 dark:text-red-300 dark:border-red-800",
-    info: "bg-blue-50 text-blue-800 border-blue-200 dark:bg-blue-950/60 dark:text-blue-300 dark:border-blue-800",
-    primary:
-      "bg-orange-50 text-orange-800 border-orange-200 dark:bg-orange-950/60 dark:text-orange-300 dark:border-orange-800",
+    neutral: "bg-nav text-ink",
+    success: "bg-success-tint text-success",
+    alert: "bg-warning-tint text-warning-ink",
+    danger: "bg-danger-tint text-danger-ink",
+    info: "bg-surface text-ink-2 border-border",
+    primary: "bg-brand-tint text-primary-ink",
   };
 
   const sizeStyles = {
-    sm: "px-2 py-0.5 text-xs font-medium rounded-md",
-    md: "px-2.5 py-1 text-xs sm:text-sm font-semibold rounded-lg",
+    sm: "px-2 py-0.5 text-xs font-medium rounded-chip",
+    md: "px-2.5 py-1 text-xs sm:text-sm font-semibold rounded-chip",
   };
 
   return (
     <span
       className={cn(
-        "inline-flex items-center gap-1 border transition-colors select-none",
+        "inline-flex flex-none items-center gap-1 whitespace-nowrap border border-transparent transition-colors select-none",
         variantStyles[variant],
         sizeStyles[size],
         className,

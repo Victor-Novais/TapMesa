@@ -12,7 +12,11 @@ export interface ToastItem {
   description?: string;
   type?: ToastType;
   duration?: number;
+  leaving?: boolean;
 }
+
+// Duração da animação de saída (DESIGN_PLAN §2.10: saída em 150ms)
+const TOAST_EXIT_MS = 150;
 
 interface ToastContextType {
   toasts: ToastItem[];
@@ -28,7 +32,13 @@ export function ToastProvider({ children }: { children: React.ReactNode }) {
   const [toasts, setToasts] = React.useState<ToastItem[]>([]);
 
   const removeToast = React.useCallback((id: string) => {
-    setToasts((prev) => prev.filter((t) => t.id !== id));
+    // Marca como saindo para a animação de saída e remove em seguida
+    setToasts((prev) =>
+      prev.map((t) => (t.id === id ? { ...t, leaving: true } : t)),
+    );
+    setTimeout(() => {
+      setToasts((prev) => prev.filter((t) => t.id !== id));
+    }, TOAST_EXIT_MS);
   }, []);
 
   const toast = React.useCallback(
@@ -56,50 +66,45 @@ export function ToastProvider({ children }: { children: React.ReactNode }) {
       {children}
       <div
         aria-live="polite"
-        className="fixed bottom-4 right-4 z-50 flex max-w-sm flex-col gap-2 pointer-events-none"
+        className="fixed inset-x-4 bottom-4 z-[60] flex flex-col items-center gap-2 pointer-events-none sm:inset-x-auto sm:right-4 sm:items-end"
       >
         {toasts.map((item) => (
           <div
             key={item.id}
             role="status"
             className={cn(
-              "pointer-events-auto flex items-start gap-3 rounded-2xl border bg-white p-4 shadow-xl transition-[transform,opacity] duration-200 animate-in fade-in-0 slide-in-from-bottom-3 ease-out dark:bg-zinc-900",
-              item.type === "success" &&
-                "border-emerald-200 dark:border-emerald-800/60",
-              item.type === "error" && "border-red-200 dark:border-red-800/60",
-              item.type === "info" && "border-zinc-200 dark:border-zinc-800",
+              // Superfície escura nos dois temas: o escopo .dark aplica os tokens escuros
+              "dark pointer-events-auto flex w-full max-w-sm items-start gap-3 rounded-card border border-border bg-raised p-4 text-ink shadow-elevation-2",
+              "animate-in fade-in-0 slide-in-from-bottom-3 duration-200 ease-out-soft",
+              item.leaving &&
+                "animate-out fade-out-0 slide-out-to-bottom-2 duration-150 ease-in-soft fill-mode-forwards",
+              item.type === "error" && "border-l-4 border-l-danger",
             )}
           >
-            <div className="shrink-0 pt-0.5">
+            <div className="shrink-0 pt-0.5" aria-hidden>
               {item.type === "success" && (
-                <CheckCircle2 className="h-5 w-5 text-emerald-600 dark:text-emerald-400" />
+                <CheckCircle2 className="h-5 w-5 text-success" />
               )}
               {item.type === "error" && (
-                <AlertCircle className="h-5 w-5 text-red-600 dark:text-red-400" />
+                <AlertCircle className="h-5 w-5 text-danger" />
               )}
-              {item.type === "info" && (
-                <Info className="h-5 w-5 text-blue-600 dark:text-blue-400" />
-              )}
+              {item.type === "info" && <Info className="h-5 w-5 text-ink-2" />}
             </div>
 
-            <div className="flex-1 text-left">
-              <p className="text-sm font-semibold text-zinc-900 dark:text-zinc-100">
-                {item.title}
-              </p>
+            <div className="min-w-0 flex-1 text-left">
+              <p className="text-sm font-semibold text-ink">{item.title}</p>
               {item.description && (
-                <p className="mt-0.5 text-xs text-zinc-500 dark:text-zinc-400">
-                  {item.description}
-                </p>
+                <p className="mt-0.5 text-xs text-ink-2">{item.description}</p>
               )}
             </div>
 
             <button
               type="button"
               onClick={() => removeToast(item.id)}
-              className="shrink-0 -mr-2 -mt-2 inline-flex h-10 w-10 min-h-[44px] min-w-[44px] items-center justify-center rounded-xl text-zinc-400 hover:text-zinc-600 active:scale-95 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-orange-500 dark:text-zinc-500 dark:hover:text-zinc-300 transition-transform"
+              className="shrink-0 -mr-2 -mt-2 inline-flex min-h-11 min-w-11 items-center justify-center rounded-full text-ink-2 transition-[color,background-color,transform] duration-150 ease-out-soft hover:bg-nav hover:text-ink active:scale-95 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-focus-ring"
               aria-label="Fechar notificação"
             >
-              <X className="h-4 w-4" />
+              <X className="h-4 w-4" aria-hidden />
             </button>
           </div>
         ))}

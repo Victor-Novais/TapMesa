@@ -17,7 +17,7 @@ export const DialogOverlay = React.forwardRef<
   <DialogPrimitive.Overlay
     ref={ref}
     className={cn(
-      "fixed inset-0 z-50 bg-black/60 backdrop-blur-sm transition-opacity animate-in fade-in-0 duration-200",
+      "fixed inset-0 z-50 bg-overlay data-[state=open]:animate-in data-[state=open]:fade-in-0 data-[state=open]:duration-200 data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=closed]:duration-150",
       className,
     )}
     {...props}
@@ -36,21 +36,25 @@ export const DialogContent = React.forwardRef<
     <DialogPrimitive.Content
       ref={ref}
       className={cn(
-        "fixed z-50 w-full bg-white p-6 shadow-2xl dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800",
-        // Mobile: Bottom sheet
-        "inset-x-0 bottom-0 max-h-[90dvh] overflow-y-auto rounded-t-3xl animate-in slide-in-from-bottom duration-200 ease-out",
-        // Desktop / Tablet: Centered modal
-        "sm:inset-auto sm:left-[50%] sm:top-[50%] sm:max-w-lg sm:translate-x-[-50%] sm:translate-y-[-50%] sm:rounded-2xl sm:slide-in-from-bottom-0 sm:zoom-in-95 sm:fade-in-0 sm:duration-200 sm:ease-out",
+        "fixed z-50 w-full overscroll-contain border border-border bg-raised p-6 text-ink shadow-elevation-3",
+        // Mobile: bottom sheet (entra em 200ms, sai em 150ms)
+        "inset-x-0 bottom-0 max-h-[90dvh] overflow-y-auto rounded-t-sheet pb-[calc(1.5rem+env(safe-area-inset-bottom))]",
+        "data-[state=open]:animate-in data-[state=open]:slide-in-from-bottom data-[state=open]:duration-200 data-[state=open]:ease-out-soft",
+        "data-[state=closed]:animate-out data-[state=closed]:slide-out-to-bottom data-[state=closed]:duration-150 data-[state=closed]:ease-in-soft",
+        // Desktop / Tablet: modal centralizado
+        "sm:inset-auto sm:left-[50%] sm:top-[50%] sm:max-w-lg sm:translate-x-[-50%] sm:translate-y-[-50%] sm:rounded-sheet sm:pb-6",
+        "sm:data-[state=open]:slide-in-from-bottom-0 sm:data-[state=open]:fade-in-0 sm:data-[state=open]:zoom-in-95",
+        "sm:data-[state=closed]:slide-out-to-bottom-0 sm:data-[state=closed]:fade-out-0 sm:data-[state=closed]:zoom-out-95",
         className,
       )}
       {...props}
     >
       {/* Mobile drag handle bar */}
-      <div className="mx-auto mb-4 h-1.5 w-12 rounded-full bg-zinc-300 dark:bg-zinc-700 sm:hidden" />
+      <div className="mx-auto mb-4 h-1.5 w-12 rounded-full bg-border sm:hidden" />
       {children}
       {!hideCloseButton && (
-        <DialogPrimitive.Close className="absolute right-3 top-3 sm:right-4 sm:top-4 min-h-[44px] min-w-[44px] inline-flex items-center justify-center rounded-xl p-2 text-zinc-400 hover:text-zinc-600 focus:outline-none focus:ring-2 focus:ring-orange-500 dark:text-zinc-500 dark:hover:text-zinc-300">
-          <X className="h-5 w-5" />
+        <DialogPrimitive.Close className="absolute right-3 top-3 sm:right-4 sm:top-4 inline-flex min-h-11 min-w-11 items-center justify-center rounded-full text-ink-2 transition-colors duration-150 ease-out-soft hover:bg-nav hover:text-ink focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-focus-ring focus-visible:ring-offset-2 focus-visible:ring-offset-raised">
+          <X className="h-5 w-5" aria-hidden />
           <span className="sr-only">Fechar</span>
         </DialogPrimitive.Close>
       )}
@@ -91,7 +95,7 @@ export const DialogTitle = React.forwardRef<
   <DialogPrimitive.Title
     ref={ref}
     className={cn(
-      "text-xl font-semibold leading-none tracking-tight text-zinc-900 dark:text-zinc-100",
+      "pr-10 text-xl font-semibold leading-tight tracking-tight text-ink text-balance",
       className,
     )}
     {...props}
@@ -105,7 +109,7 @@ export const DialogDescription = React.forwardRef<
 >(({ className, ...props }, ref) => (
   <DialogPrimitive.Description
     ref={ref}
-    className={cn("text-sm text-zinc-500 dark:text-zinc-400 pt-1", className)}
+    className={cn("text-sm text-ink-2 pt-1 text-pretty", className)}
     {...props}
   />
 ));

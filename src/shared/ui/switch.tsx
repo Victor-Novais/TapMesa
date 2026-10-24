@@ -24,14 +24,14 @@ export const Switch = React.forwardRef<
       ref={ref}
       disabled={disabled}
       className={cn(
-        "peer relative inline-flex h-6 w-11 shrink-0 cursor-pointer items-center rounded-full border-2 border-transparent transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-orange-500 focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 data-[state=checked]:bg-orange-600 data-[state=unchecked]:bg-zinc-200 dark:data-[state=unchecked]:bg-zinc-800 before:absolute before:-inset-2.5 before:content-['']",
+        "peer relative inline-flex h-6 w-11 shrink-0 cursor-pointer items-center rounded-full border-2 border-transparent transition-colors duration-150 ease-out-soft focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-focus-ring focus-visible:ring-offset-2 focus-visible:ring-offset-surface disabled:cursor-not-allowed disabled:opacity-60 data-[state=checked]:bg-ink data-[state=unchecked]:bg-ink-3 before:absolute before:-inset-2.5 before:content-['']",
         className,
       )}
       {...props}
     >
       <SwitchPrimitives.Thumb
         className={cn(
-          "pointer-events-none block h-5 w-5 rounded-full bg-white shadow-lg ring-0 transition-transform data-[state=checked]:translate-x-5 data-[state=unchecked]:translate-x-0 dark:bg-zinc-100",
+          "pointer-events-none block h-5 w-5 rounded-full bg-surface shadow-elevation-1 ring-0 transition-transform duration-150 ease-out-soft data-[state=checked]:translate-x-5 data-[state=unchecked]:translate-x-0",
         )}
       />
     </SwitchPrimitives.Root>
@@ -47,16 +47,12 @@ export const Switch = React.forwardRef<
         {label && (
           <label
             htmlFor={switchId}
-            className="text-sm font-medium text-zinc-900 dark:text-zinc-100 cursor-pointer"
+            className="text-sm font-medium text-ink cursor-pointer"
           >
             {label}
           </label>
         )}
-        {description && (
-          <p className="text-xs text-zinc-500 dark:text-zinc-400">
-            {description}
-          </p>
-        )}
+        {description && <p className="text-xs text-ink-2">{description}</p>}
       </div>
       {content}
     </div>

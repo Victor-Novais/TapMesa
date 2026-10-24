@@ -219,58 +219,26 @@ export function UiShowcase() {
                   </p>
                 </div>
 
-                <div className="grid grid-cols-2 sm:grid-cols-4 md:grid-cols-7 gap-3">
-                  <div className="p-3 rounded-xl border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900 text-center">
-                    <div className="h-10 w-full rounded-lg bg-orange-600 mb-2 shadow-inner" />
-                    <span className="text-xs font-bold block">Primary</span>
-                    <span className="text-[10px] text-zinc-400 font-mono">
-                      #ea580c
-                    </span>
-                  </div>
-                  <div className="p-3 rounded-xl border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900 text-center">
-                    <div className="h-10 w-full rounded-lg bg-emerald-600 mb-2 shadow-inner" />
-                    <span className="text-xs font-bold block">Success</span>
-                    <span className="text-[10px] text-zinc-400 font-mono">
-                      #16a34a
-                    </span>
-                  </div>
-                  <div className="p-3 rounded-xl border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900 text-center">
-                    <div className="h-10 w-full rounded-lg bg-amber-500 mb-2 shadow-inner" />
-                    <span className="text-xs font-bold block">Alert</span>
-                    <span className="text-[10px] text-zinc-400 font-mono">
-                      #eab308
-                    </span>
-                  </div>
-                  <div className="p-3 rounded-xl border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900 text-center">
-                    <div className="h-10 w-full rounded-lg bg-red-600 mb-2 shadow-inner" />
-                    <span className="text-xs font-bold block">
-                      Danger/Urgent
-                    </span>
-                    <span className="text-[10px] text-zinc-400 font-mono">
-                      #dc2626
-                    </span>
-                  </div>
-                  <div className="p-3 rounded-xl border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900 text-center">
-                    <div className="h-10 w-full rounded-lg bg-blue-600 mb-2 shadow-inner" />
-                    <span className="text-xs font-bold block">Info</span>
-                    <span className="text-[10px] text-zinc-400 font-mono">
-                      #2563eb
-                    </span>
-                  </div>
-                  <div className="p-3 rounded-xl border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900 text-center">
-                    <div className="h-10 w-full rounded-lg bg-zinc-100 dark:bg-zinc-800 mb-2 shadow-inner border border-zinc-200 dark:border-zinc-700" />
-                    <span className="text-xs font-bold block">Surface</span>
-                    <span className="text-[10px] text-zinc-400 font-mono">
-                      var(--surface)
-                    </span>
-                  </div>
-                  <div className="p-3 rounded-xl border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900 text-center">
-                    <div className="h-10 w-full rounded-lg bg-zinc-900 dark:bg-zinc-100 mb-2 shadow-inner" />
-                    <span className="text-xs font-bold block">Foreground</span>
-                    <span className="text-[10px] text-zinc-400 font-mono">
-                      var(--foreground)
-                    </span>
-                  </div>
+                <div className="grid grid-cols-2 sm:grid-cols-4 md:grid-cols-6 gap-3">
+                  {DESIGN_TOKENS.map((token) => (
+                    <div
+                      key={token.name}
+                      className="rounded-card border border-border bg-surface p-3 text-center"
+                    >
+                      <div
+                        className={cn(
+                          "mb-2 h-10 w-full rounded-control border border-border",
+                          token.swatch,
+                        )}
+                      />
+                      <span className="block text-xs font-bold text-ink">
+                        {token.label}
+                      </span>
+                      <span className="font-mono text-xs text-ink-2">
+                        --{token.name}
+                      </span>
+                    </div>
+                  ))}
                 </div>
               </section>
 
@@ -1054,6 +1022,32 @@ function TableScreenDemo() {
     </div>
   );
 }
+
+// Tokens exibidos na vitrine (globals.css, DESIGN_PLAN §2)
+const DESIGN_TOKENS = [
+  { name: "canvas", label: "Canvas", swatch: "bg-canvas" },
+  { name: "nav", label: "Navegação", swatch: "bg-nav" },
+  { name: "surface", label: "Superfície", swatch: "bg-surface" },
+  { name: "raised", label: "Elevada", swatch: "bg-raised" },
+  { name: "espresso", label: "Espresso", swatch: "bg-espresso" },
+  { name: "ink", label: "Tinta", swatch: "bg-ink" },
+  { name: "ink-2", label: "Tinta 2", swatch: "bg-ink-2" },
+  { name: "ink-3", label: "Tinta 3", swatch: "bg-ink-3" },
+  { name: "brand", label: "Marca", swatch: "bg-brand" },
+  { name: "primary", label: "Primária", swatch: "bg-primary" },
+  { name: "success", label: "Sucesso", swatch: "bg-success" },
+  { name: "warning", label: "Alerta", swatch: "bg-warning" },
+  { name: "danger", label: "Perigo", swatch: "bg-danger" },
+  { name: "success-tint", label: "Sucesso tint", swatch: "bg-success-tint" },
+  { name: "warning-tint", label: "Alerta tint", swatch: "bg-warning-tint" },
+  { name: "danger-tint", label: "Perigo tint", swatch: "bg-danger-tint" },
+  { name: "brand-tint", label: "Marca tint", swatch: "bg-brand-tint" },
+  {
+    name: "border-control",
+    label: "Borda controle",
+    swatch: "bg-border-control",
+  },
+];
 
 const DEMO_BASE_TIME = 1792584000000; // Deterministic static timestamp
 const DEMO_SERVER_NOW = "2026-10-21T09:30:00.000Z";

@@ -1,4 +1,5 @@
 import * as React from "react";
+import { AlertCircle } from "lucide-react";
 import { cn } from "@/shared/lib/cn";
 
 export interface InputProps extends React.InputHTMLAttributes<HTMLInputElement> {
@@ -35,14 +36,14 @@ export const Input = React.forwardRef<HTMLInputElement, InputProps>(
         {label && (
           <label
             htmlFor={inputId}
-            className="block text-sm font-medium text-zinc-700 dark:text-zinc-300"
+            className="block text-sm font-medium text-ink"
           >
             {label}
           </label>
         )}
         <div className="relative flex items-center">
           {startAdornment && (
-            <div className="pointer-events-none absolute left-3 flex items-center text-zinc-400">
+            <div className="pointer-events-none absolute left-3 flex items-center text-ink-3">
               {startAdornment}
             </div>
           )}
@@ -56,11 +57,11 @@ export const Input = React.forwardRef<HTMLInputElement, InputProps>(
               error ? errorId : helperText ? helperId : undefined
             }
             className={cn(
-              "flex h-11 w-full rounded-xl border border-zinc-200 bg-white px-3.5 py-2 text-base sm:text-sm text-zinc-900 shadow-sm transition-colors placeholder:text-zinc-400 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-orange-500 focus-visible:border-orange-500 disabled:cursor-not-allowed disabled:opacity-50 dark:border-zinc-800 dark:bg-zinc-900 dark:text-zinc-50 dark:placeholder:text-zinc-500",
+              "flex h-11 w-full rounded-control border border-border-control bg-surface px-3.5 py-2 text-base sm:text-sm text-ink transition-[border-color,box-shadow] duration-150 ease-out-soft placeholder:text-ink-placeholder hover:border-ink-2 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-focus-ring focus-visible:ring-offset-2 focus-visible:ring-offset-surface disabled:cursor-not-allowed disabled:border-border disabled:bg-nav disabled:text-ink-3",
               startAdornment && "pl-10",
               endAdornment && "pr-11",
               error &&
-                "border-red-500 focus-visible:border-red-500 focus-visible:ring-red-500 dark:border-red-500",
+                "border-danger hover:border-danger focus-visible:ring-danger",
               className,
             )}
             {...props}
@@ -76,12 +77,13 @@ export const Input = React.forwardRef<HTMLInputElement, InputProps>(
             id={errorId}
             role="alert"
             aria-live="polite"
-            className="text-xs font-medium text-red-600 dark:text-red-400"
+            className="flex items-start gap-1.5 text-xs font-medium text-danger-ink"
           >
+            <AlertCircle className="mt-px h-3.5 w-3.5 shrink-0" aria-hidden />
             {error}
           </p>
         ) : helperText ? (
-          <p id={helperId} className="text-xs text-zinc-500 dark:text-zinc-400">
+          <p id={helperId} className="text-xs text-ink-2">
             {helperText}
           </p>
         ) : null}

@@ -34,31 +34,29 @@ export function StatCard({
     <Card className={cn("@container overflow-hidden", className)}>
       <CardContent className="p-5 sm:p-6">
         <div className="flex items-center justify-between gap-2">
-          <p className="text-xs sm:text-sm font-medium text-zinc-500 dark:text-zinc-400">
-            {title}
-          </p>
+          <p className="text-xs sm:text-sm font-medium text-ink-2">{title}</p>
           {icon && (
-            <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-zinc-100 text-zinc-600 dark:bg-zinc-800 dark:text-zinc-300">
+            <div
+              className="flex h-8 w-8 items-center justify-center text-ink-3 [&_svg]:text-current"
+              aria-hidden
+            >
               {icon}
             </div>
           )}
         </div>
 
         <div className="mt-3 flex items-baseline justify-between gap-2">
-          <p className="text-2xl sm:text-3xl font-bold tracking-tight text-zinc-950 dark:text-zinc-50 font-mono">
+          <p className="text-2xl sm:text-3xl font-semibold tracking-tight text-ink tabular-nums">
             {value}
           </p>
 
           {goalStatus && goalLabel && (
             <span
               className={cn(
-                "rounded-md px-2 py-0.5 text-xs font-semibold select-none",
-                goalStatus === "met" &&
-                  "bg-emerald-50 text-emerald-700 dark:bg-emerald-950/60 dark:text-emerald-300",
-                goalStatus === "unmet" &&
-                  "bg-red-50 text-red-700 dark:bg-red-950/60 dark:text-red-300",
-                goalStatus === "neutral" &&
-                  "bg-zinc-100 text-zinc-700 dark:bg-zinc-800 dark:text-zinc-300",
+                "flex-none whitespace-nowrap rounded-chip px-2 py-0.5 text-xs font-semibold select-none",
+                goalStatus === "met" && "bg-success-tint text-success",
+                goalStatus === "unmet" && "bg-danger-tint text-danger-ink",
+                goalStatus === "neutral" && "bg-nav text-ink",
               )}
             >
               {goalLabel}
@@ -67,14 +65,14 @@ export function StatCard({
         </div>
 
         {(variation || description) && (
-          <div className="mt-2.5 flex items-center gap-1.5 text-xs text-zinc-500 dark:text-zinc-400">
+          <div className="mt-2.5 flex items-center gap-1.5 text-xs text-ink-2">
             {variation && (
               <span
                 className={cn(
-                  "inline-flex items-center font-medium font-mono",
-                  isPositive && "text-emerald-600 dark:text-emerald-400",
-                  isNegative && "text-red-600 dark:text-red-400",
-                  !isPositive && !isNegative && "text-zinc-500",
+                  "inline-flex items-center font-medium tabular-nums",
+                  isPositive && "text-success",
+                  isNegative && "text-danger-ink",
+                  !isPositive && !isNegative && "text-ink-2",
                 )}
               >
                 {isPositive ? (
