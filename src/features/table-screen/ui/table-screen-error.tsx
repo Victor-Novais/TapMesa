@@ -25,19 +25,21 @@ export function TableScreenError({
 }: TableScreenErrorProps) {
   if (type === "NOT_FOUND") {
     return (
-      <main className="flex min-h-[100dvh] flex-col items-center justify-center p-6 text-center max-w-md mx-auto">
-        <Card className="w-full border-zinc-200/80 shadow-md dark:border-zinc-800">
+      <main className="mx-auto flex min-h-dvh max-w-md flex-col items-center justify-center bg-canvas p-6 text-center text-ink">
+        <Card className="w-full border-t-[3px] border-t-border-control">
           <CardHeader className="flex flex-col items-center pb-2">
-            <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-zinc-100 text-zinc-500 mb-2 dark:bg-zinc-800 dark:text-zinc-400">
-              <QrCode className="h-7 w-7" />
+            <div className="mb-2 flex items-center justify-center text-ink-2">
+              <QrCode className="h-10 w-10" strokeWidth={1.5} aria-hidden />
             </div>
-            <CardTitle className="text-xl">Mesa não encontrada</CardTitle>
-            <CardDescription className="text-sm pt-1">
+            <CardTitle className="text-xl text-balance">
+              Mesa não encontrada
+            </CardTitle>
+            <CardDescription className="pt-1 text-sm text-pretty">
               {message ||
                 "O QR Code escaneado não é válido ou a mesa correspondente foi desativada. Solicite assistência diretamente a um garçom no restaurante."}
             </CardDescription>
           </CardHeader>
-          <CardContent className="pt-4 text-xs text-zinc-400">
+          <CardContent className="pt-4 text-xs text-ink-2">
             TapMesa • Atendimento inteligente
           </CardContent>
         </Card>
@@ -47,21 +49,25 @@ export function TableScreenError({
 
   if (type === "PAUSED" || type === "SUSPENDED") {
     return (
-      <main className="flex min-h-[100dvh] flex-col items-center justify-center p-6 text-center max-w-md mx-auto">
-        <Card className="w-full border-amber-500/30 shadow-md">
+      <main className="mx-auto flex min-h-dvh max-w-md flex-col items-center justify-center bg-canvas p-6 text-center text-ink">
+        <Card className="w-full border-t-[3px] border-t-warning">
           <CardHeader className="flex flex-col items-center pb-2">
-            <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-amber-500/10 text-amber-600 mb-2 dark:text-amber-400">
-              <PauseCircle className="h-7 w-7" />
+            <div className="mb-2 flex items-center justify-center text-warning-ink">
+              <PauseCircle
+                className="h-10 w-10"
+                strokeWidth={1.5}
+                aria-hidden
+              />
             </div>
-            <CardTitle className="text-xl">
+            <CardTitle className="text-xl text-balance">
               Atendimento temporariamente pausado
             </CardTitle>
-            <CardDescription className="text-sm pt-1">
+            <CardDescription className="pt-1 text-sm text-pretty">
               {message ||
                 "Esta mesa está com o atendimento digital em pausa. Por favor, solicite seu pedido ou atendimento diretamente à nossa equipe de garçons."}
             </CardDescription>
           </CardHeader>
-          <CardContent className="pt-4 text-xs text-zinc-400">
+          <CardContent className="pt-4 text-xs text-ink-2">
             Agradecemos a compreensão.
           </CardContent>
         </Card>
@@ -70,14 +76,16 @@ export function TableScreenError({
   }
 
   return (
-    <main className="flex min-h-[100dvh] flex-col items-center justify-center p-6 text-center max-w-md mx-auto">
-      <Card className="w-full border-red-500/20 shadow-md">
+    <main className="mx-auto flex min-h-dvh max-w-md flex-col items-center justify-center bg-canvas p-6 text-center text-ink">
+      <Card className="w-full border-t-[3px] border-t-danger">
         <CardHeader className="flex flex-col items-center pb-2">
-          <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-red-500/10 text-red-600 mb-2 dark:text-red-400">
-            <WifiOff className="h-7 w-7" />
+          <div className="mb-2 flex items-center justify-center text-danger-ink">
+            <WifiOff className="h-10 w-10" strokeWidth={1.5} aria-hidden />
           </div>
-          <CardTitle className="text-xl">Falha na conexão</CardTitle>
-          <CardDescription className="text-sm pt-1">
+          <CardTitle className="text-xl text-balance">
+            Falha na conexão
+          </CardTitle>
+          <CardDescription className="pt-1 text-sm text-pretty">
             {message ||
               "Não foi possível carregar as informações desta mesa. Verifique se o seu dispositivo está conectado à internet."}
           </CardDescription>
@@ -85,7 +93,7 @@ export function TableScreenError({
         <CardContent className="pt-4 flex justify-center">
           {onRetry && (
             <Button onClick={onRetry} className="gap-2">
-              <RefreshCw className="h-4 w-4" />
+              <RefreshCw className="h-4 w-4" aria-hidden />
               Tentar novamente
             </Button>
           )}

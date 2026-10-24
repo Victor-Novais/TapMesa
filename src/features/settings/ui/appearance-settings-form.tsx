@@ -116,10 +116,10 @@ function toFormValues(appearance: RestaurantAppearance): AppearanceFormData {
     backgroundType: appearance.backgroundType,
     backgroundValue: appearance.backgroundValue || "",
     colors: {
-      primary: appearance.colors.primary || "#ea580c",
-      secondary: appearance.colors.secondary || "#18181b",
-      background: appearance.colors.background || "#fafafa",
-      text: appearance.colors.text || "#09090b",
+      primary: appearance.colors.primary || "#C4452D",
+      secondary: appearance.colors.secondary || "#2A2421",
+      background: appearance.colors.background || "#F9F8F6",
+      text: appearance.colors.text || "#141615",
     },
     texts: {
       welcomeTitle: appearance.texts.welcomeTitle || "",
@@ -269,11 +269,11 @@ function AppearanceSettingsEditor({
     backgroundType: watchedBgType || "color",
     backgroundValue: currentBg,
     colors: {
-      primary: watchedColors?.primary || "#ea580c",
-      secondary: watchedColors?.secondary || "#18181b",
-      background: watchedColors?.background || "#fafafa",
-      surface: appearance?.colors.surface || "#1e293b",
-      text: watchedColors?.text || "#09090b",
+      primary: watchedColors?.primary || "#C4452D",
+      secondary: watchedColors?.secondary || "#2A2421",
+      background: watchedColors?.background || "#F9F8F6",
+      surface: appearance?.colors.surface || "#FFFFFF",
+      text: watchedColors?.text || "#141615",
     },
     texts: {
       ...(savedTexts ?? {

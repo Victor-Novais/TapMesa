@@ -75,64 +75,33 @@ export function PendingCallCard({
         role="status"
         aria-live="polite"
         className={cn(
-          "relative overflow-hidden rounded-3xl border border-black/10 bg-white/90 p-5 shadow-lg backdrop-blur transition-[border-color,box-shadow,background-color] duration-150 ease-out animate-in fade-in zoom-in-95 dark:border-white/10 dark:bg-zinc-900/90",
+          // Borda superior de 3px na cor do estado (pendente = marca); sem gradiente nem pulso
+          "relative overflow-hidden rounded-sheet border border-border border-t-[3px] border-t-brand bg-surface p-5 text-ink shadow-elevation-1 animate-in fade-in-0 zoom-in-95 duration-200 ease-out-soft",
           className,
         )}
       >
-        {/* Accent top ambient strip */}
-        <div
-          className={cn(
-            "absolute top-0 left-0 right-0 h-1.5",
-            isWaiter
-              ? "bg-gradient-to-r from-amber-500 to-orange-500"
-              : "bg-gradient-to-r from-emerald-500 to-teal-500",
-          )}
-        />
-
         <div className="flex items-start justify-between gap-3">
-          <div className="flex items-center gap-3">
-            <div
-              className={cn(
-                "relative flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl shadow-sm",
-                isWaiter
-                  ? "bg-orange-500/10 text-orange-600 dark:bg-orange-500/20 dark:text-orange-400"
-                  : "bg-emerald-500/10 text-emerald-600 dark:bg-emerald-500/20 dark:text-emerald-400",
-              )}
-            >
+          <div className="flex min-w-0 items-center gap-3">
+            <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-control bg-brand-tint text-primary-ink">
               {isWaiter ? (
-                <Bell className="h-6 w-6 animate-pulse" />
+                <Bell className="h-6 w-6" aria-hidden />
               ) : (
-                <Receipt className="h-6 w-6" />
+                <Receipt className="h-6 w-6" aria-hidden />
               )}
-              {/* Pulsing online ping */}
-              <span className={cn("absolute -top-1 -right-1 flex h-3 w-3")}>
-                <span
-                  className={cn(
-                    "absolute inline-flex h-full w-full animate-ping rounded-full opacity-75",
-                    isWaiter ? "bg-orange-400" : "bg-emerald-400",
-                  )}
-                />
-                <span
-                  className={cn(
-                    "relative inline-flex h-3 w-3 rounded-full",
-                    isWaiter ? "bg-orange-500" : "bg-emerald-500",
-                  )}
-                />
-              </span>
             </div>
 
-            <div className="text-left">
-              <div className="flex items-center gap-2">
-                <h3 className="text-base font-bold text-zinc-900 dark:text-zinc-100">
+            <div className="min-w-0 text-left">
+              <div className="flex flex-wrap items-center gap-2">
+                <h3 className="text-lg font-semibold leading-tight text-ink">
                   {title}
                 </h3>
                 {call.reopenCount > 0 && (
-                  <Badge variant="alert" className="text-[10px] px-1.5 py-0.5">
+                  <Badge variant="alert" size="sm">
                     {UI_MESSAGES.calls.reopenedBadge} ({call.reopenCount}x)
                   </Badge>
                 )}
               </div>
-              <p className="text-xs text-zinc-500 dark:text-zinc-400">
+              <p className="text-sm text-ink-2">
                 {formattedTime
                   ? `Pedido feito às ${formattedTime}`
                   : "Solicitação em andamento"}
@@ -142,15 +111,18 @@ export function PendingCallCard({
         </div>
 
         {/* Subtitle / Explanation */}
-        <p className="mt-3 text-xs leading-relaxed text-zinc-600 dark:text-zinc-300 text-left">
+        <p className="mt-3 text-left text-sm leading-relaxed text-ink-2 text-pretty">
           {pendingSubtitle}
         </p>
 
         {/* Note if provided */}
         {call.note && (
-          <div className="mt-3 flex items-start gap-2 rounded-2xl bg-zinc-100/80 p-3 text-left dark:bg-zinc-800/80">
-            <MessageSquare className="mt-0.5 h-3.5 w-3.5 shrink-0 text-zinc-400 dark:text-zinc-500" />
-            <p className="text-xs font-medium italic text-zinc-700 dark:text-zinc-300 break-words">
+          <div className="mt-3 flex items-start gap-2 rounded-control bg-nav p-3 text-left">
+            <MessageSquare
+              className="mt-0.5 h-4 w-4 shrink-0 text-ink-2"
+              aria-hidden
+            />
+            <p className="break-words text-sm font-medium italic text-ink">
               &ldquo;{call.note}&rdquo;
             </p>
           </div>
@@ -158,15 +130,15 @@ export function PendingCallCard({
 
         {/* Live Wait Timer (if restaurant has showWaitTimeToCustomer enabled) */}
         {showWaitTimeToCustomer && (
-          <div className="mt-4 flex items-center justify-between rounded-2xl border border-zinc-200/80 bg-zinc-50/70 px-3.5 py-2.5 dark:border-zinc-800 dark:bg-zinc-800/50">
+          <div className="mt-4 flex items-center justify-between rounded-control bg-nav px-3.5 py-2.5">
             <div className="flex items-center gap-2">
-              <Clock className="h-4 w-4 text-zinc-500 dark:text-zinc-400 animate-spin-slow" />
-              <span className="text-xs font-medium text-zinc-600 dark:text-zinc-400">
+              <Clock className="h-4 w-4 text-ink-2" aria-hidden />
+              <span className="text-sm font-medium text-ink-2">
                 Tempo de espera:
               </span>
             </div>
             <span
-              className="font-mono text-sm font-bold tabular-nums text-zinc-900 dark:text-zinc-100"
+              className="text-xl font-semibold tabular-nums text-ink"
               aria-label={`Tempo decorrido: ${formattedElapsed}`}
             >
               {formattedElapsed}
@@ -175,23 +147,20 @@ export function PendingCallCard({
         )}
 
         {/* Cancel Action */}
-        <div className="mt-4 pt-2 border-t border-zinc-100 dark:border-zinc-800/80 flex justify-end">
+        <div className="mt-4 flex justify-end border-t border-border-subtle pt-2">
           <Button
             type="button"
             variant="ghost"
             size="sm"
             onClick={() => setShowCancelDialog(true)}
             isLoading={cancelMutation.isPending}
-            className="text-xs font-medium text-zinc-500 hover:text-red-600 hover:bg-red-50 dark:text-zinc-400 dark:hover:text-red-400 dark:hover:bg-red-950/30"
+            className="text-sm font-medium hover:bg-danger-tint hover:text-danger-ink"
           >
             {cancelLabel}
           </Button>
         </div>
         {cancelMutation.error && (
-          <p
-            role="alert"
-            className="mt-2 text-xs text-red-600 dark:text-red-400"
-          >
+          <p role="alert" className="mt-2 text-sm text-danger-ink">
             {parseApiError(cancelMutation.error).detail}
           </p>
         )}

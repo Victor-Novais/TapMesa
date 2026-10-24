@@ -47,7 +47,7 @@ export function TableScreenView({ token }: TableScreenViewProps) {
   if (!data.available) {
     const isSuspended = data.unavailableReason === "RESTAURANT_SUSPENDED";
     return (
-      <TableThemeProvider appearance={data.appearance}>
+      <TableThemeProvider appearance={data.appearance} applyToDocument>
         <TableScreenError
           type={isSuspended ? "SUSPENDED" : "PAUSED"}
           message={data.message}
@@ -57,7 +57,7 @@ export function TableScreenView({ token }: TableScreenViewProps) {
   }
 
   return (
-    <TableThemeProvider appearance={data.appearance}>
+    <TableThemeProvider appearance={data.appearance} applyToDocument>
       <TableScreen
         tableNumber={data.tableNumber}
         appearance={data.appearance}
