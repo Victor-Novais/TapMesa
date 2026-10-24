@@ -29,8 +29,11 @@ export default async function PublicTablePage({
   const { token } = await params;
 
   return (
-    <main className="min-h-[100dvh] w-full">
+    // div em vez de main: o landmark <main> fica dentro da própria tela (evita main aninhado).
+    // data-surface claro cobre carregamento e erro antes do tema do restaurante chegar,
+    // para a mesa nunca seguir o modo escuro do celular (DESIGN_PLAN Q4).
+    <div data-surface="table-light" className="min-h-dvh w-full">
       <TableScreenView token={token} />
-    </main>
+    </div>
   );
 }

@@ -146,7 +146,7 @@ export function LivePhonePreview({
                   <button
                     type="button"
                     style={{
-                      backgroundColor: appearance.colors?.primary || "#ea580c",
+                      backgroundColor: appearance.colors?.primary || "#C4452D",
                       color: appearance.colors?.primaryText || "#ffffff",
                     }}
                     className="flex h-16 w-full items-center justify-center gap-3 rounded-2xl px-6 text-base font-bold shadow-lg transition-transform active:scale-[0.98]"
@@ -160,7 +160,7 @@ export function LivePhonePreview({
                     type="button"
                     style={{
                       backgroundColor:
-                        appearance.colors?.secondary || "#18181b",
+                        appearance.colors?.secondary || "#2A2421",
                       color: "#ffffff",
                     }}
                     className="flex h-14 w-full items-center justify-center gap-3 rounded-2xl px-6 text-sm font-semibold shadow-md transition-transform active:scale-[0.98]"

@@ -15,7 +15,7 @@ export function TablePrintCard({
   table,
   restaurantName,
   logoUrl,
-  primaryColor = "#ea580c",
+  primaryColor = "#C4452D",
   layoutSize = "standard",
 }: TablePrintCardProps) {
   // Converte a string SVG do QR Code em Data URI seguro (regra D8: sem dangerouslySetInnerHTML)

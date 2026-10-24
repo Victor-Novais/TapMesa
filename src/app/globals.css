@@ -6,13 +6,20 @@
  * (sem data-theme="light"), segue o sistema operacional já antes da hidratação.
  */
 @custom-variant dark {
-  &:where(.dark, .dark *, [data-theme="dark"], [data-theme="dark"] *) {
+  /* Tela da mesa: o tom vem do fundo do restaurante (data-surface no <html>) */
+  &:where([data-surface="table-dark"], [data-surface="table-dark"] *) {
+    @slot;
+  }
+  &:where(
+    :root:not([data-surface]):is(.dark, [data-theme="dark"]),
+    :root:not([data-surface]):is(.dark, [data-theme="dark"]) *
+  ) {
     @slot;
   }
   @media (prefers-color-scheme: dark) {
     &:where(
-      :root:not([data-theme="light"]),
-      :root:not([data-theme="light"]) *
+      :root:not([data-theme="light"], [data-surface]),
+      :root:not([data-theme="light"], [data-surface]) *
     ) {
       @slot;
     }
@@ -187,6 +194,77 @@
     --elevation-2: 0 8px 24px rgb(0 0 0 / 0.4);
     --elevation-3: 0 16px 48px rgb(0 0 0 / 0.5);
   }
+}
+
+/*
+ * Tela da mesa (/m): o TableThemeProvider marca o <html> com data-surface conforme
+ * a luminância do fundo do restaurante. Vem depois dos blocos de tema para vencer
+ * o modo escuro do sistema e o seletor de tema (DESIGN_PLAN Q4).
+ */
+:root[data-surface="table-light"],
+[data-surface="table-light"] {
+  color-scheme: light;
+  --canvas: #f9f8f6;
+  --nav: #f2efe9;
+  --surface: #ffffff;
+  --raised: #ffffff;
+  --ink: #141615;
+  --ink-2: #5c5852;
+  --ink-3: #948f87;
+  --ink-placeholder: #6e6a64;
+  --primary-ink: #b23e29;
+  --success: #2e6f40;
+  --on-success: #ffffff;
+  --warning: #d9822b;
+  --warning-ink: #8f531a;
+  --danger: #c92a2a;
+  --on-danger: #ffffff;
+  --danger-ink: #a82424;
+  --success-tint: #e3efe6;
+  --warning-tint: #fbebd9;
+  --danger-tint: #f9e1df;
+  --brand-tint: #fbe6e0;
+  --border: #e6e1d8;
+  --border-subtle: #efebe4;
+  --border-control: #8f887e;
+  --focus-ring: #d94e34;
+  --overlay: rgb(20 22 21 / 0.48);
+  --elevation-1: 0 1px 2px rgb(20 22 21 / 0.06);
+  --elevation-2: 0 8px 24px rgb(20 22 21 / 0.1);
+  --elevation-3: 0 16px 48px rgb(20 22 21 / 0.16);
+}
+
+:root[data-surface="table-dark"],
+[data-surface="table-dark"] {
+  color-scheme: dark;
+  --canvas: #141615;
+  --nav: #1f1d1b;
+  --surface: #2a2421;
+  --raised: #36302c;
+  --ink: #f9f8f6;
+  --ink-2: #c9c3ba;
+  --ink-3: #a39c92;
+  --ink-placeholder: #a39c92;
+  --primary-ink: #e86e55;
+  --success: #62b079;
+  --on-success: #141615;
+  --warning: #e39343;
+  --warning-ink: #e39343;
+  --danger: #ec7066;
+  --on-danger: #141615;
+  --danger-ink: #ec7066;
+  --success-tint: #1e3325;
+  --warning-tint: #3a2a17;
+  --danger-tint: #3a1f1c;
+  --brand-tint: #3b2219;
+  --border: #433d3b;
+  --border-subtle: #38322e;
+  --border-control: #7a736d;
+  --focus-ring: #e86e55;
+  --overlay: rgb(0 0 0 / 0.64);
+  --elevation-1: none;
+  --elevation-2: 0 8px 24px rgb(0 0 0 / 0.4);
+  --elevation-3: 0 16px 48px rgb(0 0 0 / 0.5);
 }
 
 /* Utilitários Tailwind gerados a partir dos tokens (bg-canvas, text-ink-2, border-control…) */

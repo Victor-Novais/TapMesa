@@ -40,34 +40,34 @@ export function ConfirmedCallCard({
       role="status"
       aria-live="polite"
       className={cn(
-        "relative overflow-hidden rounded-3xl border border-emerald-300 bg-emerald-50/95 p-5 shadow-lg backdrop-blur transition-all duration-300 animate-in fade-in zoom-in-95 dark:border-emerald-800 dark:bg-emerald-950/80",
+        "relative overflow-hidden rounded-sheet border border-border border-t-[3px] border-t-success bg-surface p-5 text-ink shadow-elevation-1 animate-in fade-in-0 zoom-in-95 duration-200 ease-out-soft",
         className,
       )}
     >
       <button
         type="button"
         onClick={onDismiss}
-        className="absolute top-3.5 right-3.5 text-emerald-700 hover:text-emerald-900 dark:text-emerald-300 dark:hover:text-emerald-100 p-1"
+        className="absolute top-2 right-2 inline-flex h-11 w-11 items-center justify-center rounded-control text-ink-2 transition-colors hover:bg-nav hover:text-ink focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-focus-ring"
         aria-label="Fechar mensagem de confirmação"
       >
-        <X className="h-4 w-4" />
+        <X className="h-5 w-5" aria-hidden />
       </button>
 
       <div className="flex flex-col items-center text-center space-y-2">
-        <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-emerald-500 text-white shadow-md animate-in zoom-in-50 duration-200">
-          <CheckCircle2 className="h-7 w-7" />
+        <div className="flex h-12 w-12 items-center justify-center rounded-control bg-success-tint text-success motion-safe:animate-in motion-safe:zoom-in-50 duration-200 ease-out-soft">
+          <CheckCircle2 className="h-7 w-7" aria-hidden />
         </div>
 
-        <h3 className="text-base font-bold text-emerald-950 dark:text-emerald-100">
+        <h3 className="text-lg font-semibold text-ink text-balance">
           {UI_MESSAGES.calls.confirmedTitle}
         </h3>
 
-        <p className="text-xs text-emerald-800 dark:text-emerald-200 max-w-xs">
+        <p className="max-w-xs text-sm text-ink-2 text-pretty">
           {UI_MESSAGES.calls.confirmedSubtitle}
         </p>
 
         {ratingLabel && (
-          <span className="inline-flex items-center rounded-xl bg-white/80 px-2.5 py-1 text-[11px] font-semibold text-emerald-900 shadow-sm dark:bg-emerald-900/60 dark:text-emerald-100">
+          <span className="inline-flex items-center rounded-full bg-success-tint px-3 py-1 text-xs font-semibold text-success">
             {ratingLabel}
           </span>
         )}

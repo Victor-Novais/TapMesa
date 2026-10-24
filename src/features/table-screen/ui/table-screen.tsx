@@ -6,7 +6,7 @@ import { Wifi, Copy, Check, Phone, Globe } from "lucide-react";
 import { Badge } from "@/shared/ui/badge";
 import { Button } from "@/shared/ui/button";
 import { BrandLogo } from "@/shared/ui/brand-logo";
-import { getContrastRatio } from "../lib/contrast";
+import { isDarkBackground } from "../lib/contrast";
 import {
   ConnectionIndicator,
   type ConnectionStatus,
@@ -59,16 +59,12 @@ export function TableScreen({
     appearance.colors?.background ||
     (appearance.backgroundValue?.startsWith("#")
       ? appearance.backgroundValue
-      : "#ffffff");
+      : "#F9F8F6");
   const hasImageBg =
     appearance.backgroundType === "image" &&
     Boolean(appearance.backgroundValue);
   const fallbackLogoTone =
-    hasImageBg ||
-    getContrastRatio("#ffffff", restaurantBg) >=
-      getContrastRatio("#141615", restaurantBg)
-      ? "dark"
-      : "light";
+    hasImageBg || isDarkBackground(restaurantBg) ? "dark" : "light";
 
   // Interpolate welcome title with table number: "Bem-vindo à Mesa {tableNumber}"
   const rawWelcome = texts.welcomeTitle || "Mesa {tableNumber}";
@@ -116,7 +112,7 @@ export function TableScreen({
         <div className="flex w-full items-center justify-between pb-4">
           <Badge
             variant="neutral"
-            className="border-white/20 bg-black/10 backdrop-blur text-xs font-semibold px-2.5 py-1 text-inherit"
+            className="rounded-full bg-surface px-3 py-1 text-xs font-semibold text-ink shadow-elevation-1"
           >
             Mesa {tableNumber}
           </Badge>
@@ -124,7 +120,7 @@ export function TableScreen({
         </div>
 
         {/* Logo or Restaurant Avatar */}
-        <div className="mt-2 flex h-20 w-20 items-center justify-center rounded-3xl bg-white/90 shadow-md backdrop-blur overflow-hidden border border-white/20 dark:bg-zinc-900/90 dark:border-zinc-800">
+        <div className="mt-2 flex h-20 w-20 items-center justify-center overflow-hidden rounded-sheet bg-surface shadow-elevation-1">
           {logoUrl ? (
             <Image
               src={logoUrl}
@@ -147,20 +143,19 @@ export function TableScreen({
         </div>
 
         {/* Restaurant Name & Welcome */}
-        <h1 className="mt-4 text-xl sm:text-2xl font-black tracking-tight drop-shadow-sm text-inherit">
+        <h1 className="mt-4 text-2xl font-bold tracking-tight text-balance text-inherit">
           {displayName}
         </h1>
         {description && (
-          <p className="mt-1 text-xs sm:text-sm opacity-80 max-w-xs text-inherit">
+          <p className="mt-1 max-w-xs text-sm text-pretty text-inherit">
             {description}
           </p>
         )}
 
-        <div className="mt-4 inline-flex items-center rounded-2xl bg-white/80 px-4 py-1.5 shadow-sm backdrop-blur dark:bg-zinc-900/80 border border-black/5 dark:border-white/10">
-          <span className="text-sm sm:text-base font-bold text-zinc-900 dark:text-zinc-100">
-            {welcomeTitle}
-          </span>
-        </div>
+        {/* Boas-vindas sem cartão próprio: evita "cartão dentro de cartão" */}
+        <p className="mt-3 text-base font-semibold text-inherit">
+          {welcomeTitle}
+        </p>
       </header>
 
       {/* Main Interactive Actions Slot (F07/F08) */}
@@ -172,7 +167,7 @@ export function TableScreen({
         {children ? (
           children
         ) : (
-          <div className="rounded-2xl border border-black/10 bg-white/70 p-6 text-center backdrop-blur dark:border-white/10 dark:bg-zinc-900/70">
+          <div className="rounded-card border border-border bg-surface p-6 text-center text-ink">
             <p className="text-sm font-medium opacity-90">
               {available
                 ? "Selecione o serviço desejado nos botões abaixo."
@@ -186,16 +181,14 @@ export function TableScreen({
       <footer className="w-full space-y-4 pt-2">
         {/* Wi-Fi Card */}
         {wifiSsid && (
-          <div className="flex items-center justify-between rounded-2xl border border-black/5 bg-white/75 p-3.5 shadow-sm backdrop-blur dark:border-white/10 dark:bg-zinc-900/75">
+          <div className="flex items-center justify-between gap-3 rounded-card border border-border bg-surface p-3 text-ink">
             <div className="flex items-center gap-2.5 min-w-0">
-              <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-xl bg-orange-500/10 text-orange-600 dark:bg-orange-500/20 dark:text-orange-400">
-                <Wifi className="h-4 w-4" />
+              <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-control bg-brand-tint text-primary-ink">
+                <Wifi className="h-4 w-4" aria-hidden />
               </div>
               <div className="min-w-0 text-left">
-                <p className="text-[11px] font-medium text-zinc-500 dark:text-zinc-400">
-                  Wi-Fi do Restaurante
-                </p>
-                <p className="truncate text-xs font-bold text-zinc-900 dark:text-zinc-100">
+                <p className="text-xs text-ink-2">Wi-Fi do Restaurante</p>
+                <p className="truncate text-sm font-semibold text-ink">
                   {wifiSsid}
                 </p>
               </div>
@@ -206,19 +199,19 @@ export function TableScreen({
                 size="sm"
                 variant="outline"
                 onClick={handleCopyWifi}
-                className="h-10 min-h-[44px] border-zinc-200 bg-white/80 px-3 text-xs font-semibold text-zinc-800 shadow-none hover:bg-white dark:border-zinc-700 dark:bg-zinc-800 dark:text-zinc-200"
+                className="shrink-0 px-3"
                 aria-label={
                   copiedWifi ? "Senha copiada" : "Copiar senha do Wi-Fi"
                 }
               >
                 {copiedWifi ? (
                   <>
-                    <Check className="mr-1 h-3.5 w-3.5 text-emerald-600" />
+                    <Check className="h-3.5 w-3.5 text-success" aria-hidden />
                     <span>Copiada!</span>
                   </>
                 ) : (
                   <>
-                    <Copy className="mr-1 h-3.5 w-3.5" />
+                    <Copy className="h-3.5 w-3.5" aria-hidden />
                     <span>Copiar senha</span>
                   </>
                 )}
@@ -251,22 +244,22 @@ export function TableScreen({
                 href={href}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="flex h-11 w-11 min-h-[44px] min-w-[44px] items-center justify-center rounded-2xl bg-white/70 text-zinc-700 shadow-sm transition-transform hover:scale-105 active:scale-95 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-orange-500 backdrop-blur dark:bg-zinc-900/70 dark:text-zinc-300 border border-black/5 dark:border-white/10"
+                className="flex h-11 w-11 items-center justify-center rounded-control border border-border bg-surface text-ink-2 transition-[color,transform] duration-150 ease-out-soft hover:text-ink active:scale-95 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-focus-ring"
                 aria-label={`Acessar ${key}`}
               >
                 {isInsta ? (
-                  <InstagramIcon className="h-5 w-5" />
+                  <InstagramIcon className="h-5 w-5" aria-hidden />
                 ) : isWhats ? (
-                  <Phone className="h-5 w-5" />
+                  <Phone className="h-5 w-5" aria-hidden />
                 ) : (
-                  <Globe className="h-5 w-5" />
+                  <Globe className="h-5 w-5" aria-hidden />
                 )}
               </a>
             );
           })}
         </div>
 
-        <p className="text-center text-[11px] opacity-60">
+        <p className="text-center text-xs text-inherit">
           TapMesa • Atendimento ágil via QR Code
         </p>
       </footer>

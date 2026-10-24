@@ -95,21 +95,20 @@ export function AttendedCallCard({
         role="status"
         aria-live="polite"
         className={cn(
-          "relative overflow-hidden rounded-3xl border border-amber-200/80 bg-white/95 p-5 shadow-xl backdrop-blur transition-[border-color,box-shadow,background-color] duration-150 ease-out animate-in fade-in zoom-in-95 dark:border-amber-900/60 dark:bg-zinc-900/95",
+          "relative overflow-hidden rounded-sheet border border-border border-t-[3px] border-t-warning bg-surface p-5 text-ink shadow-elevation-1 animate-in fade-in-0 zoom-in-95 duration-200 ease-out-soft",
           className,
         )}
       >
         {/* Accent top ambient strip */}
-        <div className="absolute top-0 left-0 right-0 h-1.5 bg-gradient-to-r from-amber-400 via-orange-500 to-emerald-500" />
 
         <div className="text-center space-y-1.5">
-          <div className="mx-auto flex h-11 w-11 items-center justify-center rounded-2xl bg-amber-500/10 text-amber-600 dark:bg-amber-500/20 dark:text-amber-400">
-            <Check className="h-6 w-6 stroke-[2.5]" />
+          <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-control bg-warning-tint text-warning-ink">
+            <Check className="h-6 w-6 stroke-[2.5]" aria-hidden />
           </div>
-          <h3 className="text-lg font-bold text-zinc-900 dark:text-zinc-100">
+          <h3 className="text-xl font-semibold text-ink text-balance">
             {promptTitle}
           </h3>
-          <p className="text-xs text-zinc-500 dark:text-zinc-400 max-w-xs mx-auto">
+          <p className="mx-auto max-w-xs text-sm text-ink-2 text-pretty">
             {promptSubtitle}
           </p>
         </div>
@@ -122,15 +121,15 @@ export function AttendedCallCard({
             disabled={confirmMutation.isPending}
             onClick={() => handleSelectRating(1)}
             className={cn(
-              "flex min-h-[64px] flex-col items-center justify-center gap-1.5 rounded-2xl border p-3 transition-all duration-150 active:scale-95 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-500",
+              "flex min-h-16 flex-col items-center justify-center gap-1.5 rounded-card border p-3 transition-[border-color,background-color,transform] duration-150 ease-out-soft active:scale-95 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-focus-ring",
               selectedRating === 1
-                ? "border-red-500 bg-red-50 text-red-700 dark:bg-red-950/50 dark:text-red-300 shadow-sm"
-                : "border-zinc-200 bg-zinc-50/80 text-zinc-700 hover:border-red-300 hover:bg-red-50/50 dark:border-zinc-800 dark:bg-zinc-800/60 dark:text-zinc-300 dark:hover:border-red-900",
+                ? "border-2 border-danger bg-danger-tint text-danger-ink"
+                : "border-border bg-canvas text-ink hover:border-border-control",
             )}
             aria-label="Avaliar como ruim"
           >
-            <Frown className="h-7 w-7 text-red-500 dark:text-red-400 transition-transform group-hover:scale-110" />
-            <span className="text-xs font-semibold">
+            <Frown className="h-7 w-7 text-danger" aria-hidden />
+            <span className="text-sm font-semibold">
               {UI_MESSAGES.calls.ratingBad}
             </span>
           </button>
@@ -141,15 +140,15 @@ export function AttendedCallCard({
             disabled={confirmMutation.isPending}
             onClick={() => handleSelectRating(2)}
             className={cn(
-              "flex min-h-[64px] flex-col items-center justify-center gap-1.5 rounded-2xl border p-3 transition-all duration-150 active:scale-95 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-500",
+              "flex min-h-16 flex-col items-center justify-center gap-1.5 rounded-card border p-3 transition-[border-color,background-color,transform] duration-150 ease-out-soft active:scale-95 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-focus-ring",
               selectedRating === 2
-                ? "border-amber-500 bg-amber-50 text-amber-700 dark:bg-amber-950/50 dark:text-amber-300 shadow-sm"
-                : "border-zinc-200 bg-zinc-50/80 text-zinc-700 hover:border-amber-300 hover:bg-amber-50/50 dark:border-zinc-800 dark:bg-zinc-800/60 dark:text-zinc-300 dark:hover:border-amber-900",
+                ? "border-2 border-warning bg-warning-tint text-warning-ink"
+                : "border-border bg-canvas text-ink hover:border-border-control",
             )}
             aria-label="Avaliar como regular"
           >
-            <Meh className="h-7 w-7 text-amber-500 dark:text-amber-400 transition-transform group-hover:scale-110" />
-            <span className="text-xs font-semibold">
+            <Meh className="h-7 w-7 text-warning-ink" aria-hidden />
+            <span className="text-sm font-semibold">
               {UI_MESSAGES.calls.ratingRegular}
             </span>
           </button>
@@ -160,15 +159,15 @@ export function AttendedCallCard({
             disabled={confirmMutation.isPending}
             onClick={() => handleSelectRating(3)}
             className={cn(
-              "flex min-h-[64px] flex-col items-center justify-center gap-1.5 rounded-2xl border p-3 transition-all duration-150 active:scale-95 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500",
+              "flex min-h-16 flex-col items-center justify-center gap-1.5 rounded-card border p-3 transition-[border-color,background-color,transform] duration-150 ease-out-soft active:scale-95 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-focus-ring",
               selectedRating === 3
-                ? "border-emerald-500 bg-emerald-50 text-emerald-700 dark:bg-emerald-950/50 dark:text-emerald-300 shadow-sm"
-                : "border-zinc-200 bg-zinc-50/80 text-zinc-700 hover:border-emerald-300 hover:bg-emerald-50/50 dark:border-zinc-800 dark:bg-zinc-800/60 dark:text-zinc-300 dark:hover:border-emerald-900",
+                ? "border-2 border-success bg-success-tint text-success"
+                : "border-border bg-canvas text-ink hover:border-border-control",
             )}
             aria-label="Avaliar como excelente"
           >
-            <Smile className="h-7 w-7 text-emerald-500 dark:text-emerald-400 transition-transform group-hover:scale-110" />
-            <span className="text-xs font-semibold">
+            <Smile className="h-7 w-7 text-success" aria-hidden />
+            <span className="text-sm font-semibold">
               {UI_MESSAGES.calls.ratingGood}
             </span>
           </button>
@@ -183,21 +182,21 @@ export function AttendedCallCard({
             onClick={handleSimpleConfirm}
             isLoading={confirmMutation.isPending && selectedRating === null}
             disabled={confirmMutation.isPending}
-            className="w-full font-bold shadow-sm"
+            className="w-full"
           >
-            <Check className="mr-2 h-4 w-4" />
+            <Check className="h-4 w-4" aria-hidden />
             <span>{confirmButtonLabel}</span>
           </Button>
         </div>
 
         {/* Footer info: Countdown to deadline and Contest button */}
-        <div className="mt-4 pt-3 border-t border-zinc-100 dark:border-zinc-800 flex flex-col sm:flex-row items-center justify-between gap-2">
+        <div className="mt-4 flex flex-col items-center justify-between gap-2 border-t border-border-subtle pt-3 sm:flex-row">
           {remainingSec !== null && (
-            <div className="flex items-center gap-1.5 text-[11px] text-zinc-500 dark:text-zinc-400">
-              <Clock className="h-3.5 w-3.5 text-zinc-400" />
+            <div className="flex items-center gap-1.5 text-sm text-ink-2">
+              <Clock className="h-4 w-4" aria-hidden />
               <span>
                 {UI_MESSAGES.calls.autoConfirmPrefix}{" "}
-                <strong className="font-mono tabular-nums text-zinc-800 dark:text-zinc-200">
+                <strong className="font-semibold tabular-nums text-ink">
                   {formatTimer(remainingSec)}
                 </strong>
               </span>
@@ -205,7 +204,7 @@ export function AttendedCallCard({
           )}
 
           {contestFlagged ? (
-            <span className="text-[11px] font-semibold text-zinc-500 dark:text-zinc-400">
+            <span className="text-sm font-semibold text-ink-2">
               {UI_MESSAGES.calls.contestFinalNotice}
             </span>
           ) : (
@@ -213,17 +212,14 @@ export function AttendedCallCard({
               type="button"
               onClick={() => setShowContestDialog(true)}
               disabled={contestMutation.isPending || confirmMutation.isPending}
-              className="min-h-[44px] inline-flex items-center text-xs font-semibold text-red-600 hover:text-red-700 dark:text-red-400 dark:hover:text-red-300 underline underline-offset-4 transition-colors px-2 py-1 rounded-lg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-500"
+              className="inline-flex min-h-11 items-center rounded-control px-2 py-1 text-sm font-semibold text-danger-ink underline underline-offset-4 transition-colors hover:bg-danger-tint focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-focus-ring"
             >
               {contestButtonLabel}
             </button>
           )}
         </div>
         {actionError && (
-          <p
-            role="alert"
-            className="mt-2 text-xs text-red-600 dark:text-red-400"
-          >
+          <p role="alert" className="mt-2 text-sm text-danger-ink">
             {parseApiError(actionError).detail}
           </p>
         )}

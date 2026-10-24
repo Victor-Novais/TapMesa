@@ -2,6 +2,17 @@
  * Utilitários de cálculo de contraste e luminância conforme WCAG 2.1
  */
 
+// Tinta escura usada quando a cor escolhida não atinge o contraste (token --ink, Cast Iron)
+export const DARK_INK = "#141615";
+
+/** Fundo claro ou escuro, pelo que oferece mais contraste: texto branco ou tinta escura. */
+export function isDarkBackground(backgroundColor: string): boolean {
+  return (
+    getContrastRatio("#ffffff", backgroundColor) >=
+    getContrastRatio(DARK_INK, backgroundColor)
+  );
+}
+
 interface RGB {
   r: number;
   g: number;
@@ -76,7 +87,7 @@ export function getAccessibleTextColor(
   }
 
   const whiteRatio = getContrastRatio("#ffffff", backgroundColor);
-  const darkRatio = getContrastRatio("#09090b", backgroundColor);
+  const darkRatio = getContrastRatio(DARK_INK, backgroundColor);
 
-  return whiteRatio >= darkRatio ? "#ffffff" : "#09090b";
+  return whiteRatio >= darkRatio ? "#ffffff" : DARK_INK;
 }
