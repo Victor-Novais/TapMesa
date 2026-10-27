@@ -200,6 +200,8 @@ export interface RestaurantAppearance {
   texts: AppearanceTexts;
   // Links externos normalizados para https; wifiName e wifiPassword são texto puro.
   socials: Record<string, string>;
+  // Link de avaliação no Google, já normalizado pelo back. null = não configurado.
+  googleReviewUrl: string | null;
 }
 
 export interface UpdateAppearanceRequest {
@@ -211,6 +213,8 @@ export interface UpdateAppearanceRequest {
   texts?: Record<string, string>;
   // Substitui o objeto inteiro: chave ausente ou vazia é removida.
   socials?: Record<string, string>;
+  // "" ou null remove o link; ausente mantém o valor atual.
+  googleReviewUrl?: string | null;
 }
 
 // ============================================================================
