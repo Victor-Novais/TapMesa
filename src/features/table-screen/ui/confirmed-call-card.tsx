@@ -1,30 +1,47 @@
 "use client";
 
 import * as React from "react";
-import { CheckCircle2, X } from "lucide-react";
+import { CheckCircle2, ExternalLink, X } from "lucide-react";
 import { UI_MESSAGES } from "@/shared/messages/ui";
 import { cn } from "@/shared/lib/cn";
+import {
+  CONFIRMED_AUTO_DISMISS_MS,
+  shouldAutoDismissConfirmed,
+  type ConfirmedCardVariant,
+} from "../lib/call-state";
 import type { PublicCallDto } from "@/shared/types/api";
 
 export interface ConfirmedCallCardProps {
   call: PublicCallDto;
   onDismiss: () => void;
+  // "bill" = conta paga (confirmada pela equipe)
+  variant?: ConfirmedCardVariant;
+  googleReviewUrl?: string | null;
   className?: string;
 }
 
 export function ConfirmedCallCard({
   call,
   onDismiss,
+  variant = "waiter",
+  googleReviewUrl,
   className,
 }: ConfirmedCallCardProps) {
+  const isBill = variant === "bill";
+  // O botão aparece para todo cliente que pagou: nunca condicionar à avaliação
+  // rápida (o Google proíbe pedir avaliação só a clientes satisfeitos)
+  const reviewUrl = isBill ? googleReviewUrl : null;
+  const autoDismiss = shouldAutoDismissConfirmed(variant, googleReviewUrl);
+
   React.useEffect(() => {
+    if (!autoDismiss) return;
     // Transiciona de volta ao estado Livre após breve agradecimento (3.5 segundos)
     const timer = setTimeout(() => {
       onDismiss();
-    }, 3500);
+    }, CONFIRMED_AUTO_DISMISS_MS);
 
     return () => clearTimeout(timer);
-  }, [onDismiss]);
+  }, [onDismiss, autoDismiss]);
 
   const ratingLabel =
     call.rating === 1
@@ -59,17 +76,39 @@ export function ConfirmedCallCard({
         </div>
 
         <h3 className="text-lg font-semibold text-ink text-balance">
-          {UI_MESSAGES.calls.confirmedTitle}
+          {isBill
+            ? UI_MESSAGES.calls.billPaidTitle
+            : UI_MESSAGES.calls.confirmedTitle}
         </h3>
 
         <p className="max-w-xs text-sm text-ink-2 text-pretty">
-          {UI_MESSAGES.calls.confirmedSubtitle}
+          {isBill
+            ? UI_MESSAGES.calls.billPaidSubtitle
+            : UI_MESSAGES.calls.confirmedSubtitle}
         </p>
 
         {ratingLabel && (
           <span className="inline-flex items-center rounded-full bg-success-tint px-3 py-1 text-xs font-semibold text-success">
             {ratingLabel}
           </span>
+        )}
+
+        {reviewUrl && (
+          <div className="w-full space-y-3 pt-2">
+            <p className="text-sm text-ink-2 text-pretty">
+              {UI_MESSAGES.calls.googleReviewPrompt}
+            </p>
+            {/* Nova aba: o cliente não perde a tela da mesa */}
+            <a
+              href={reviewUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex min-h-11 w-full items-center justify-center gap-2 rounded-control border-2 border-[var(--table-primary-border)] bg-[var(--table-primary)] px-4 py-2.5 text-base font-semibold text-[var(--table-primary-text)] transition hover:brightness-95 active:brightness-90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-focus-ring"
+            >
+              <span>{UI_MESSAGES.calls.googleReviewButton}</span>
+              <ExternalLink className="h-4 w-4 shrink-0" aria-hidden />
+            </a>
+          </div>
         )}
       </div>
     </div>

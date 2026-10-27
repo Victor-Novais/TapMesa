@@ -757,6 +757,7 @@ function TableScreenDemo() {
         instagram: "@trattoria_oficial",
         whatsapp: "11999998888",
       },
+      googleReviewUrl: null,
     },
     dark: {
       name: "Nocturne Cocktail Bar",
@@ -782,6 +783,7 @@ function TableScreenDemo() {
         wifiPassword: "cocktailjazz2026",
         instagram: "@nocturnebar",
       },
+      googleReviewUrl: null,
     },
     image: {
       name: "Boi Bravo Steakhouse",
@@ -808,6 +810,7 @@ function TableScreenDemo() {
         wifiPassword: "picanhanabrasa",
         instagram: "@boibravosteak",
       },
+      googleReviewUrl: null,
     },
   };
 

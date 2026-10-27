@@ -16,6 +16,7 @@ import { AttendedCallCard } from "./attended-call-card";
 import { ConfirmedCallCard } from "./confirmed-call-card";
 import { useOpenCallMutation } from "../api/use-table-mutations";
 import { getAccessibleTextColor } from "../lib/contrast";
+import { readDismissedIds, writeDismissedIds } from "../lib/call-state";
 import { parseApiError } from "@/shared/api/problem-details";
 import { UI_MESSAGES } from "@/shared/messages/ui";
 import { cn } from "@/shared/lib/cn";
@@ -31,7 +32,17 @@ export interface CallActionsProps {
   showWaitTimeToCustomer?: boolean;
   texts?: Record<string, string>;
   colors?: Record<string, string>;
+  // Link de avaliação no Google exibido após o pagamento da conta
+  googleReviewUrl?: string | null;
   className?: string;
+}
+
+function getSessionStorage(): Storage | undefined {
+  try {
+    return typeof window === "undefined" ? undefined : window.sessionStorage;
+  } catch {
+    return undefined;
+  }
 }
 
 export function CallActions({
@@ -41,6 +52,7 @@ export function CallActions({
   showWaitTimeToCustomer = false,
   texts = {},
   colors = {},
+  googleReviewUrl = null,
   className,
 }: CallActionsProps) {
   const [note, setNote] = React.useState("");
@@ -48,9 +60,11 @@ export function CallActions({
   const [activeSubmittingType, setActiveSubmittingType] =
     React.useState<CallType | null>(null);
   const [errorMessage, setErrorMessage] = React.useState<string | null>(null);
+  // Persistido na sessão: a conta paga fica 15 min na lista e o card fechado
+  // não deve reaparecer ao recarregar
   const [dismissedConfirmedIds, setDismissedConfirmedIds] = React.useState<
     Set<string>
-  >(() => new Set());
+  >(() => readDismissedIds(getSessionStorage(), token));
   const [dismissedExpired, setDismissedExpired] = React.useState(false);
 
   const openCallMutation = useOpenCallMutation(token);
@@ -72,12 +86,13 @@ export function CallActions({
   const isWaiterActive =
     isWaiterPending || isWaiterAttended || isWaiterConfirmed;
 
-  // Estados específicos para BILL
-  const isBillPending = billCall?.status === "PENDING";
-  const isBillAttended = billCall?.status === "ATTENDED";
+  // Estados específicos para BILL. ATTENDED é transitório (o pagamento leva
+  // direto a CONFIRMED) e continua exibindo o card de pendente
+  const isBillPending =
+    billCall?.status === "PENDING" || billCall?.status === "ATTENDED";
   const isBillConfirmed =
     billCall?.status === "CONFIRMED" && !dismissedConfirmedIds.has(billCall.id);
-  const isBillActive = isBillPending || isBillAttended || isBillConfirmed;
+  const isBillActive = isBillPending || isBillConfirmed;
 
   // Campo de observação disponível se ao menos uma das ações estiver livre
   const hasAnyFreeType = !isWaiterActive || !isBillActive;
@@ -101,7 +116,11 @@ export function CallActions({
     : undefined;
 
   const handleDismissConfirmed = (callId: string) => {
-    setDismissedConfirmedIds((prev) => new Set(prev).add(callId));
+    setDismissedConfirmedIds((prev) => {
+      const next = new Set(prev).add(callId);
+      writeDismissedIds(getSessionStorage(), token, next);
+      return next;
+    });
   };
 
   const handleOpenCall = (type: CallType) => {
@@ -212,12 +231,10 @@ export function CallActions({
       {billCall && isBillConfirmed && (
         <ConfirmedCallCard
           call={billCall}
+          variant="bill"
+          googleReviewUrl={googleReviewUrl}
           onDismiss={() => handleDismissConfirmed(billCall.id)}
         />
-      )}
-
-      {billCall && isBillAttended && (
-        <AttendedCallCard call={billCall} token={token} texts={texts} />
       )}
 
       {billCall && isBillPending && (

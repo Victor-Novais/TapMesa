@@ -88,6 +88,11 @@ export const UI_MESSAGES = {
     confirmedTitle: "Atendimento confirmado!",
     confirmedSubtitle:
       "Obrigado pela confirmação! Desejamos uma excelente refeição.",
+    billPaidTitle: "Pagamento confirmado",
+    billPaidSubtitle: "Obrigado pela visita!",
+    googleReviewPrompt:
+      "Gostou? Sua avaliação no Google ajuda muito o restaurante.",
+    googleReviewButton: "Avaliar no Google",
     autoConfirmPrefix: "Confirmação automática em",
     expiredNotice:
       "Seu chamado expirou após 20 minutos sem atendimento. Por favor, solicite novamente.",

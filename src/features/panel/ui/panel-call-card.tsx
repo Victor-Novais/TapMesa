@@ -15,6 +15,7 @@ import { Button } from "@/shared/ui/button";
 import { calculateElapsedSec, formatTimer } from "@/shared/lib/clock";
 import { cn } from "@/shared/lib/cn";
 import type { PanelCallDto } from "@/shared/types/api";
+import { getAttendButtonLabels } from "../lib/attend-button";
 
 export interface PanelCallCardProps {
   call: PanelCallDto;
@@ -52,6 +53,7 @@ export function PanelCallCard({
     call.acknowledgedById === currentUserId,
   );
   const isBill = call.type === "BILL";
+  const attendLabels = getAttendButtonLabels(call.type, call.tableNumber);
 
   // Nível por ícone + palavra (legível sem cor); cheio no alerta/urgência, neutro no normal.
   // Tamanho fluido para leitura a distância na TV (DESIGN_PLAN §2.5).
@@ -228,9 +230,9 @@ export function PanelCallCard({
           isLoading={isSubmitting}
           onClick={() => onAttend(call.id)}
           className="h-14 text-base 3xl:h-16 3xl:text-lg"
-          aria-label={`Concluir atendimento da mesa ${call.tableNumber}`}
+          aria-label={attendLabels.ariaLabel}
         >
-          <span>Atendido</span>
+          <span>{attendLabels.text}</span>
         </Button>
       </div>
     </article>

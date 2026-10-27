@@ -105,6 +105,8 @@ const appearanceFormSchema = z.object({
     wifiName: z.string().max(50).optional(),
     wifiPassword: z.string().max(50).optional(),
   }),
+  // Fora de `socials`: o domínio é validado pelo back (INVALID_APPEARANCE)
+  googleReviewUrl: z.string().max(500, "Máximo de 500 caracteres"),
 });
 
 type AppearanceFormData = z.infer<typeof appearanceFormSchema>;
@@ -131,6 +133,7 @@ function toFormValues(appearance: RestaurantAppearance): AppearanceFormData {
       wifiName: appearance.socials.wifiName || "",
       wifiPassword: appearance.socials.wifiPassword || "",
     },
+    googleReviewUrl: appearance.googleReviewUrl ?? "",
   };
 }
 
@@ -220,6 +223,7 @@ function AppearanceSettingsEditor({
     control,
     reset,
     setValue,
+    setError,
     formState: { errors, isDirty },
   } = useForm<AppearanceFormData>({
     resolver: zodResolver(appearanceFormSchema),
@@ -235,6 +239,10 @@ function AppearanceSettingsEditor({
   const watchedColors = useWatch({ control, name: "colors" });
   const watchedTexts = useWatch({ control, name: "texts" });
   const watchedSocials = useWatch({ control, name: "socials" });
+  const watchedGoogleReviewUrl = useWatch({
+    control,
+    name: "googleReviewUrl",
+  });
 
   // Calculate live contrast ratios (WCAG 2.1 AA)
   const textBgRatio =
@@ -304,6 +312,7 @@ function AppearanceSettingsEditor({
       wifiName: watchedSocials?.wifiName || "",
       wifiPassword: watchedSocials?.wifiPassword || "",
     },
+    googleReviewUrl: watchedGoogleReviewUrl?.trim() || null,
   };
 
   // Handle Logo Upload
@@ -430,21 +439,30 @@ function AppearanceSettingsEditor({
           wifiName: data.socials.wifiName?.trim() || "",
           wifiPassword: data.socials.wifiPassword || "",
         },
+        // String vazia remove o link
+        googleReviewUrl: data.googleReviewUrl.trim(),
       };
 
-      await updateMutation.mutateAsync(payload);
+      const updated = await updateMutation.mutateAsync(payload);
       toast({
         title: "Aparência salva",
         description:
           "A identidade visual da tela da mesa foi atualizada com sucesso.",
         type: "success",
       });
-      reset(data);
+      // O back normaliza o link (ex.: Place ID vira o link completo)
+      reset({ ...data, googleReviewUrl: updated.googleReviewUrl ?? "" });
     } catch (err) {
+      const problem = parseApiError(err);
+      if (
+        problem.code === "INVALID_APPEARANCE" &&
+        /avalia/i.test(problem.detail)
+      ) {
+        setError("googleReviewUrl", { message: problem.detail });
+      }
       toast({
         title: "Erro ao salvar aparência",
-        description:
-          parseApiError(err).detail || "Verifique os campos e tente novamente.",
+        description: problem.detail || "Verifique os campos e tente novamente.",
         type: "error",
       });
     }
@@ -1004,6 +1022,16 @@ function AppearanceSettingsEditor({
                     {...register("socials.wifiPassword")}
                   />
                 </div>
+
+                <Input
+                  id="googleReviewUrl"
+                  label="Link de avaliação no Google"
+                  placeholder="https://search.google.com/local/writereview?placeid=..."
+                  helperText="No seu Perfil da Empresa no Google, use 'Pedir avaliações' e cole o link aqui. Também aceita só o Place ID."
+                  maxLength={500}
+                  error={errors.googleReviewUrl?.message}
+                  {...register("googleReviewUrl")}
+                />
               </div>
             </Card>
 

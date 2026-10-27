@@ -6,12 +6,13 @@ import {
   TableScreen,
   PendingCallCard,
   AttendedCallCard,
+  ConfirmedCallCard,
 } from "@/features/table-screen";
 import { Bell, Receipt, Wifi, Battery, Sparkles } from "lucide-react";
 import { cn } from "@/shared/lib/cn";
 import type { RestaurantAppearance, PublicCallDto } from "@/shared/types/api";
 
-export type PreviewScenario = "idle" | "pending" | "attended";
+export type PreviewScenario = "idle" | "pending" | "attended" | "paid";
 
 export interface LivePhonePreviewProps {
   appearance: RestaurantAppearance;
@@ -66,6 +67,24 @@ export function LivePhonePreview({
     [],
   );
 
+  const mockPaidBillCall = React.useMemo<PublicCallDto>(
+    () => ({
+      id: "preview-paid-1",
+      type: "BILL",
+      status: "CONFIRMED",
+      createdAt: STATIC_ATTENDED_CREATED,
+      attendedAt: STATIC_ATTENDED_AT,
+      rating: null,
+      reopenCount: 0,
+      serverNow: STATIC_ATTENDED_AT,
+      note: null,
+    }),
+    [],
+  );
+
+  // Sem link, o agradecimento fecha sozinho como na mesa real
+  const handlePaidDismiss = React.useCallback(() => setScenario("idle"), []);
+
   return (
     <div className={cn("flex flex-col items-center gap-4", className)}>
       {/* Controles de Cenário da Mesa */}
@@ -109,6 +128,18 @@ export function LivePhonePreview({
             )}
           >
             Atendido
+          </button>
+          <button
+            type="button"
+            onClick={() => setScenario("paid")}
+            className={cn(
+              "rounded-control px-3 py-1 text-xs font-semibold transition-colors",
+              scenario === "paid"
+                ? "bg-surface text-ink shadow-elevation-1"
+                : "text-ink-2 hover:text-ink",
+            )}
+          >
+            Conta paga
           </button>
         </div>
       </div>
@@ -188,6 +219,17 @@ export function LivePhonePreview({
                     call={mockAttendedCall}
                     token="preview-token"
                     texts={appearance.texts}
+                  />
+                </div>
+              )}
+
+              {scenario === "paid" && (
+                <div className="pt-2">
+                  <ConfirmedCallCard
+                    call={mockPaidBillCall}
+                    variant="bill"
+                    googleReviewUrl={appearance.googleReviewUrl}
+                    onDismiss={handlePaidDismiss}
                   />
                 </div>
               )}

@@ -162,7 +162,9 @@ export function RecentCallsDrawer({
                           className="flex items-center gap-1 text-xs font-semibold"
                         >
                           <CheckCircle2 className="h-3 w-3" />
-                          <span>Confirmado</span>
+                          <span>
+                            {call.type === "BILL" ? "Pago" : "Confirmado"}
+                          </span>
                         </Badge>
                       ) : isContested ? (
                         <Badge

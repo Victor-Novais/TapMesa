@@ -5,6 +5,7 @@ import { useQueryClient } from "@tanstack/react-query";
 import { queryKeys } from "@/shared/api/query-client";
 import { getPublicTableCalls } from "@/shared/api/public-table";
 import { syncClock } from "@/shared/lib/clock";
+import { shouldApplyAttendedEvent } from "../lib/call-state";
 import type { ConnectionStatus } from "@/shared/ui/connection-indicator";
 import type {
   PublicTableDto,
@@ -169,6 +170,11 @@ export function useTableStream(token: string) {
           if (isClosed) return;
           const data = parse<"call.attended">(e);
           if (!data) return;
+          // Conta: "atendido" é o pagamento e o call.confirmed chega logo em
+          // seguida. Ignorar evita exibir "Você foi atendido?" nesse intervalo
+          const calls =
+            queryClient.getQueryData<PublicTableDto>(queryKey)?.calls;
+          if (!shouldApplyAttendedEvent(calls, data.callId)) return;
           // O payload não traz confirmationDeadline; não buscamos GET /calls por
           // evento (limite de GETs públicos por IP): o contador só aparece quando
           // o prazo vier do servidor (carga inicial ou snapshot de reconexão)
