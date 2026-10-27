@@ -6,14 +6,16 @@ import {
   getContrastRatio,
   isDarkBackground,
 } from "../lib/contrast";
+import { cn } from "@/shared/lib/cn";
 import type { PublicTableDto } from "@/shared/types/api";
 
 interface TableThemeProviderProps {
   appearance?: PublicTableDto["appearance"];
   /**
    * true só na rota /m: aplica o tom do restaurante ao <html>, para que diálogos
-   * (renderizados fora desta árvore) também o sigam. Na pré-visualização de
-   * Aparência e na vitrine o tom fica restrito a este contêiner.
+   * (renderizados fora desta árvore) também o sigam, e ocupa a janela inteira.
+   * Na pré-visualização de Aparência e na vitrine o tom, o fundo e a altura
+   * ficam restritos ao contêiner pai.
    */
   applyToDocument?: boolean;
   children: React.ReactNode;
@@ -71,17 +73,26 @@ export function TableThemeProvider({
     "--table-primary-border": primaryBorder,
   } as React.CSSProperties;
 
+  // Embutido, um fundo `fixed` cobriria a página inteira (ex.: o painel de Aparência)
+  const backgroundPosition = applyToDocument ? "fixed" : "absolute";
+
   return (
     <div
       style={styleVariables}
       data-surface={surfaceTone}
-      className="relative min-h-[100dvh] w-full text-[var(--table-text)] transition-colors duration-200"
+      className={cn(
+        "relative flex w-full flex-col text-[var(--table-text)] transition-colors duration-200",
+        applyToDocument ? "min-h-[100dvh]" : "min-h-full",
+      )}
     >
       {/* Background Layer */}
       {isImageBg ? (
         <div
           aria-hidden="true"
-          className="fixed inset-0 z-0 bg-cover bg-center bg-no-repeat"
+          className={cn(
+            backgroundPosition,
+            "inset-0 z-0 bg-cover bg-center bg-no-repeat",
+          )}
           // Aspas e encodeURI: caracteres especiais na URL não quebram a regra CSS
           style={{ backgroundImage: `url("${encodeURI(backgroundValue)}")` }}
         >
@@ -91,15 +102,13 @@ export function TableThemeProvider({
       ) : (
         <div
           aria-hidden="true"
-          className="fixed inset-0 z-0"
+          className={cn(backgroundPosition, "inset-0 z-0")}
           style={{ backgroundColor: rawBg }}
         />
       )}
 
       {/* Content wrapper */}
-      <div className="relative z-10 flex min-h-[100dvh] flex-col">
-        {children}
-      </div>
+      <div className="relative z-10 flex flex-1 flex-col">{children}</div>
     </div>
   );
 }

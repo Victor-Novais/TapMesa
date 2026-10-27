@@ -109,7 +109,7 @@ export function TableScreen({
   };
 
   return (
-    <div className="flex min-h-[100dvh] flex-col justify-between px-4 py-6 sm:px-6 max-w-md mx-auto w-full pt-[calc(1rem+env(safe-area-inset-top))] pb-[calc(1rem+env(safe-area-inset-bottom))]">
+    <div className="flex flex-1 flex-col justify-between px-4 py-6 sm:px-6 max-w-md mx-auto w-full pt-[calc(1rem+env(safe-area-inset-top))] pb-[calc(1rem+env(safe-area-inset-bottom))]">
       {/* Top Header Section */}
       <header className="flex flex-col items-center text-center w-full">
         <div className="flex w-full items-center justify-between pb-4">

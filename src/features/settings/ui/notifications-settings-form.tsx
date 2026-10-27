@@ -463,7 +463,7 @@ export function NotificationsSettingsForm() {
           role="region"
           aria-label="Barra de alterações pendentes de notificações"
           data-pending-bar
-          className="fixed right-4 bottom-[calc(4.75rem+env(safe-area-inset-bottom))] left-4 z-40 mx-auto max-w-4xl rounded-card border border-border bg-surface p-4 shadow-elevation-3 animate-in fade-in-0 slide-in-from-bottom-4 duration-200 ease-out-soft lg:bottom-4"
+          className="fixed right-4 bottom-[calc(4.75rem+env(safe-area-inset-bottom))] left-4 z-40 mx-auto max-w-4xl rounded-card border border-border bg-surface p-4 shadow-elevation-3 animate-in fade-in-0 slide-in-from-bottom-4 duration-200 ease-out-soft lg:right-8 lg:bottom-4 lg:left-[calc(var(--dashboard-sidebar-w)+2rem)]"
         >
           <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
             <div className="flex items-center gap-2.5 text-xs text-ink-2">

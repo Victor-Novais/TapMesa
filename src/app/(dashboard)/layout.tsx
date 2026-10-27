@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, type CSSProperties } from "react";
 import { AuthGate } from "@/features/auth";
 import { SkipLink } from "@/shared/ui/skip-link";
 import { DashboardHeader } from "./_components/dashboard-header";
@@ -19,7 +19,15 @@ export default function DashboardLayout({
   return (
     <AuthGate allowedRoles={["OWNER", "ADMIN"]}>
       <SkipLink targetId="main-content" />
-      <div className="flex min-h-screen bg-canvas print:bg-white print:min-h-0 print:block">
+      {/* Largura da sidebar (w-62 / w-18): barras fixas se alinham ao conteúdo no desktop */}
+      <div
+        className="flex min-h-screen bg-canvas print:bg-white print:min-h-0 print:block"
+        style={
+          {
+            "--dashboard-sidebar-w": isSidebarCollapsed ? "4.5rem" : "15.5rem",
+          } as CSSProperties
+        }
+      >
         {/* Desktop / Tablet Sidebar */}
         <div className="print:hidden">
           <DashboardSidebar

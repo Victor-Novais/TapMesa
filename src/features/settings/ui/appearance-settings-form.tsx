@@ -520,8 +520,8 @@ function AppearanceSettingsEditor({
         </Button>
       </div>
 
-      {/* Alternância em Mobile: Formulário vs Pré-visualização */}
-      <div className="flex lg:hidden items-center justify-center gap-2 p-1 bg-nav rounded-control">
+      {/* Alternância até xl: abaixo disso o celular de 360px não cabe ao lado do formulário */}
+      <div className="flex xl:hidden items-center justify-center gap-2 p-1 bg-nav rounded-control">
         <button
           type="button"
           onClick={() => setMobileTab("form")}
@@ -545,11 +545,11 @@ function AppearanceSettingsEditor({
       </div>
 
       {/* Grid Principal: Formulário à Esquerda, Mockup à Direita (Desktop) */}
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
+      <div className="grid grid-cols-1 xl:grid-cols-[minmax(0,1fr)_auto] gap-8 items-start">
         {/* COLUNA 1: Formulário de Configuração */}
         <div
-          className={`lg:col-span-7 space-y-6 ${
-            mobileTab === "preview" ? "hidden lg:block" : "block"
+          className={`min-w-0 space-y-6 ${
+            mobileTab === "preview" ? "hidden xl:block" : "block"
           }`}
         >
           <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
@@ -954,7 +954,7 @@ function AppearanceSettingsEditor({
                 role="region"
                 aria-label="Barra de alterações pendentes de aparência"
                 data-pending-bar
-                className="fixed right-4 bottom-[calc(4.75rem+env(safe-area-inset-bottom))] left-4 z-40 mx-auto max-w-4xl rounded-card border border-border bg-surface p-4 shadow-elevation-3 animate-in fade-in-0 slide-in-from-bottom-4 duration-200 ease-out-soft lg:bottom-4"
+                className="fixed right-4 bottom-[calc(4.75rem+env(safe-area-inset-bottom))] left-4 z-40 mx-auto max-w-4xl rounded-card border border-border bg-surface p-4 shadow-elevation-3 animate-in fade-in-0 slide-in-from-bottom-4 duration-200 ease-out-soft lg:right-8 lg:bottom-4 lg:left-[calc(var(--dashboard-sidebar-w)+2rem)]"
               >
                 <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
                   <div className="flex items-center gap-2.5 text-xs text-ink-2">
@@ -1001,12 +1001,14 @@ function AppearanceSettingsEditor({
         </div>
 
         {/* COLUNA 2: Smartphone com Pré-via ao Vivo (Desktop Sticky / Mobile Tab) */}
+        {/* self-stretch: a coluna acompanha a altura do formulário para o sticky funcionar */}
         <div
-          className={`lg:col-span-5 ${
-            mobileTab === "form" ? "hidden lg:block" : "block"
+          className={`xl:self-stretch ${
+            mobileTab === "form" ? "hidden xl:block" : "block"
           }`}
         >
-          <div className="lg:sticky lg:top-24">
+          {/* Logo abaixo do cabeçalho fixo (h-16) */}
+          <div className="xl:sticky xl:top-20">
             <LivePhonePreview appearance={liveAppearance} tableNumber={4} />
           </div>
         </div>
