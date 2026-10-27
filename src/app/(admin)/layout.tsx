@@ -45,7 +45,7 @@ export default function AdminLayout({
               <BrandLogo size={36} tone="dark" alt="" priority />
               <div className="flex flex-col">
                 <span className="text-base font-bold leading-tight text-on-espresso">
-                  TapMesa Admin
+                  Aproxime Aí Admin
                 </span>
                 <span className="text-xs text-on-espresso-2">
                   Gestão Geral da Plataforma

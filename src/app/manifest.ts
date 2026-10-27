@@ -2,8 +2,8 @@ import type { MetadataRoute } from "next";
 
 export default function manifest(): MetadataRoute.Manifest {
   return {
-    name: "TapMesa — Painel Operacional",
-    short_name: "TapMesa",
+    name: "Aproxime Aí — Painel Operacional",
+    short_name: "Aproxime Aí",
     description: "SaaS de chamada de garçom e pedido de conta via QR Code",
     start_url: "/panel",
     display: "standalone",

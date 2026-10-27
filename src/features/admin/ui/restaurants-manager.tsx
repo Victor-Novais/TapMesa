@@ -334,7 +334,7 @@ export function RestaurantsManager() {
         <EmptyState
           icon={<Building2 className="h-7 w-7 text-ink-2" />}
           title="Nenhum restaurante cadastrado"
-          description="Cadastre o primeiro estabelecimento para começar a disponibilizar a plataforma TapMesa."
+          description="Cadastre o primeiro estabelecimento para começar a disponibilizar a plataforma Aproxime Aí."
           action={
             <Button
               variant="primary"

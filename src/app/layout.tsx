@@ -17,8 +17,8 @@ const jetbrainsMono = JetBrains_Mono({
 
 export const metadata: Metadata = {
   title: {
-    default: "TapMesa",
-    template: "%s | TapMesa",
+    default: "Aproxime Aí",
+    template: "%s | Aproxime Aí",
   },
   description: "Chamada de garçom e pedido de conta via QR Code",
   icons: {
@@ -28,7 +28,7 @@ export const metadata: Metadata = {
   appleWebApp: {
     capable: true,
     statusBarStyle: "default",
-    title: "TapMesa",
+    title: "Aproxime Aí",
   },
 };
 

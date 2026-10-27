@@ -480,7 +480,7 @@ function AppearanceSettingsEditor({
       toast({
         title: "Padrão restaurado",
         description:
-          "As cores e textos voltaram para o padrão oficial do TapMesa.",
+          "As cores e textos voltaram para o padrão oficial do Aproxime Aí.",
         type: "success",
       });
     } catch (err) {
@@ -1019,7 +1019,7 @@ function AppearanceSettingsEditor({
         open={showResetConfirm}
         onOpenChange={setShowResetConfirm}
         title="Restaurar Padrão de Aparência"
-        description="Tem certeza de que deseja redefinir todas as cores, textos e logotipo para os valores originais da TapMesa? Suas personalizações atuais serão substituídas."
+        description="Tem certeza de que deseja redefinir todas as cores, textos e logotipo para os valores originais do Aproxime Aí? Suas personalizações atuais serão substituídas."
         confirmLabel="Restaurar Padrão"
         cancelLabel="Cancelar"
         variant="danger"

@@ -29,7 +29,7 @@ export function PeriodSelector({
   const handleExportCsv = async () => {
     try {
       setIsExporting(true);
-      const filename = `tapmesa-chamados-${range.from}-${range.to}.csv`;
+      const filename = `aproxime-ai-chamados-${range.from}-${range.to}.csv`;
       await downloadAuthenticated(
         analyticsApi.getExportCsvUrl(range.from, range.to),
         filename,

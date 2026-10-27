@@ -21,7 +21,7 @@ if (!parsed.success) {
     .map((issue) => ` - ${issue.path.join(".")}: ${issue.message}`)
     .join("\n");
   throw new Error(
-    `[TapMesa] Falha na validação das variáveis de ambiente:\n${issues}`,
+    `[Aproxime Aí] Falha na validação das variáveis de ambiente:\n${issues}`,
   );
 }
 

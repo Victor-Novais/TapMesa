@@ -37,7 +37,9 @@ function HomeRedirect() {
     <div className="flex min-h-screen flex-col items-center justify-center p-4">
       <div className="flex flex-col items-center gap-3">
         <Loader2 className="h-8 w-8 animate-spin text-brand" aria-hidden />
-        <p className="text-sm font-medium text-ink-2">Carregando TapMesa...</p>
+        <p className="text-sm font-medium text-ink-2">
+          Carregando Aproxime Aí...
+        </p>
       </div>
     </div>
   );

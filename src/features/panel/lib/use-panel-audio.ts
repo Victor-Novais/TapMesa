@@ -95,7 +95,7 @@ export function usePanelAudio(isEnabled = true): UsePanelAudioResult {
   );
 
   const testVoice = React.useCallback(() => {
-    speakText("Teste de voz do painel TapMesa. Mesa 5 chama o garçom.");
+    speakText("Teste de voz do painel Aproxime Aí. Mesa 5 chama o garçom.");
   }, []);
 
   // Alerta disparado pelo back (`alert.raised`); respeita o modo mudo

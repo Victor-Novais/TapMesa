@@ -19,7 +19,7 @@ export function OfflineBanner() {
     >
       <WifiOff className="h-3.5 w-3.5 shrink-0 text-warning" aria-hidden />
       <span>
-        {UI_MESSAGES.offline.title}: O TapMesa tentará reconectar
+        {UI_MESSAGES.offline.title}: O Aproxime Aí tentará reconectar
         automaticamente.
       </span>
     </div>

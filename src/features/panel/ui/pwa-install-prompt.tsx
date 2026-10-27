@@ -34,7 +34,7 @@ export function PwaInstallPrompt({
   return (
     <aside
       role="region"
-      aria-label="Convite para instalar o aplicativo TapMesa"
+      aria-label="Convite para instalar o aplicativo Aproxime Aí"
       className={`flex flex-wrap items-center justify-between gap-3 rounded-card border border-border bg-surface px-4 py-2.5 text-ink ${
         className || ""
       }`}
@@ -45,7 +45,7 @@ export function PwaInstallPrompt({
         </div>
         <div>
           <p className="text-sm font-semibold leading-tight">
-            Instalar TapMesa nesta Estação ou TV
+            Instalar Aproxime Aí nesta Estação ou TV
           </p>
           <p className="text-xs text-ink-2">
             Acesse rapidamente em tela cheia direto da tela inicial.

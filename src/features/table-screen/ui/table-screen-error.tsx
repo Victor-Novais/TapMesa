@@ -40,7 +40,7 @@ export function TableScreenError({
             </CardDescription>
           </CardHeader>
           <CardContent className="pt-4 text-xs text-ink-2">
-            TapMesa • Atendimento inteligente
+            Aproxime Aí • Atendimento inteligente
           </CardContent>
         </Card>
       </main>

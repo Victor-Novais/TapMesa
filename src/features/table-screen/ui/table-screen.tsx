@@ -267,7 +267,7 @@ export function TableScreen({
         </div>
 
         <p className="text-center text-xs text-inherit">
-          TapMesa • Atendimento ágil via QR Code
+          Aproxime Aí • Atendimento ágil via QR Code
         </p>
       </footer>
     </div>

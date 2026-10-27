@@ -450,9 +450,9 @@ export function NotificationsSettingsForm() {
             Armazenamento de Preferências
           </p>
           <p className="leading-relaxed">
-            As configurações de notificação são mantidas ativas pelo servidor da
-            TapMesa. Após salvar, o formulário confirma imediatamente o estado
-            real retornado pela API.
+            As configurações de notificação são mantidas ativas pelo servidor do
+            Aproxime Aí. Após salvar, o formulário confirma imediatamente o
+            estado real retornado pela API.
           </p>
         </div>
       </div>

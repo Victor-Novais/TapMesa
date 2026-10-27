@@ -12,7 +12,7 @@ import { LoginForm } from "@/features/auth";
 
 export const metadata: Metadata = {
   title: "Login",
-  description: "Acesse sua conta no TapMesa",
+  description: "Acesse sua conta no Aproxime Aí",
 };
 
 export default function LoginPage() {
@@ -27,7 +27,7 @@ export default function LoginPage() {
         <div className="flex flex-col items-center text-center">
           <BrandLogo size={56} alt="" priority />
           <h1 className="mt-4 text-2xl font-bold tracking-tight text-ink">
-            TapMesa
+            Aproxime Aí
           </h1>
           <p className="mt-1 text-sm text-ink-2">
             Atendimento inteligente de mesas via QR Code
@@ -37,7 +37,7 @@ export default function LoginPage() {
         {/* Login Card */}
         <Card>
           <CardHeader className="space-y-1 pb-4">
-            {/* h2: segue o h1 "TapMesa" na hierarquia de títulos */}
+            {/* h2: segue o h1 "Aproxime Aí" na hierarquia de títulos */}
             <h2 className="text-xl font-semibold leading-tight tracking-tight text-ink">
               Entrar na plataforma
             </h2>
@@ -65,7 +65,7 @@ export default function LoginPage() {
 
         {/* Footer info */}
         <p className="text-center text-xs text-ink-2">
-          TapMesa v1.0 • Sessão protegida em memória com dual-token
+          Aproxime Aí v1.0 • Sessão protegida em memória com dual-token
         </p>
       </div>
     </main>

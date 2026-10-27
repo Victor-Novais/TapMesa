@@ -574,7 +574,8 @@ export function ServiceSettingsForm() {
         <div className="flex items-center justify-between text-xs text-ink-2">
           <p className="flex items-center gap-1.5">
             <Info className="h-3.5 w-3.5 text-ink-2" />
-            Configurações salvas e sincronizadas com os servidores da TapMesa.
+            Configurações salvas e sincronizadas com os servidores do Aproxime
+            Aí.
           </p>
           <Button
             type="submit"

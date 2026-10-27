@@ -124,7 +124,7 @@ export function UiShowcase() {
             <div className="mx-auto flex flex-wrap items-center justify-between gap-4 max-w-7xl">
               <div>
                 <h1 className="text-xl font-bold tracking-tight text-primary-ink">
-                  TapMesa — Design System Showcase
+                  Aproxime Aí — Design System Showcase
                 </h1>
                 <p className="text-xs text-ink-2">
                   Vitrine viva de tokens, componentes base e validação de

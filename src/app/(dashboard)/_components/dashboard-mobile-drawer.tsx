@@ -25,7 +25,7 @@ export function DashboardMobileDrawer({
         {/* Header */}
         <div className="flex items-center gap-2.5 pb-4 border-b border-border-subtle">
           <BrandLogo size={36} alt="" />
-          <span className="text-base font-bold text-ink">TapMesa</span>
+          <span className="text-base font-bold text-ink">Aproxime Aí</span>
         </div>
 
         {/* Links */}

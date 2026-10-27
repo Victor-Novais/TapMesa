@@ -85,13 +85,13 @@ export function DashboardSidebar({
         >
           <Link
             href="/dashboard"
-            aria-label={isCollapsed ? "TapMesa" : undefined}
+            aria-label={isCollapsed ? "Aproxime Aí" : undefined}
             className="flex items-center gap-2.5 overflow-hidden rounded-control font-bold text-ink focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-focus-ring focus-visible:ring-offset-2 focus-visible:ring-offset-nav"
           >
             <BrandLogo size={36} alt="" priority />
             {!isCollapsed && (
               <span className="truncate text-base font-bold tracking-tight">
-                TapMesa
+                Aproxime Aí
               </span>
             )}
           </Link>

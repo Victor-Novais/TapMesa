@@ -12,7 +12,7 @@ export interface BrandLogoProps {
    * (ex.: cabeçalho Deep Espresso, fundo do restaurante na mesa).
    */
   tone?: "auto" | "light" | "dark";
-  /** "TapMesa" quando o logo é informativo; "" quando há texto ao lado. */
+  /** "Aproxime Aí" quando o logo é informativo; "" quando há texto ao lado. */
   alt?: string;
   priority?: boolean;
   className?: string;
@@ -23,7 +23,7 @@ export interface BrandLogoProps {
 export function BrandLogo({
   size = 36,
   tone = "auto",
-  alt = "TapMesa",
+  alt = "Aproxime Aí",
   priority = false,
   className,
 }: BrandLogoProps) {
