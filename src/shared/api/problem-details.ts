@@ -45,6 +45,18 @@ export function parseApiError(error: unknown): ProblemDetails {
       };
     }
 
+    // 413 de um proxy chega sem o JSON da API
+    if (error.response?.status === 413) {
+      return {
+        type: "about:blank",
+        title: "Arquivo Muito Grande",
+        status: 413,
+        detail: getErrorMessage("PAYLOAD_TOO_LARGE"),
+        instance: "",
+        code: "PAYLOAD_TOO_LARGE",
+      };
+    }
+
     // Network / offline error
     if (!error.response) {
       return {

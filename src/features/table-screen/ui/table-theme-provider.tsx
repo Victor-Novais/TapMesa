@@ -82,7 +82,8 @@ export function TableThemeProvider({
         <div
           aria-hidden="true"
           className="fixed inset-0 z-0 bg-cover bg-center bg-no-repeat"
-          style={{ backgroundImage: `url(${backgroundValue})` }}
+          // Aspas e encodeURI: caracteres especiais na URL não quebram a regra CSS
+          style={{ backgroundImage: `url("${encodeURI(backgroundValue)}")` }}
         >
           {/* Película escura para leitura sobre a foto (RF-D08), sem desfoque (Q6) */}
           <div className="absolute inset-0 bg-black/60" />

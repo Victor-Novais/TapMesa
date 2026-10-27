@@ -22,13 +22,14 @@ import { Skeleton } from "@/shared/ui/skeleton";
 import { ConfirmDialog } from "@/shared/ui/confirm-dialog";
 import { useToast } from "@/shared/ui/toast";
 import { parseApiError } from "@/shared/api";
+import { getUploadErrorMessage } from "@/shared/messages/errors";
+import { buildBackgroundPayload } from "../lib/appearance-payload";
 import {
   Palette,
   Upload,
   Check,
   RotateCcw,
   AlertTriangle,
-  Smartphone,
   Eye,
   Edit3,
   Wifi,
@@ -36,35 +37,6 @@ import {
   ImageIcon,
 } from "lucide-react";
 import type { RestaurantAppearance } from "@/shared/types/api";
-
-const BACKGROUND_PRESETS = [
-  {
-    id: "rustic-wood",
-    name: "Madeira Rústica",
-    url: "https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?auto=format&fit=crop&w=1200&q=80",
-  },
-  {
-    id: "modern-bistro",
-    name: "Bistrô Aconchegante",
-    url: "https://images.unsplash.com/photo-1555396273-367ea4eb4db5?auto=format&fit=crop&w=1200&q=80",
-  },
-  {
-    id: "dark-marble",
-    name: "Mármore & Bar",
-    url: "https://images.unsplash.com/photo-1550966871-3ed3cdb5ed0c?auto=format&fit=crop&w=1200&q=80",
-  },
-  {
-    id: "artisan-cafe",
-    name: "Café Contemporâneo",
-    url: "https://images.unsplash.com/photo-1442512595331-e89e73853f31?auto=format&fit=crop&w=1200&q=80",
-  },
-];
-
-const DEFAULT_PRESET_URL = BACKGROUND_PRESETS[0]?.url || "";
-
-// Presets são imagens externas salvas como backgroundType "image" (a API só aceita "color" | "image")
-const isPresetUrl = (value: string | null | undefined) =>
-  BACKGROUND_PRESETS.some((preset) => preset.url === value);
 
 // Limite e formatos aceitos pelo back nos uploads de logo e fundo
 const MAX_UPLOAD_BYTES = 2 * 1024 * 1024;
@@ -235,7 +207,6 @@ function AppearanceSettingsEditor({
   const watchedName = useWatch({ control, name: "name" });
   const watchedDescription = useWatch({ control, name: "description" });
   const watchedBgType = useWatch({ control, name: "backgroundType" });
-  const watchedBgValue = useWatch({ control, name: "backgroundValue" });
   const watchedColors = useWatch({ control, name: "colors" });
   const watchedTexts = useWatch({ control, name: "texts" });
   const watchedSocials = useWatch({ control, name: "socials" });
@@ -256,17 +227,11 @@ function AppearanceSettingsEditor({
 
   // Construct dynamic live appearance object for the preview smartphone
   const currentLogo = localLogoPreview || appearance?.logoUrl || null;
+  // A imagem de fundo é sempre a do servidor (a do formulário pode ser uma cor)
+  const savedBgImage =
+    appearance.backgroundType === "image" ? appearance.backgroundValue : null;
   const currentBg =
-    watchedBgType === "image" ? localBgPreview || watchedBgValue || null : null;
-
-  // Modo do seletor de fundo: "preset" é uma imagem cuja URL é um dos presets
-  const [bgModeOverride, setBgModeOverride] = React.useState<
-    "preset" | "image" | null
-  >(null);
-  const bgMode =
-    watchedBgType === "color"
-      ? "color"
-      : (bgModeOverride ?? (isPresetUrl(watchedBgValue) ? "preset" : "image"));
+    watchedBgType === "image" ? localBgPreview || savedBgImage : null;
 
   // Campos vazios não são enviados: a tela do cliente usa o texto salvo/padrão do back
   const savedTexts = appearance?.texts;
@@ -355,10 +320,15 @@ function AppearanceSettingsEditor({
       toast({
         title: "Erro no envio do logotipo",
         description:
-          parseApiError(err).detail || "Tente novamente em instantes.",
+          getUploadErrorMessage(parseApiError(err)) ||
+          "Tente novamente em instantes.",
         type: "error",
       });
+    } finally {
+      // Após o envio a prévia é a URL do servidor, já gravada no cache pela mutação
+      URL.revokeObjectURL(tempUrl);
       setLocalLogoPreview(null);
+      e.target.value = "";
     }
   };
 
@@ -385,13 +355,16 @@ function AppearanceSettingsEditor({
       return;
     }
 
+    // A URL `blob:` fica só na prévia: nunca entra no formulário nem no PUT
     const tempUrl = URL.createObjectURL(file);
     setLocalBgPreview(tempUrl);
     setValue("backgroundType", "image", { shouldDirty: true });
-    setValue("backgroundValue", tempUrl, { shouldDirty: true });
 
     try {
       const updated = await uploadBackgroundMutation.mutateAsync(file);
+      setValue("backgroundType", updated.backgroundType, {
+        shouldDirty: false,
+      });
       setValue("backgroundValue", updated.backgroundValue, {
         shouldDirty: false,
       });
@@ -401,17 +374,35 @@ function AppearanceSettingsEditor({
         type: "success",
       });
     } catch (err) {
+      // O back recusa "image" sem arquivo enviado: volta para a cor sólida
+      if (appearance.backgroundType !== "image") {
+        setValue("backgroundType", "color", { shouldDirty: false });
+      }
       toast({
         title: "Erro no envio da imagem de fundo",
         description:
-          parseApiError(err).detail || "Tente novamente em instantes.",
+          getUploadErrorMessage(parseApiError(err)) ||
+          "Tente novamente em instantes.",
         type: "error",
       });
+    } finally {
+      URL.revokeObjectURL(tempUrl);
       setLocalBgPreview(null);
+      e.target.value = "";
     }
   };
 
   const onSubmit = async (data: AppearanceFormData) => {
+    if (data.backgroundType === "image" && !savedBgImage) {
+      toast({
+        title: "Imagem de fundo não enviada",
+        description:
+          "Selecione uma imagem de fundo ou volte para a cor sólida.",
+        type: "error",
+      });
+      return;
+    }
+
     try {
       // O back recusa textos vazios: só enviamos os preenchidos
       const texts = Object.fromEntries(
@@ -422,9 +413,7 @@ function AppearanceSettingsEditor({
       const payload = {
         name: data.name.trim(),
         description: data.description?.trim() || null,
-        backgroundType: data.backgroundType,
-        backgroundValue:
-          data.backgroundType === "color" ? null : data.backgroundValue || null,
+        ...buildBackgroundPayload(data.backgroundType, data.colors.background),
         colors: {
           primary: data.colors.primary,
           secondary: data.colors.secondary,
@@ -471,7 +460,6 @@ function AppearanceSettingsEditor({
   const handleDiscard = () => {
     if (appearance) {
       reset(toFormValues(appearance));
-      setBgModeOverride(null);
       setLocalLogoPreview(null);
       setLocalBgPreview(null);
       toast({
@@ -488,7 +476,6 @@ function AppearanceSettingsEditor({
       setLocalLogoPreview(null);
       setLocalBgPreview(null);
       setShowResetConfirm(false);
-      setBgModeOverride(null);
       reset(toFormValues(resetData));
       toast({
         title: "Padrão restaurado",
@@ -779,23 +766,21 @@ function AppearanceSettingsEditor({
                     Estilo de Fundo do Salão
                   </h3>
                   <p className="text-xs text-ink-2">
-                    Escolha entre cor sólida, presets elegantes com textura ou
-                    foto própria do ambiente.
+                    Escolha entre cor sólida ou foto própria do ambiente.
                   </p>
                 </div>
               </div>
 
               {/* Seletor de Tipo de Fundo */}
-              <div className="grid grid-cols-3 gap-3">
+              <div className="grid grid-cols-2 gap-3">
                 <button
                   type="button"
                   onClick={() => {
-                    setBgModeOverride(null);
                     setValue("backgroundType", "color", { shouldDirty: true });
                     setValue("backgroundValue", null, { shouldDirty: true });
                   }}
                   className={`flex flex-col items-center justify-center p-3 rounded-control border text-xs font-bold transition-colors ${
-                    bgMode === "color"
+                    watchedBgType === "color"
                       ? "border-brand bg-brand-tint text-primary-ink ring-2 ring-focus-ring"
                       : "border-border bg-surface text-ink-2 hover:bg-nav"
                   }`}
@@ -807,32 +792,10 @@ function AppearanceSettingsEditor({
                 <button
                   type="button"
                   onClick={() => {
-                    setBgModeOverride("preset");
-                    setValue("backgroundType", "image", { shouldDirty: true });
-                    if (!isPresetUrl(watchedBgValue)) {
-                      setValue("backgroundValue", DEFAULT_PRESET_URL, {
-                        shouldDirty: true,
-                      });
-                    }
-                  }}
-                  className={`flex flex-col items-center justify-center p-3 rounded-control border text-xs font-bold transition-colors ${
-                    bgMode === "preset"
-                      ? "border-brand bg-brand-tint text-primary-ink ring-2 ring-focus-ring"
-                      : "border-border bg-surface text-ink-2 hover:bg-nav"
-                  }`}
-                >
-                  <Smartphone className="h-5 w-5 mb-1.5 text-ink-2" />
-                  <span>Presets Prontos</span>
-                </button>
-
-                <button
-                  type="button"
-                  onClick={() => {
-                    setBgModeOverride("image");
                     setValue("backgroundType", "image", { shouldDirty: true });
                   }}
                   className={`flex flex-col items-center justify-center p-3 rounded-control border text-xs font-bold transition-colors ${
-                    bgMode === "image"
+                    watchedBgType === "image"
                       ? "border-brand bg-brand-tint text-primary-ink ring-2 ring-focus-ring"
                       : "border-border bg-surface text-ink-2 hover:bg-nav"
                   }`}
@@ -842,58 +805,8 @@ function AppearanceSettingsEditor({
                 </button>
               </div>
 
-              {/* Opções de Presets */}
-              {bgMode === "preset" && (
-                <div className="space-y-3 pt-2">
-                  <label className="block text-xs font-bold uppercase tracking-wider text-ink-2">
-                    Selecione o Preset de Textura:
-                  </label>
-                  <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-                    {BACKGROUND_PRESETS.map((preset) => {
-                      const isSelected = watchedBgValue === preset.url;
-                      return (
-                        <button
-                          key={preset.id}
-                          type="button"
-                          onClick={() =>
-                            setValue("backgroundValue", preset.url, {
-                              shouldDirty: true,
-                            })
-                          }
-                          className={`group relative flex flex-col overflow-hidden rounded-control border text-left transition-colors ${
-                            isSelected
-                              ? "border-brand ring-2 ring-focus-ring"
-                              : "border-border hover:border-border-control"
-                          }`}
-                        >
-                          <div className="relative h-20 w-full overflow-hidden bg-black">
-                            <Image
-                              src={preset.url}
-                              alt={preset.name}
-                              width={160}
-                              height={80}
-                              className="h-full w-full object-cover transition-transform group-hover:scale-105"
-                              unoptimized
-                            />
-                            <div className="absolute inset-0 bg-black/40" />
-                            {isSelected && (
-                              <div className="absolute top-1.5 right-1.5 flex h-5 w-5 items-center justify-center rounded-full bg-primary text-white">
-                                <Check className="h-3 w-3" />
-                              </div>
-                            )}
-                          </div>
-                          <span className="p-2 text-xs font-bold text-ink truncate">
-                            {preset.name}
-                          </span>
-                        </button>
-                      );
-                    })}
-                  </div>
-                </div>
-              )}
-
               {/* Upload de Foto Própria */}
-              {bgMode === "image" && (
+              {watchedBgType === "image" && (
                 <div className="space-y-4 pt-2">
                   <div className="flex flex-col sm:flex-row items-center gap-4 p-4 rounded-card bg-nav border border-border">
                     <input

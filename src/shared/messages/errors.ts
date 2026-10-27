@@ -52,10 +52,10 @@ export const ERROR_MESSAGES: Record<string, string> = {
     "Ative o resumo diário por e-mail antes de enviar um teste.",
   URGENT_ALERT_DISABLED:
     "Ative os alertas urgentes por e-mail antes de enviar um teste.",
-  FILE_TOO_LARGE: "O arquivo excede o limite máximo permitido de 2 MB.",
-  INVALID_IMAGE_FORMAT:
-    "Formato de imagem não aceito. Envie um arquivo nos formatos JPEG, PNG ou WebP.",
-  MISSING_FILE: "Nenhum arquivo de imagem foi selecionado para upload.",
+  // Upload de logo e fundo (docs/api/FEATURE_LOGO_UPLOAD.md, seção 3.3)
+  FILE_TOO_LARGE: "A imagem deve ter no máximo 2 MB.",
+  INVALID_IMAGE_FORMAT: "Use PNG, JPG ou WebP.",
+  MISSING_FILE: "Selecione uma imagem.",
   // 413 / 429
   PAYLOAD_TOO_LARGE: "Os dados enviados excedem o tamanho máximo permitido.",
   TOO_MANY_REQUESTS:
@@ -67,6 +67,18 @@ export const ERROR_MESSAGES: Record<string, string> = {
     "Você não possui as permissões necessárias para acessar este recurso.",
   UNKNOWN_ERROR: "Ocorreu um erro inesperado. Tente novamente mais tarde.",
 };
+
+// No upload, o 413 (corpo acima de 10 MB) é o mesmo caso do arquivo acima de 2 MB
+export function getUploadErrorMessage(problem: {
+  code?: string;
+  status: number;
+  detail?: string;
+}): string {
+  if (problem.status === 413 || problem.code === "PAYLOAD_TOO_LARGE") {
+    return ERROR_MESSAGES.FILE_TOO_LARGE ?? "";
+  }
+  return getErrorMessage(problem.code, problem.detail);
+}
 
 export function getErrorMessage(
   code?: string,

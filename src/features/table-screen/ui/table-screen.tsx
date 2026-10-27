@@ -49,8 +49,11 @@ export function TableScreen({
   children,
 }: TableScreenProps) {
   const [copiedWifi, setCopiedWifi] = React.useState(false);
+  // Logo que falhou ao carregar: cai no BrandLogo até o restaurante enviar outro
+  const [failedLogoUrl, setFailedLogoUrl] = React.useState<string | null>(null);
 
   const { name, description, logoUrl, texts, socials } = appearance;
+  const showLogo = Boolean(logoUrl) && logoUrl !== failedLogoUrl;
 
   const displayName = name || "Restaurante";
 
@@ -121,7 +124,9 @@ export function TableScreen({
 
         {/* Logo or Restaurant Avatar */}
         <div className="mt-2 flex h-20 w-20 items-center justify-center overflow-hidden rounded-sheet bg-surface shadow-elevation-1">
-          {logoUrl ? (
+          {showLogo && logoUrl ? (
+            // Sem o otimizador: a API já entrega a imagem redimensionada e com
+            // cache longo, e o Next 16 recusa otimizar imagens de localhost
             <Image
               src={logoUrl}
               alt={`Logotipo ${displayName}`}
@@ -129,6 +134,8 @@ export function TableScreen({
               height={80}
               className="h-full w-full object-cover"
               priority
+              unoptimized
+              onError={() => setFailedLogoUrl(logoUrl)}
             />
           ) : (
             // Sem logo do restaurante: logo TapMesa na versão do fundo do restaurante
