@@ -4,3 +4,7 @@ services:
   web:
     ports: !override
       - "127.0.0.1:3001:3001"
+    # 127.0.0.1 em vez de localhost: no Alpine, localhost resolve para ::1 e o
+    # Next só escuta em IPv4 (0.0.0.0), o que deixava o container "unhealthy".
+    healthcheck:
+      test: ["CMD-SHELL", "wget -qO- http://127.0.0.1:3001/ || exit 1"]
