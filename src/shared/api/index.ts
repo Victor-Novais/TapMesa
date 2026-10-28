@@ -9,6 +9,6 @@ export * as panelApi from "./panel";
 export * as analyticsApi from "./analytics";
 export * as tablesApi from "./tables";
 export * as teamApi from "./team";
-export * as settingsApi from "./settings";
-export * as notificationsApi from "./notifications";
+export * as restaurantApi from "./restaurant";
 export * as adminApi from "./admin";
+export * as adminRestaurantSettingsApi from "./admin-restaurant-settings";

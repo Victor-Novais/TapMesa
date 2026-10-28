@@ -283,7 +283,7 @@ export interface PublicTableDto {
   message: string | null;
   showWaitTimeToCustomer: boolean;
   serverNow: string;
-  // Mesmo formato de GET /settings/appearance (o nome vem em `name`).
+  // Mesmo formato de GET /admin/restaurants/:restaurantId/settings/appearance (o nome vem em `name`).
   appearance: RestaurantAppearance;
   calls: PublicCallDto[];
 }
@@ -584,7 +584,7 @@ export interface AnalyticsCallsResponse {
 }
 
 // ============================================================================
-// 10. NOTIFICAÇÕES (/restaurant/notifications/*)
+// 10. NOTIFICAÇÕES (/admin/restaurants/:restaurantId/notifications/*)
 // ============================================================================
 
 export interface NotificationSettingsDto {
@@ -594,6 +594,7 @@ export interface NotificationSettingsDto {
   urgentAlertEnabled: boolean;
   urgentAlertRecipient?: string;
   alertCooldownMinutes: number;
+  lastAlertSentAt?: string; // ISO 8601
 }
 
 export interface UpdateNotificationSettingsRequest {
@@ -609,30 +610,12 @@ export interface SendDailySummaryRequest {
   recipientEmail?: string;
 }
 
-// POST /restaurant/notifications/send-daily-summary (201)
+// POST /admin/restaurants/:restaurantId/notifications/send-daily-summary (201)
 export interface SendDailySummaryResponse {
   sent: boolean;
   recipient: string;
   subject: string;
   operationalDay: string;
-}
-
-export interface SendUrgentAlertRequest {
-  tableNumber: number;
-  callType: CallType;
-  waitDurationSec: number;
-  urgentThresholdSec: number;
-  note?: string;
-  force?: boolean;
-}
-
-// POST /restaurant/notifications/send-urgent-alert (201)
-export interface SendUrgentAlertResponse {
-  sent: boolean;
-  recipient: string;
-  subject: string;
-  tableNumber: number;
-  waitDurationSec: number;
 }
 
 // ============================================================================

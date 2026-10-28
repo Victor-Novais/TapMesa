@@ -1,6 +1,7 @@
 "use client";
 
 import * as React from "react";
+import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useQueryClient } from "@tanstack/react-query";
 import { useAuthStore } from "@/features/auth";
@@ -52,6 +53,7 @@ import {
   MoreVertical,
   CheckCircle2,
   AlertOctagon,
+  Settings,
 } from "lucide-react";
 import type {
   AdminRestaurantItem,
@@ -370,7 +372,7 @@ export function RestaurantsManager() {
                   <TableHead className="w-[260px]">Estabelecimento</TableHead>
                   <TableHead className="w-[120px]">Status</TableHead>
                   <TableHead className="w-[140px]">Cadastrado em</TableHead>
-                  <TableHead className="w-[260px] text-right">Ações</TableHead>
+                  <TableHead className="w-[380px] text-right">Ações</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
@@ -449,6 +451,21 @@ export function RestaurantsManager() {
                                 : "Acessar o dashboard do restaurante em modo suporte"}
                             </TooltipContent>
                           </Tooltip>
+
+                          {/* Configurações (inclusive de restaurantes suspensos) */}
+                          <Button
+                            asChild
+                            variant="outline"
+                            size="sm"
+                            className="gap-1.5 text-xs font-semibold"
+                          >
+                            <Link
+                              href={`/admin/restaurants/${restaurant.id}/settings`}
+                            >
+                              <Settings className="h-3.5 w-3.5 text-ink-2" />
+                              <span>Configurações</span>
+                            </Link>
+                          </Button>
 
                           {/* Suspender / Reativar */}
                           {isSuspended ? (
@@ -592,6 +609,17 @@ export function RestaurantsManager() {
                         >
                           <ExternalLink className="mr-2 h-4 w-4 text-primary-ink" />
                           <span>Acessar Modo Suporte</span>
+                        </DropdownMenuItem>
+
+                        <DropdownMenuItem
+                          onClick={() =>
+                            router.push(
+                              `/admin/restaurants/${restaurant.id}/settings`,
+                            )
+                          }
+                        >
+                          <Settings className="mr-2 h-4 w-4 text-ink-2" />
+                          <span>Configurações</span>
                         </DropdownMenuItem>
 
                         <DropdownMenuItem

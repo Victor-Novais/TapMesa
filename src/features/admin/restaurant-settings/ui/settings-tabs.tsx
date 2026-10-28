@@ -12,7 +12,7 @@ type SettingsTab = "service" | "appearance" | "notifications";
 
 const VALID_TABS: SettingsTab[] = ["service", "appearance", "notifications"];
 
-export function SettingsTabs() {
+export function SettingsTabs({ restaurantId }: { restaurantId: string }) {
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
@@ -30,48 +30,37 @@ export function SettingsTabs() {
 
   return (
     <div className="space-y-6">
-      {/* Cabeçalho da Seção de Configurações */}
-      <div>
-        <h1 className="text-2xl font-bold tracking-tight text-ink">
-          Configurações do Restaurante
-        </h1>
-        <p className="mt-1 text-sm text-ink-2">
-          Ajuste limites de atendimento, identidade visual e notificações do seu
-          estabelecimento.
-        </p>
-      </div>
-
       <Tabs value={currentTab} onValueChange={handleTabChange}>
         <div className="-mx-4 overflow-x-auto border-b border-border px-4 pb-2 sm:mx-0 sm:px-0">
           <TabsList className="w-max bg-nav p-1">
             <TabsTrigger value="service" className="gap-2">
               <Clock className="hidden h-4 w-4 xs:block" aria-hidden />
-              <span>Atendimento</span>
+              <span>Atendimento e SLA</span>
             </TabsTrigger>
             <TabsTrigger value="appearance" className="gap-2">
               <Palette className="hidden h-4 w-4 xs:block" aria-hidden />
-              <span>Aparência</span>
+              <span>Identidade visual</span>
             </TabsTrigger>
             <TabsTrigger value="notifications" className="gap-2">
               <Bell className="hidden h-4 w-4 xs:block" aria-hidden />
-              <span>Notificações</span>
+              <span>E-mails e alertas</span>
             </TabsTrigger>
           </TabsList>
         </div>
 
         {/* Aba 1: Atendimento (F16) */}
         <TabsContent value="service" className="pt-4">
-          <ServiceSettingsForm />
+          <ServiceSettingsForm restaurantId={restaurantId} />
         </TabsContent>
 
         {/* Aba 2: Aparência (F17) */}
         <TabsContent value="appearance" className="pt-4">
-          <AppearanceSettingsForm />
+          <AppearanceSettingsForm restaurantId={restaurantId} />
         </TabsContent>
 
         {/* Aba 3: Notificações (F18) */}
         <TabsContent value="notifications" className="pt-4">
-          <NotificationsSettingsForm />
+          <NotificationsSettingsForm restaurantId={restaurantId} />
         </TabsContent>
       </Tabs>
     </div>

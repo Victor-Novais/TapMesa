@@ -6,8 +6,6 @@ export const UI_MESSAGES = {
     tablesDesc: "Gestão, QR Codes e status das mesas",
     team: "Equipe",
     teamDesc: "Atendentes, garçons e métricas individuais",
-    settings: "Configurações",
-    settingsDesc: "Regras de atendimento, marca e notificações",
     panel: "Painel de Atendimento",
     panelDesc: "Fila de chamados em tempo real",
     adminRestaurants: "Restaurantes",

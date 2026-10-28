@@ -1,5 +1,6 @@
 import { useQuery } from "@tanstack/react-query";
-import { analyticsApi, settingsApi } from "@/shared/api";
+import { analyticsApi, restaurantApi } from "@/shared/api";
+import { queryKeys } from "@/shared/api/query-client";
 import type { AnalyticsCallsFilters } from "@/shared/api/analytics";
 import type {
   AnalyticsSummaryResponse,
@@ -29,13 +30,12 @@ export const analyticsQueryKeys = {
       "calls",
       { cursor, limit, ...filters },
     ] as const,
-  serviceSettings: () => ["settings", "service"] as const,
 };
 
 export function useServiceSettingsQuery() {
   return useQuery<ServiceSettings>({
-    queryKey: analyticsQueryKeys.serviceSettings(),
-    queryFn: () => settingsApi.getServiceSettings(),
+    queryKey: queryKeys.restaurant.operationalSettings,
+    queryFn: () => restaurantApi.getRestaurantOperationalSettings(),
     staleTime: 60_000,
   });
 }

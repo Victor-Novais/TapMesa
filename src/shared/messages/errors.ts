@@ -25,8 +25,6 @@ export const ERROR_MESSAGES: Record<string, string> = {
   // 409
   USERNAME_ALREADY_EXISTS:
     "Este nome de usuário já está em uso. Por favor, escolha outro nome.",
-  ALERT_COOLDOWN_ACTIVE:
-    "Um alerta urgente já foi enviado há pouco. Aguarde o intervalo configurado antes de enviar outro.",
   // 400
   INVALID_USERNAME:
     'Nome de usuário inválido. Use de 3 a 30 caracteres: letras minúsculas, números, ponto, hífen ou sublinhado ("admin" é reservado).',
@@ -48,14 +46,13 @@ export const ERROR_MESSAGES: Record<string, string> = {
     "Não é permitido atribuir o perfil de administrador a um membro da equipe.",
   INVALID_DATE_RANGE: "Período inválido. Verifique as datas informadas.",
   DATE_RANGE_EXCEEDS_LIMIT: "O período consultado pode ter no máximo 90 dias.",
-  SUMMARY_EMAIL_DISABLED:
-    "Ative o resumo diário por e-mail antes de enviar um teste.",
-  URGENT_ALERT_DISABLED:
-    "Ative os alertas urgentes por e-mail antes de enviar um teste.",
-  // Upload de logo e fundo (docs/api/FEATURE_LOGO_UPLOAD.md, seção 3.3)
-  FILE_TOO_LARGE: "A imagem deve ter no máximo 2 MB.",
-  INVALID_IMAGE_FORMAT: "Use PNG, JPG ou WebP.",
-  MISSING_FILE: "Selecione uma imagem.",
+  // INVALID_SERVICE_SETTINGS e INVALID_APPEARANCE ficam de fora: o `detail` do back é exibido
+  SUMMARY_EMAIL_DISABLED: "Ative o resumo diário e salve antes de testar.",
+  // Upload de logo e fundo (docs/api/FRONTEND_MIGRATION_ADMIN_SETTINGS.md, passo 7)
+  FILE_TOO_LARGE: "Imagem maior que 2 MB.",
+  INVALID_IMAGE_FORMAT:
+    "Formato de imagem não suportado (use PNG, JPG ou WEBP).",
+  MISSING_FILE: "Selecione um arquivo.",
   // 413 / 429
   PAYLOAD_TOO_LARGE: "Os dados enviados excedem o tamanho máximo permitido.",
   TOO_MANY_REQUESTS:

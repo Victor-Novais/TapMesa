@@ -31,19 +31,36 @@ export const queryKeys = {
     list: ["team", "list"] as const,
     metrics: ["team", "metrics"] as const,
   },
-  settings: {
-    currentRestaurant: ["settings", "currentRestaurant"] as const,
-    service: ["settings", "service"] as const,
-    appearance: ["settings", "appearance"] as const,
-  },
-  notifications: {
-    settings: ["notifications", "settings"] as const,
+  restaurant: {
+    current: ["restaurant", "current"] as const,
+    operationalSettings: ["restaurant", "operationalSettings"] as const,
   },
   admin: {
     restaurants: (cursor?: string | null) =>
       ["admin", "restaurants", cursor] as const,
     audit: (filters?: Record<string, unknown>) =>
       ["admin", "audit", filters] as const,
+    // O restaurantId vem antes do recurso: trocar de restaurante nunca reaproveita o cache de outro
+    restaurantSettings: {
+      service: (restaurantId: string) =>
+        ["admin", "restaurants", restaurantId, "settings", "service"] as const,
+      appearance: (restaurantId: string) =>
+        [
+          "admin",
+          "restaurants",
+          restaurantId,
+          "settings",
+          "appearance",
+        ] as const,
+      notifications: (restaurantId: string) =>
+        [
+          "admin",
+          "restaurants",
+          restaurantId,
+          "notifications",
+          "settings",
+        ] as const,
+    },
   },
 };
 

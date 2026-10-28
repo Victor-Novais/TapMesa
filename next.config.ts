@@ -67,6 +67,17 @@ const nextConfig: NextConfig = {
       },
     ],
   },
+  // As configurações do restaurante passaram para o portal admin
+  // (docs/api/FRONTEND_MIGRATION_ADMIN_SETTINGS.md, passo 3): links salvos voltam ao resumo
+  async redirects() {
+    return [
+      {
+        source: "/dashboard/settings/:path*",
+        destination: "/dashboard",
+        permanent: false,
+      },
+    ];
+  },
   async headers() {
     return [
       {

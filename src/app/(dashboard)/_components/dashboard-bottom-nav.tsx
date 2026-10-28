@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { LayoutDashboard, QrCode, Users, Settings, Radio } from "lucide-react";
+import { LayoutDashboard, QrCode, Users, Radio } from "lucide-react";
 import { cn } from "@/shared/lib/cn";
 import { UI_MESSAGES } from "@/shared/messages/ui";
 
@@ -23,12 +23,6 @@ const BOTTOM_NAV_ITEMS = [
     href: "/dashboard/team",
     label: UI_MESSAGES.nav.team,
     icon: Users,
-    exact: false,
-  },
-  {
-    href: "/dashboard/settings",
-    label: UI_MESSAGES.nav.settings,
-    icon: Settings,
     exact: false,
   },
   {

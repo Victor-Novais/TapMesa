@@ -1,15 +1,22 @@
 import * as React from "react";
 import type { Metadata } from "next";
-import { SettingsTabs } from "@/features/settings";
+import { RestaurantSettingsView } from "@/features/admin";
 import { Skeleton } from "@/shared/ui/skeleton";
 
 export const metadata: Metadata = {
-  title: "Configurações",
+  title: "Configurações do restaurante",
   description:
-    "Parâmetros de atendimento, aparência e notificações do restaurante",
+    "Atendimento, identidade visual e e-mails de um restaurante no Aproxime Aí Admin",
 };
 
-export default function SettingsOverviewPage() {
+export default async function AdminRestaurantSettingsPage({
+  params,
+}: {
+  params: Promise<{ restaurantId: string }>;
+}) {
+  const { restaurantId } = await params;
+
+  // As abas leem `?tab=` com useSearchParams, que pede um Suspense
   return (
     <React.Suspense
       fallback={
@@ -20,7 +27,7 @@ export default function SettingsOverviewPage() {
         </div>
       }
     >
-      <SettingsTabs />
+      <RestaurantSettingsView restaurantId={restaurantId} />
     </React.Suspense>
   );
 }

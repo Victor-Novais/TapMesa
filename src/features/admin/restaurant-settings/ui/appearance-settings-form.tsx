@@ -11,7 +11,7 @@ import {
   useResetAppearanceMutation,
   useUploadLogoMutation,
   useUploadBackgroundMutation,
-} from "../api/use-settings-queries";
+} from "../api/use-restaurant-settings-queries";
 import { getContrastRatio } from "@/features/table-screen";
 import { ColorPickerInput } from "./color-picker-input";
 import { LivePhonePreview } from "./live-phone-preview";
@@ -24,6 +24,7 @@ import { useToast } from "@/shared/ui/toast";
 import { parseApiError } from "@/shared/api";
 import { getUploadErrorMessage } from "@/shared/messages/errors";
 import { buildBackgroundPayload } from "../lib/appearance-payload";
+import { FormServerError } from "./form-server-error";
 import {
   Palette,
   Upload,
@@ -124,8 +125,16 @@ function sanitizeSocialLink(val: string | undefined): string {
   return `https://${clean}`;
 }
 
-export function AppearanceSettingsForm() {
-  const { data: appearance, isLoading, isError } = useAppearanceQuery();
+export function AppearanceSettingsForm({
+  restaurantId,
+}: {
+  restaurantId: string;
+}) {
+  const {
+    data: appearance,
+    isLoading,
+    isError,
+  } = useAppearanceQuery(restaurantId);
 
   if (isLoading) {
     return (
@@ -162,23 +171,31 @@ export function AppearanceSettingsForm() {
 
   // O formulário só é montado com os dados carregados: assim os campos nunca
   // renderizam sem valor (o `values` do useForm só é aplicado após um efeito)
-  return <AppearanceSettingsEditor appearance={appearance} />;
+  return (
+    <AppearanceSettingsEditor
+      restaurantId={restaurantId}
+      appearance={appearance}
+    />
+  );
 }
 
 function AppearanceSettingsEditor({
+  restaurantId,
   appearance,
 }: {
+  restaurantId: string;
   appearance: RestaurantAppearance;
 }) {
   const { toast } = useToast();
 
-  const updateMutation = useUpdateAppearanceMutation();
-  const resetMutation = useResetAppearanceMutation();
-  const uploadLogoMutation = useUploadLogoMutation();
-  const uploadBackgroundMutation = useUploadBackgroundMutation();
+  const updateMutation = useUpdateAppearanceMutation(restaurantId);
+  const resetMutation = useResetAppearanceMutation(restaurantId);
+  const uploadLogoMutation = useUploadLogoMutation(restaurantId);
+  const uploadBackgroundMutation = useUploadBackgroundMutation(restaurantId);
 
   const [mobileTab, setMobileTab] = React.useState<"form" | "preview">("form");
   const [showResetConfirm, setShowResetConfirm] = React.useState(false);
+  const [serverError, setServerError] = React.useState<string | null>(null);
   const [localLogoPreview, setLocalLogoPreview] = React.useState<string | null>(
     null,
   );
@@ -403,6 +420,7 @@ function AppearanceSettingsEditor({
       return;
     }
 
+    setServerError(null);
     try {
       // O back recusa textos vazios: só enviamos os preenchidos
       const texts = Object.fromEntries(
@@ -439,15 +457,16 @@ function AppearanceSettingsEditor({
           "A identidade visual da tela da mesa foi atualizada com sucesso.",
         type: "success",
       });
-      // O back normaliza o link (ex.: Place ID vira o link completo)
-      reset({ ...data, googleReviewUrl: updated.googleReviewUrl ?? "" });
+      // A resposta do servidor é a fonte da verdade (ex.: Place ID vira o link completo)
+      reset(toFormValues(updated));
     } catch (err) {
       const problem = parseApiError(err);
-      if (
-        problem.code === "INVALID_APPEARANCE" &&
-        /avalia/i.test(problem.detail)
-      ) {
-        setError("googleReviewUrl", { message: problem.detail });
+      if (problem.code === "INVALID_APPEARANCE") {
+        if (/avalia/i.test(problem.detail)) {
+          setError("googleReviewUrl", { message: problem.detail });
+        } else {
+          setServerError(problem.detail);
+        }
       }
       toast({
         title: "Erro ao salvar aparência",
@@ -553,6 +572,8 @@ function AppearanceSettingsEditor({
           }`}
         >
           <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
+            <FormServerError message={serverError} />
+
             {/* 1. Identidade e Logotipo */}
             <Card className="p-6 space-y-6">
               <div className="flex items-center gap-3 border-b border-border-subtle pb-4">

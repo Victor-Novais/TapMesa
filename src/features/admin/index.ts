@@ -1,6 +1,7 @@
 export { RestaurantsManager } from "./ui/restaurants-manager";
 export { AuditLogsManager } from "./ui/audit-logs-manager";
 export { CreateRestaurantDialog } from "./ui/create-restaurant-dialog";
+export { RestaurantSettingsView } from "./restaurant-settings/ui/restaurant-settings-view";
 
 export {
   useAdminRestaurantsQuery,

@@ -66,7 +66,37 @@ test.describe("Avaliação no Google após o pagamento", () => {
     const [table] = await tablesRes.json();
 
     // ----------------------------------------------------------------------
-    // 1. Dono: link inválido mostra o erro do back; Place ID vira link completo
+    // 1. Admin: link inválido mostra o erro do back; Place ID vira link completo
+    // ----------------------------------------------------------------------
+    const adminContext = await browser.newContext();
+    const adminPage = await adminContext.newPage();
+    await adminPage.goto("/login");
+    await adminPage.locator("#login-username").fill(ADMIN_USERNAME);
+    await adminPage.locator("#login-password").fill(ADMIN_PASSWORD);
+    await adminPage.getByRole("button", { name: "Entrar no sistema" }).click();
+    await adminPage.waitForURL("**/admin");
+
+    await adminPage.goto(
+      `/admin/restaurants/${created.restaurantId}/settings?tab=appearance`,
+    );
+    const reviewField = adminPage.locator("#googleReviewUrl");
+    const save = adminPage.getByRole("button", { name: "Salvar Alterações" });
+
+    await reviewField.fill("https://evil.com");
+    await save.click();
+    await expect(
+      adminPage.locator("#googleReviewUrl-error").first(),
+    ).toContainText("endereço do Google", { timeout: 10_000 });
+
+    await reviewField.fill(PLACE_ID);
+    await save.click();
+    await expect(adminPage.getByText("Aparência salva").first()).toBeVisible({
+      timeout: 10_000,
+    });
+    await expect(reviewField).toHaveValue(REVIEW_URL);
+
+    // ----------------------------------------------------------------------
+    // 2. Painel aberto pelo dono
     // ----------------------------------------------------------------------
     const ownerContext = await browser.newContext();
     const ownerPage = await ownerContext.newPage();
@@ -75,27 +105,6 @@ test.describe("Avaliação no Google após o pagamento", () => {
     await ownerPage.locator("#login-password").fill(created.ownerPasswordPlain);
     await ownerPage.getByRole("button", { name: "Entrar no sistema" }).click();
     await ownerPage.waitForURL("**/dashboard**");
-
-    await ownerPage.goto("/dashboard/settings?tab=appearance");
-    const reviewField = ownerPage.locator("#googleReviewUrl");
-    const save = ownerPage.getByRole("button", { name: "Salvar Alterações" });
-
-    await reviewField.fill("https://evil.com");
-    await save.click();
-    await expect(
-      ownerPage.locator("#googleReviewUrl-error").first(),
-    ).toContainText("endereço do Google", { timeout: 10_000 });
-
-    await reviewField.fill(PLACE_ID);
-    await save.click();
-    await expect(ownerPage.getByText("Aparência salva").first()).toBeVisible({
-      timeout: 10_000,
-    });
-    await expect(reviewField).toHaveValue(REVIEW_URL);
-
-    // ----------------------------------------------------------------------
-    // 2. Painel aberto pelo dono
-    // ----------------------------------------------------------------------
     const panelPage = await ownerContext.newPage();
     await panelPage.goto("/panel");
     const startPanel = panelPage
@@ -198,10 +207,10 @@ test.describe("Avaliação no Google após o pagamento", () => {
     await expect(customerPage.getByText("Pagamento confirmado")).toBeHidden();
 
     // ----------------------------------------------------------------------
-    // 7. Dono apaga o link: a aparência volta a null
+    // 7. Admin apaga o link: a aparência volta a null
     // ----------------------------------------------------------------------
     await reviewField.fill("");
-    const clearResponse = ownerPage.waitForResponse(
+    const clearResponse = adminPage.waitForResponse(
       (res) =>
         res.request().method() === "PUT" &&
         res.url().endsWith("/settings/appearance"),
@@ -212,12 +221,16 @@ test.describe("Avaliação no Google após o pagamento", () => {
     expect((await cleared.json()).googleReviewUrl).toBeNull();
     await expect(reviewField).toHaveValue("");
     const appearance = await (
-      await api.get("settings/appearance", { headers: auth(ownerToken) })
+      await api.get(
+        `admin/restaurants/${created.restaurantId}/settings/appearance`,
+        { headers: auth(adminToken) },
+      )
     ).json();
     expect(appearance.googleReviewUrl).toBeNull();
 
     await customerContext.close();
     await ownerContext.close();
+    await adminContext.close();
     await api.dispose();
   });
 });

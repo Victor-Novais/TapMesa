@@ -7,7 +7,7 @@ import { z } from "zod";
 import {
   useServiceSettingsQuery,
   useUpdateServiceSettingsMutation,
-} from "../api/use-settings-queries";
+} from "../api/use-restaurant-settings-queries";
 import { Card } from "@/shared/ui/card";
 import { Button } from "@/shared/ui/button";
 import { Input } from "@/shared/ui/input";
@@ -15,6 +15,7 @@ import { Switch } from "@/shared/ui/switch";
 import { Skeleton } from "@/shared/ui/skeleton";
 import { useToast } from "@/shared/ui/toast";
 import { parseApiError } from "@/shared/api";
+import { FormServerError } from "./form-server-error";
 import {
   AlertTriangle,
   Info,
@@ -118,10 +119,19 @@ function formatDurationPreview(seconds: number | undefined): string {
   return `${mins} min ${remaining}s`;
 }
 
-export function ServiceSettingsForm() {
+export function ServiceSettingsForm({
+  restaurantId,
+}: {
+  restaurantId: string;
+}) {
   const { toast } = useToast();
-  const { data: settings, isLoading, isError } = useServiceSettingsQuery();
-  const updateMutation = useUpdateServiceSettingsMutation();
+  const {
+    data: settings,
+    isLoading,
+    isError,
+  } = useServiceSettingsQuery(restaurantId);
+  const updateMutation = useUpdateServiceSettingsMutation(restaurantId);
+  const [serverError, setServerError] = React.useState<string | null>(null);
 
   const {
     register,
@@ -154,21 +164,28 @@ export function ServiceSettingsForm() {
   const dayCutoffHour = useWatch({ control, name: "dayCutoffHour" });
 
   const onSubmit = async (formData: ServiceSettingsFormData) => {
+    setServerError(null);
     try {
-      await updateMutation.mutateAsync(formData);
+      const updated = await updateMutation.mutateAsync(formData);
       toast({
         title: "Configurações atualizadas",
         description:
           "Os parâmetros de atendimento foram salvos e passarão a vigorar nos painéis a partir do próximo carregamento.",
         type: "success",
       });
-      reset(formData);
+      reset({
+        ...updated,
+        timezone: updated.timezone || "America/Sao_Paulo",
+      });
     } catch (err) {
+      const problem = parseApiError(err);
+      if (problem.code === "INVALID_SERVICE_SETTINGS") {
+        setServerError(problem.detail);
+      }
       toast({
         title: "Erro ao salvar configurações",
         description:
-          parseApiError(err).detail ||
-          "Verifique os dados informados e tente novamente.",
+          problem.detail || "Verifique os dados informados e tente novamente.",
         type: "error",
       });
     }
@@ -228,6 +245,8 @@ export function ServiceSettingsForm() {
 
   return (
     <form onSubmit={handleSubmit(onSubmit)} className="space-y-6 pb-24">
+      <FormServerError message={serverError} />
+
       {/* 1. Limites de Tempo e SLA */}
       <Card className="p-6 space-y-6">
         <div className="flex items-center gap-3 border-b border-border-subtle pb-4">

@@ -1,5 +1,5 @@
 import { useQuery } from "@tanstack/react-query";
-import { settingsApi, tablesApi } from "@/shared/api";
+import { publicTableApi, tablesApi } from "@/shared/api";
 import { queryKeys } from "@/shared/api/query-client";
 import type {
   RestaurantAppearance,
@@ -40,11 +40,14 @@ export function useTablesPrintViewQuery() {
   });
 }
 
-// A folha de impressão não traz a cor da marca: ela vem da aparência do restaurante.
-export function useBrandAppearanceQuery() {
-  return useQuery<RestaurantAppearance>({
-    queryKey: queryKeys.settings.appearance,
-    queryFn: () => settingsApi.getAppearance(),
+// A folha de impressão não traz a cor da marca. O OWNER não lê mais as
+// configurações, então ela vem da aparência pública de uma das mesas.
+export function useBrandAppearanceQuery(tableToken: string | undefined) {
+  return useQuery({
+    queryKey: queryKeys.publicTable(tableToken ?? ""),
+    queryFn: () => publicTableApi.getPublicTable(tableToken!),
+    select: (table): RestaurantAppearance => table.appearance,
+    enabled: Boolean(tableToken),
     staleTime: 60_000,
   });
 }

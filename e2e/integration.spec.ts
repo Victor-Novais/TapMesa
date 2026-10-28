@@ -90,8 +90,9 @@ test.describe("Integração com a API real", () => {
       waiterUsername,
       waiter.temporaryPassword,
     );
-    await api.patch("restaurant/notifications/settings", {
-      headers: auth(ownerToken),
+    const adminRestaurant = `admin/restaurants/${created.restaurantId}`;
+    await api.patch(`${adminRestaurant}/notifications/settings`, {
+      headers: auth(adminToken),
       data: {
         urgentAlertEnabled: true,
         urgentAlertRecipient: "gerencia@example.com",
@@ -151,18 +152,30 @@ test.describe("Integração com a API real", () => {
     await expect(ownerPage.getByText(table1.url).first()).toBeVisible();
 
     // ----------------------------------------------------------------------
-    // 3. Aparência: texto do botão e Wi-Fi salvam (F-06)
+    // 3. Aparência (só o admin configura): texto do botão e Wi-Fi salvam (F-06)
     // ----------------------------------------------------------------------
-    await ownerPage.goto("/dashboard/settings?tab=appearance");
-    await ownerPage.locator("#callWaiterButton").fill(customButton);
-    await ownerPage.locator("#wifiName").fill("Bistro Wi-Fi");
-    await ownerPage.locator("#wifiPassword").fill("senha 123");
-    await ownerPage.getByRole("button", { name: "Salvar Alterações" }).click();
-    await expect(ownerPage.getByText("Aparência salva").first()).toBeVisible({
+    const adminContext = await browser.newContext();
+    const adminPage = await adminContext.newPage();
+    await adminPage.goto("/login");
+    await adminPage.locator("#login-username").fill(ADMIN_USERNAME);
+    await adminPage.locator("#login-password").fill(ADMIN_PASSWORD);
+    await adminPage.getByRole("button", { name: "Entrar no sistema" }).click();
+    await adminPage.waitForURL("**/admin");
+
+    await adminPage.goto(
+      `/admin/restaurants/${created.restaurantId}/settings?tab=appearance`,
+    );
+    await adminPage.locator("#callWaiterButton").fill(customButton);
+    await adminPage.locator("#wifiName").fill("Bistro Wi-Fi");
+    await adminPage.locator("#wifiPassword").fill("senha 123");
+    await adminPage.getByRole("button", { name: "Salvar Alterações" }).click();
+    await expect(adminPage.getByText("Aparência salva").first()).toBeVisible({
       timeout: 10_000,
     });
     const appearance = await (
-      await api.get("settings/appearance", { headers: auth(ownerToken) })
+      await api.get(`${adminRestaurant}/settings/appearance`, {
+        headers: auth(adminToken),
+      })
     ).json();
     expect(appearance.texts.callWaiterButton).toBe(customButton);
     expect(appearance.socials.wifiName).toBe("Bistro Wi-Fi");
@@ -295,13 +308,24 @@ test.describe("Integração com a API real", () => {
     await customerContext.close();
 
     // ----------------------------------------------------------------------
-    // 8. "Testar alerta urgente" (F-15) e alert.raised no painel (F-17)
+    // 8. Alerta urgente (F-15) e alert.raised no painel (F-17). Não há botão na
+    // tela admin (o alerta apareceria como real para os garçons): vai pela API
     // ----------------------------------------------------------------------
-    await ownerPage.goto("/dashboard/settings?tab=notifications");
-    await ownerPage.getByRole("button", { name: "Testar Alerta" }).click();
-    await expect(
-      ownerPage.getByText("Teste registrado para gerencia@example.com").first(),
-    ).toBeVisible({ timeout: 10_000 });
+    const alertRes = await api.post(
+      `${adminRestaurant}/notifications/send-urgent-alert`,
+      {
+        headers: auth(adminToken),
+        data: {
+          tableNumber: 1,
+          callType: "WAITER",
+          waitDurationSec: 360,
+          urgentThresholdSec: 300,
+          force: true,
+        },
+      },
+    );
+    expect(alertRes.status()).toBe(201);
+    expect((await alertRes.json()).recipient).toBe("gerencia@example.com");
     await expect(
       panelPage.getByText("Mesa 1: espera urgente").first(),
     ).toBeVisible({ timeout: 10_000 });
@@ -345,14 +369,7 @@ test.describe("Integração com a API real", () => {
     // ----------------------------------------------------------------------
     // 11. Admin: redefinir senha do dono mostra a senha (F-07); auditoria pagina (F-14)
     // ----------------------------------------------------------------------
-    const adminContext = await browser.newContext();
-    const adminPage = await adminContext.newPage();
-    await adminPage.goto("/login");
-    await adminPage.locator("#login-username").fill(ADMIN_USERNAME);
-    await adminPage.locator("#login-password").fill(ADMIN_PASSWORD);
-    await adminPage.getByRole("button", { name: "Entrar no sistema" }).click();
-    await adminPage.waitForURL("**/admin");
-
+    await adminPage.goto("/admin");
     await adminPage
       .getByRole("button", {
         name: `Gerar nova senha do dono de ${restaurantName}`,

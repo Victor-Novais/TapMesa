@@ -24,7 +24,7 @@ import {
 import { useNow } from "@/shared/lib/clock";
 import { useAuth, useAuthStore } from "@/features/auth";
 import { queryKeys } from "@/shared/api/query-client";
-import { getCurrentRestaurant } from "@/shared/api/settings";
+import { getCurrentRestaurant } from "@/shared/api/restaurant";
 import type { PanelCounters } from "../model/panel-store";
 
 export interface PanelHeaderProps {
@@ -62,7 +62,7 @@ export function PanelHeader({
   const hasRestaurant = Boolean(user?.rid);
 
   const { data: restaurant } = useQuery({
-    queryKey: queryKeys.settings.currentRestaurant,
+    queryKey: queryKeys.restaurant.current,
     queryFn: getCurrentRestaurant,
     enabled: !restaurantName && hasRestaurant,
     staleTime: 60_000,

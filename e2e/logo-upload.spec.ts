@@ -6,7 +6,8 @@ import {
 } from "@playwright/test";
 
 /**
- * Logo e imagem de fundo do restaurante (docs/api/FEATURE_LOGO_UPLOAD.md, T6).
+ * Logo e imagem de fundo do restaurante (docs/api/FEATURE_LOGO_UPLOAD.md, T6),
+ * enviados pelo admin (docs/api/FRONTEND_MIGRATION_ADMIN_SETTINGS.md).
  * Roda contra a API real; os dados de apoio são criados direto na API.
  */
 
@@ -70,22 +71,25 @@ test.describe("Logo e imagem de fundo do restaurante", () => {
     expect(tablesRes.status()).toBe(201);
     const [table] = await tablesRes.json();
 
-    const ownerContext = await browser.newContext();
-    const ownerPage = await ownerContext.newPage();
-    await ownerPage.goto("/login");
-    await ownerPage.locator("#login-username").fill(ownerUsername);
-    await ownerPage.locator("#login-password").fill(created.ownerPasswordPlain);
-    await ownerPage.getByRole("button", { name: "Entrar no sistema" }).click();
-    await ownerPage.waitForURL("**/dashboard**");
-    await ownerPage.goto("/dashboard/settings?tab=appearance");
+    const adminContext = await browser.newContext();
+    const adminPage = await adminContext.newPage();
+    await adminPage.goto("/login");
+    await adminPage.locator("#login-username").fill(ADMIN_USERNAME);
+    await adminPage.locator("#login-password").fill(ADMIN_PASSWORD);
+    await adminPage.getByRole("button", { name: "Entrar no sistema" }).click();
+    await adminPage.waitForURL("**/admin");
+    await adminPage.goto(
+      `/admin/restaurants/${created.restaurantId}/settings?tab=appearance`,
+    );
+    const appearancePath = `admin/restaurants/${created.restaurantId}/settings/appearance`;
 
-    const fileInputs = ownerPage.locator('input[type="file"]');
+    const fileInputs = adminPage.locator('input[type="file"]');
     const logoInput = fileInputs.first();
 
     // ----------------------------------------------------------------------
-    // 1. Dono envia o logo: a prévia passa a usar a URL do servidor
+    // 1. Admin envia o logo: a prévia passa a usar a URL do servidor
     // ----------------------------------------------------------------------
-    const logoResponse = ownerPage.waitForResponse(
+    const logoResponse = adminPage.waitForResponse(
       (res) =>
         res.request().method() === "POST" &&
         res.url().endsWith("/settings/appearance/logo"),
@@ -100,7 +104,7 @@ test.describe("Logo e imagem de fundo do restaurante", () => {
     const logoUrl: string = (await logoRes.json()).logoUrl;
     expect(logoUrl).toMatch(FILE_URL);
 
-    const settingsLogo = ownerPage.locator('img[alt="Logo do Restaurante"]');
+    const settingsLogo = adminPage.locator('img[alt="Logo do Restaurante"]');
     await expect(settingsLogo).toHaveAttribute("src", logoUrl, {
       timeout: 10_000,
     });
@@ -141,8 +145,8 @@ test.describe("Logo e imagem de fundo do restaurante", () => {
     // ----------------------------------------------------------------------
     // 3. Fundo de imagem: salvar outro campo não remove o fundo
     // ----------------------------------------------------------------------
-    await ownerPage.getByRole("button", { name: "Foto Própria" }).click();
-    const bgResponse = ownerPage.waitForResponse(
+    await adminPage.getByRole("button", { name: "Foto Própria" }).click();
+    const bgResponse = adminPage.waitForResponse(
       (res) =>
         res.request().method() === "POST" &&
         res.url().endsWith("/settings/appearance/background"),
@@ -159,17 +163,17 @@ test.describe("Logo e imagem de fundo do restaurante", () => {
     expect(bgBody.backgroundValue).toMatch(FILE_URL);
     const bgUrl: string = bgBody.backgroundValue;
 
-    await ownerPage.locator("#description").fill("Fundo preservado");
-    const putRequest = ownerPage.waitForRequest(
+    await adminPage.locator("#description").fill("Fundo preservado");
+    const putRequest = adminPage.waitForRequest(
       (req) =>
         req.method() === "PUT" && req.url().endsWith("/settings/appearance"),
     );
-    const putResponse = ownerPage.waitForResponse(
+    const putResponse = adminPage.waitForResponse(
       (res) =>
         res.request().method() === "PUT" &&
         res.url().endsWith("/settings/appearance"),
     );
-    await ownerPage.getByRole("button", { name: "Salvar Alterações" }).click();
+    await adminPage.getByRole("button", { name: "Salvar Alterações" }).click();
     const putBody = (await putRequest).postDataJSON();
     expect(putBody.backgroundType).toBe("image");
     expect(putBody).not.toHaveProperty("backgroundValue");
@@ -177,9 +181,9 @@ test.describe("Logo e imagem de fundo do restaurante", () => {
     expect(saved.status()).toBe(200);
     expect((await saved.json()).backgroundValue).toBe(bgUrl);
 
-    await ownerPage.reload();
+    await adminPage.reload();
     const afterReload = await (
-      await api.get("settings/appearance", { headers: auth(ownerToken) })
+      await api.get(appearancePath, { headers: auth(adminToken) })
     ).json();
     expect(afterReload.backgroundType).toBe("image");
     expect(afterReload.backgroundValue).toBe(bgUrl);
@@ -197,7 +201,7 @@ test.describe("Logo e imagem de fundo do restaurante", () => {
     // 4. SVG, arquivo acima de 2 MB e PNG falso: erro e nada muda
     // ----------------------------------------------------------------------
     const uploads: string[] = [];
-    ownerPage.on("request", (req) => {
+    adminPage.on("request", (req) => {
       if (req.url().includes("/settings/appearance/logo"))
         uploads.push(req.url());
     });
@@ -207,7 +211,7 @@ test.describe("Logo e imagem de fundo do restaurante", () => {
       mimeType: "image/svg+xml",
       buffer: Buffer.from('<svg xmlns="http://www.w3.org/2000/svg"/>'),
     });
-    await expect(ownerPage.getByText("Formato inválido").first()).toBeVisible();
+    await expect(adminPage.getByText("Formato inválido").first()).toBeVisible();
 
     await logoInput.setInputFiles({
       name: "grande.png",
@@ -215,12 +219,12 @@ test.describe("Logo e imagem de fundo do restaurante", () => {
       buffer: Buffer.alloc(3 * 1024 * 1024, 1),
     });
     await expect(
-      ownerPage.getByText("Arquivo muito grande").first(),
+      adminPage.getByText("Arquivo muito grande").first(),
     ).toBeVisible();
     expect(uploads).toEqual([]);
 
     // Extensão e tipo de PNG, conteúdo de texto: o back recusa pelo conteúdo
-    const fakeResponse = ownerPage.waitForResponse((res) =>
+    const fakeResponse = adminPage.waitForResponse((res) =>
       res.url().endsWith("/settings/appearance/logo"),
     );
     await logoInput.setInputFiles({
@@ -232,18 +236,20 @@ test.describe("Logo e imagem de fundo do restaurante", () => {
     expect(fakeRes.status()).toBe(400);
     expect((await fakeRes.json()).code).toBe("INVALID_IMAGE_FORMAT");
     await expect(
-      ownerPage.getByText("Use PNG, JPG ou WebP.").first(),
+      adminPage
+        .getByText("Formato de imagem não suportado (use PNG, JPG ou WEBP).")
+        .first(),
     ).toBeVisible();
     await expect(settingsLogo).toHaveAttribute("src", logoUrl);
 
     const unchanged = await (
-      await api.get("settings/appearance", { headers: auth(ownerToken) })
+      await api.get(appearancePath, { headers: auth(adminToken) })
     ).json();
     expect(unchanged.logoUrl).toBe(logoUrl);
     expect(unchanged.backgroundValue).toBe(bgUrl);
 
     await customerContext.close();
-    await ownerContext.close();
+    await adminContext.close();
     await api.dispose();
   });
 });

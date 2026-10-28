@@ -6,7 +6,7 @@ import { Menu, Radio } from "lucide-react";
 import { Button, IconButton } from "@/shared/ui/button";
 import { BrandLogo } from "@/shared/ui/brand-logo";
 import { queryKeys } from "@/shared/api/query-client";
-import { getCurrentRestaurant } from "@/shared/api/settings";
+import { getCurrentRestaurant } from "@/shared/api/restaurant";
 import { useAuth, useAuthStore } from "@/features/auth";
 import { UserMenu } from "@/app/_components/user-menu";
 
@@ -21,7 +21,7 @@ export function DashboardHeader({ onOpenMobileMenu }: DashboardHeaderProps) {
   const hasRestaurant = Boolean(user?.rid);
 
   const { data: restaurant } = useQuery({
-    queryKey: queryKeys.settings.currentRestaurant,
+    queryKey: queryKeys.restaurant.current,
     queryFn: getCurrentRestaurant,
     enabled: hasRestaurant,
     staleTime: 60_000,

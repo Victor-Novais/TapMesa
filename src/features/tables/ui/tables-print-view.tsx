@@ -25,7 +25,7 @@ import {
 export function TablesPrintView() {
   const { data, isLoading, isError, error, refetch } =
     useTablesPrintViewQuery();
-  const { data: appearance } = useBrandAppearanceQuery();
+  const { data: appearance } = useBrandAppearanceQuery(data?.tables[0]?.token);
 
   // Controla exclusões de seleção: por padrão todas as mesas vêm selecionadas (sem useEffect / sem efeito em cascata)
   const [deselectedTableIds, setDeselectedTableIds] = React.useState<

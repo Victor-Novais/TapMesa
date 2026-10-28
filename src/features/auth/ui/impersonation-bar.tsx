@@ -2,7 +2,7 @@
 
 import { useRouter } from "next/navigation";
 import { useQueryClient } from "@tanstack/react-query";
-import { ArrowLeft, ShieldAlert } from "lucide-react";
+import { ArrowLeft, Settings, ShieldAlert } from "lucide-react";
 import { Button } from "@/shared/ui/button";
 import { useAuthStore } from "../model/auth-store";
 
@@ -19,6 +19,15 @@ export function ImpersonationBar() {
     stopImpersonation();
     queryClient.clear();
     router.push("/admin");
+  };
+
+  // A tela de configurações recusa o token de impersonação (403): encerra a
+  // impersonação antes, para o cliente HTTP voltar a enviar o token do admin
+  const handleConfigure = () => {
+    const { targetRestaurantId } = impersonation;
+    stopImpersonation();
+    queryClient.clear();
+    router.push(`/admin/restaurants/${targetRestaurantId}/settings`);
   };
 
   return (
@@ -38,15 +47,26 @@ export function ImpersonationBar() {
         </span>
       </div>
 
-      <Button
-        size="sm"
-        variant="outline"
-        onClick={handleExit}
-        className="border-on-warning/30 bg-canvas text-ink hover:bg-surface"
-      >
-        <ArrowLeft className="h-3.5 w-3.5" aria-hidden />
-        Sair do modo suporte
-      </Button>
+      <div className="flex flex-wrap items-center gap-2">
+        <Button
+          size="sm"
+          variant="outline"
+          onClick={handleConfigure}
+          className="border-on-warning/30 bg-canvas text-ink hover:bg-surface"
+        >
+          <Settings className="h-3.5 w-3.5" aria-hidden />
+          Configurar este restaurante
+        </Button>
+        <Button
+          size="sm"
+          variant="outline"
+          onClick={handleExit}
+          className="border-on-warning/30 bg-canvas text-ink hover:bg-surface"
+        >
+          <ArrowLeft className="h-3.5 w-3.5" aria-hidden />
+          Sair do modo suporte
+        </Button>
+      </div>
     </aside>
   );
 }

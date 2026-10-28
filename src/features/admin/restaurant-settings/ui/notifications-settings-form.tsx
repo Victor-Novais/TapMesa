@@ -8,8 +8,7 @@ import {
   useNotificationSettingsQuery,
   useUpdateNotificationSettingsMutation,
   useSendDailySummaryTestMutation,
-  useSendUrgentAlertTestMutation,
-} from "../api/use-settings-queries";
+} from "../api/use-restaurant-settings-queries";
 import { Card } from "@/shared/ui/card";
 import { Button } from "@/shared/ui/button";
 import { Input } from "@/shared/ui/input";
@@ -76,18 +75,21 @@ const notificationSettingsSchema = z
 
 type NotificationSettingsFormData = z.infer<typeof notificationSettingsSchema>;
 
-export function NotificationsSettingsForm() {
+export function NotificationsSettingsForm({
+  restaurantId,
+}: {
+  restaurantId: string;
+}) {
   const { toast } = useToast();
   const {
     data: settings,
     isLoading,
     isError,
     refetch,
-  } = useNotificationSettingsQuery();
+  } = useNotificationSettingsQuery(restaurantId);
 
-  const updateMutation = useUpdateNotificationSettingsMutation();
-  const testSummaryMutation = useSendDailySummaryTestMutation();
-  const testAlertMutation = useSendUrgentAlertTestMutation();
+  const updateMutation = useUpdateNotificationSettingsMutation(restaurantId);
+  const testSummaryMutation = useSendDailySummaryTestMutation(restaurantId);
 
   const {
     register,
@@ -116,10 +118,6 @@ export function NotificationsSettingsForm() {
   const summaryEmailRecipient = useWatch({
     control,
     name: "summaryEmailRecipient",
-  });
-  const urgentAlertRecipient = useWatch({
-    control,
-    name: "urgentAlertRecipient",
   });
 
   const onSubmit = async (formData: NotificationSettingsFormData) => {
@@ -196,25 +194,6 @@ export function NotificationsSettingsForm() {
         description:
           parseApiError(err).detail ||
           "Não foi possível enviar o resumo de teste.",
-        type: "error",
-      });
-    }
-  };
-
-  const handleSendTestAlert = async () => {
-    try {
-      const res = await testAlertMutation.mutateAsync();
-      toast({
-        title: "Teste de alerta registrado",
-        description: `Teste registrado para ${res.recipient}. O envio real de e-mail ainda não está ativo.`,
-        type: "success",
-      });
-    } catch (err) {
-      toast({
-        title: "Erro no envio do alerta",
-        description:
-          parseApiError(err).detail ||
-          "Não foi possível enviar o alerta de teste.",
         type: "error",
       });
     }
@@ -318,7 +297,7 @@ export function NotificationsSettingsForm() {
                 className="w-full h-11 gap-1.5 text-xs font-semibold"
               >
                 <Send className="h-3.5 w-3.5" />
-                <span>Enviar Teste Agora</span>
+                <span>Enviar resumo de teste</span>
               </Button>
             </div>
           </div>
@@ -359,40 +338,17 @@ export function NotificationsSettingsForm() {
 
         {/* Destinatário e Cooldown */}
         <div className="space-y-4 pt-2 border-t border-border-subtle">
-          <div className="grid grid-cols-1 sm:grid-cols-12 gap-3 items-end">
-            <div className="sm:col-span-8">
-              <Input
-                id="urgentAlertRecipient"
-                type="email"
-                label="E-mail de Destino do Alerta de Urgência"
-                placeholder="supervisao@meurestaurante.com.br"
-                disabled={!urgentAlertEnabled}
-                helperText="Endereço que receberá o aviso imediato com o número da mesa e tempo de espera."
-                error={errors.urgentAlertRecipient?.message}
-                startAdornment={<Mail className="h-4 w-4 text-ink-2" />}
-                {...register("urgentAlertRecipient")}
-              />
-            </div>
-
-            <div className="sm:col-span-4">
-              <Button
-                type="button"
-                variant="outline"
-                size="sm"
-                onClick={handleSendTestAlert}
-                isLoading={testAlertMutation.isPending}
-                disabled={
-                  !urgentAlertEnabled ||
-                  !urgentAlertRecipient ||
-                  Boolean(errors.urgentAlertRecipient)
-                }
-                className="w-full h-11 gap-1.5 text-xs font-semibold"
-              >
-                <Send className="h-3.5 w-3.5" />
-                <span>Testar Alerta</span>
-              </Button>
-            </div>
-          </div>
+          <Input
+            id="urgentAlertRecipient"
+            type="email"
+            label="E-mail de Destino do Alerta de Urgência"
+            placeholder="supervisao@meurestaurante.com.br"
+            disabled={!urgentAlertEnabled}
+            helperText="Endereço que receberá o aviso imediato com o número da mesa e tempo de espera."
+            error={errors.urgentAlertRecipient?.message}
+            startAdornment={<Mail className="h-4 w-4 text-ink-2" />}
+            {...register("urgentAlertRecipient")}
+          />
 
           {/* Intervalo Mínimo (Cooldown) */}
           <div className="pt-2">

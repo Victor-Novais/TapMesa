@@ -6,7 +6,6 @@ import {
   LayoutDashboard,
   QrCode,
   Users,
-  Settings,
   Radio,
   ChevronLeft,
   ChevronRight,
@@ -48,13 +47,6 @@ export const DASHBOARD_NAV_ITEMS = [
     label: UI_MESSAGES.nav.team,
     description: UI_MESSAGES.nav.teamDesc,
     icon: Users,
-    exact: false,
-  },
-  {
-    href: "/dashboard/settings",
-    label: UI_MESSAGES.nav.settings,
-    description: UI_MESSAGES.nav.settingsDesc,
-    icon: Settings,
     exact: false,
   },
 ];
