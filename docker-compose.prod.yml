@@ -1,0 +1,6 @@
+# Produção (VPS): docker compose -f docker-compose.yml -f docker-compose.prod.yml up -d --build
+# O front fica acessível só em 127.0.0.1; o Nginx faz o proxy público.
+services:
+  web:
+    ports: !override
+      - "127.0.0.1:3001:3001"
