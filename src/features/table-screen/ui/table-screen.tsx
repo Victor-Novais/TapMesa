@@ -2,7 +2,8 @@
 
 import * as React from "react";
 import Image from "next/image";
-import { Wifi, Copy, Check, Phone, Globe } from "lucide-react";
+import { Wifi, Copy, Check, Phone, Globe, Star } from "lucide-react";
+import { UI_MESSAGES } from "@/shared/messages/ui";
 import { Badge } from "@/shared/ui/badge";
 import { Button } from "@/shared/ui/button";
 import { BrandLogo } from "@/shared/ui/brand-logo";
@@ -52,7 +53,8 @@ export function TableScreen({
   // Logo que falhou ao carregar: cai no BrandLogo até o restaurante enviar outro
   const [failedLogoUrl, setFailedLogoUrl] = React.useState<string | null>(null);
 
-  const { name, description, logoUrl, texts, socials } = appearance;
+  const { name, description, logoUrl, texts, socials, googleReviewUrl } =
+    appearance;
   const showLogo = Boolean(logoUrl) && logoUrl !== failedLogoUrl;
 
   const displayName = name || "Restaurante";
@@ -264,6 +266,20 @@ export function TableScreen({
               </a>
             );
           })}
+
+          {/* Avaliação disponível a qualquer momento, sem esperar a conta ser paga */}
+          {googleReviewUrl && (
+            <a
+              href={googleReviewUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="flex h-11 w-11 items-center justify-center rounded-control border border-border bg-surface text-ink-2 transition-[color,transform] duration-150 ease-out-soft hover:text-ink active:scale-95 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-focus-ring"
+              aria-label={UI_MESSAGES.calls.googleReviewButton}
+              title={UI_MESSAGES.calls.googleReviewButton}
+            >
+              <Star className="h-5 w-5" aria-hidden />
+            </a>
+          )}
         </div>
 
         <p className="text-center text-xs text-inherit">
