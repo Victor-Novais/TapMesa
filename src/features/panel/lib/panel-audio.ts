@@ -229,6 +229,9 @@ interface SpeechQueueItem {
 
 const speechQueue: SpeechQueueItem[] = [];
 let isSpeaking = false;
+// Fila limitada: numa rajada as frases antigas são descartadas para a voz não
+// ficar minutos atrás da tela
+const MAX_SPEECH_QUEUE = 5;
 
 function processNextSpeech(): void {
   if (typeof window === "undefined" || !("speechSynthesis" in window)) {
@@ -288,6 +291,9 @@ function processNextSpeech(): void {
 export function speakText(text: string): void {
   if (typeof window === "undefined" || !("speechSynthesis" in window)) return;
   speechQueue.push({ text });
+  if (speechQueue.length > MAX_SPEECH_QUEUE) {
+    speechQueue.splice(0, speechQueue.length - MAX_SPEECH_QUEUE);
+  }
   if (!isSpeaking) {
     processNextSpeech();
   }

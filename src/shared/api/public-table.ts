@@ -11,7 +11,8 @@ import { syncClock } from "@/shared/lib/clock";
 const DEVICE_ID_STORAGE_KEY = "tapmesa:device-id";
 let memoryDeviceId: string | null = null;
 
-// Identificador estável do aparelho, enviado nos POST públicos (limite por X-Device-Id)
+// Identificador estável do aparelho, enviado nas rotas públicas: o back limita e
+// penaliza por aparelho, sem bloquear o Wi-Fi inteiro do restaurante
 function getDeviceId(): string {
   try {
     const stored = localStorage.getItem(DEVICE_ID_STORAGE_KEY);
@@ -28,7 +29,10 @@ function getDeviceId(): string {
 const deviceHeaders = () => ({ headers: { "X-Device-Id": getDeviceId() } });
 
 export async function getPublicTable(token: string): Promise<PublicTableDto> {
-  const response = await api.get<PublicTableDto>(`/public/tables/${token}`);
+  const response = await api.get<PublicTableDto>(
+    `/public/tables/${token}`,
+    deviceHeaders(),
+  );
   if (response.data.serverNow) {
     syncClock(response.data.serverNow);
   }
@@ -41,6 +45,7 @@ export async function getPublicTableCalls(
 ): Promise<PublicCallStateDto[]> {
   const response = await api.get<PublicCallStateDto[]>(
     `/public/tables/${token}/calls`,
+    deviceHeaders(),
   );
   if (response.data[0]?.serverNow) {
     syncClock(response.data[0].serverNow);

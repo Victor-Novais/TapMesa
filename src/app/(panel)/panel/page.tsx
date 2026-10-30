@@ -25,7 +25,7 @@ import { formatTimer } from "@/shared/lib/clock";
 import type { AlertRaisedEventData } from "@/shared/types/api";
 import { Card } from "@/shared/ui/card";
 import { SkipLink } from "@/shared/ui/skip-link";
-import { useNow } from "@/shared/lib/clock";
+import { useShallow } from "zustand/react/shallow";
 
 const emptySubscribe = () => () => {};
 
@@ -111,12 +111,20 @@ export default function PanelOperationalPage() {
   });
 
   const { calls, recent, counters, thresholds, connectionStatus } =
-    usePanelStore();
+    usePanelStore(
+      useShallow((s) => ({
+        calls: s.calls,
+        recent: s.recent,
+        counters: s.counters,
+        thresholds: s.thresholds,
+        connectionStatus: s.connectionStatus,
+      })),
+    );
   const { assumeCall, attendCall, loadRecent, isLoadingRecent, isSubmitting } =
     usePanelActions();
 
-  // Tick do relógio compartilhado (sincronizado com serverNow)
-  useNow();
+  // Sem useNow() aqui: o cronômetro de cada card (ElapsedTimer) e o relógio do
+  // header atualizam sozinhos, sem re-renderizar a página inteira a cada segundo
 
   // Estado da gaveta de recentes
   const [isDrawerOpen, setIsDrawerOpen] = React.useState(false);

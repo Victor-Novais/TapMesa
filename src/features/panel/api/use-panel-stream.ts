@@ -1,6 +1,7 @@
 "use client";
 
 import * as React from "react";
+import { useShallow } from "zustand/react/shallow";
 import { usePanelStore } from "../model/panel-store";
 import {
   getPanelStreamTicket,
@@ -34,6 +35,8 @@ export function usePanelStream(options: UsePanelStreamOptions = {}) {
     onAlertRaised,
   } = options;
 
+  // Seletor: o hook (e a página) só re-renderiza quando esses campos mudam,
+  // não a cada chamado novo na fila
   const {
     setSnapshot,
     addCall,
@@ -46,7 +49,21 @@ export function usePanelStream(options: UsePanelStreamOptions = {}) {
     setIsPollingFallback,
     connectionStatus,
     isPollingFallback,
-  } = usePanelStore();
+  } = usePanelStore(
+    useShallow((s) => ({
+      setSnapshot: s.setSnapshot,
+      addCall: s.addCall,
+      updateCall: s.updateCall,
+      removeCall: s.removeCall,
+      addRecent: s.addRecent,
+      updateRecent: s.updateRecent,
+      setRecent: s.setRecent,
+      setConnectionStatus: s.setConnectionStatus,
+      setIsPollingFallback: s.setIsPollingFallback,
+      connectionStatus: s.connectionStatus,
+      isPollingFallback: s.isPollingFallback,
+    })),
+  );
 
   const [reconnectTrigger, setReconnectTrigger] = React.useState(0);
 

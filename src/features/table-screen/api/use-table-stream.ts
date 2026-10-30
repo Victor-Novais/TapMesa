@@ -6,6 +6,13 @@ import { queryKeys } from "@/shared/api/query-client";
 import { getPublicTableCalls } from "@/shared/api/public-table";
 import { syncClock } from "@/shared/lib/clock";
 import { shouldApplyAttendedEvent } from "../lib/call-state";
+import {
+  INITIAL_RETRY_DELAY_MS,
+  RETRY_DEBOUNCE_MS,
+  nextRetryDelay,
+  statusAfterFailure,
+  withJitter,
+} from "../lib/reconnect-policy";
 import type { ConnectionStatus } from "@/shared/ui/connection-indicator";
 import type {
   PublicTableDto,
@@ -64,7 +71,9 @@ export function useTableStream(token: string) {
     let isClosed = false;
     let eventSource: EventSource | null = null;
     let retryTimeout: ReturnType<typeof setTimeout> | null = null;
-    let retryDelay = 1000;
+    let retryScheduledAt = 0;
+    let retryDelay = INITIAL_RETRY_DELAY_MS;
+    let consecutiveFailures = 0;
     let refreshTimer: ReturnType<typeof setTimeout> | null = null;
     const queryKey = queryKeys.publicTable(token);
 
@@ -124,8 +133,14 @@ export function useTableStream(token: string) {
         eventSource = null;
       }
 
+      // Depois de várias falhas o indicador fica em "Sem conexão" durante as
+      // novas tentativas (evita piscar entre os dois estados)
       if (isRetry) {
-        setConnectionStatus("reconnecting");
+        setConnectionStatus(
+          consecutiveFailures === 0
+            ? "reconnecting"
+            : statusAfterFailure(consecutiveFailures, navigator.onLine),
+        );
       }
 
       const streamUrl = `${API_BASE_URL}/public/tables/${encodeURIComponent(token)}/stream`;
@@ -137,7 +152,8 @@ export function useTableStream(token: string) {
         es.onopen = () => {
           if (isClosed) return;
           setConnectionStatus("connected");
-          retryDelay = 1000;
+          retryDelay = INITIAL_RETRY_DELAY_MS;
+          consecutiveFailures = 0;
         };
 
         // 1. Snapshot: primeiro evento de toda conexão (inclusive reconexões),
@@ -239,50 +255,78 @@ export function useTableStream(token: string) {
         });
 
         // Tratamento de erro e desconexão
+        // O EventSource não expõe o status HTTP: um 429 do back e uma queda de
+        // rede chegam iguais aqui. "Sem conexão" só quando o aparelho está sem
+        // rede ou depois de várias falhas seguidas.
         es.onerror = () => {
           if (isClosed) return;
-          setConnectionStatus("offline");
           if (eventSource) {
             eventSource.close();
             eventSource = null;
           }
-
-          retryTimeout = setTimeout(() => {
-            // Backoff exponencial de 1s a 30s
-            retryDelay = Math.min(retryDelay * 1.5, 30_000);
-            openStream(true);
-          }, retryDelay);
+          handleFailure();
         };
       } catch {
-        if (!isClosed) {
-          setConnectionStatus("offline");
-        }
+        if (!isClosed) handleFailure();
       }
     }
+
+    function handleFailure() {
+      consecutiveFailures += 1;
+      setConnectionStatus(
+        statusAfterFailure(consecutiveFailures, navigator.onLine),
+      );
+      scheduleRetry();
+    }
+
+    // Backoff exponencial de 2 s a 30 s com jitter de ±30%
+    function scheduleRetry() {
+      if (isClosed) return;
+      if (retryTimeout) clearTimeout(retryTimeout);
+      const delay = withJitter(retryDelay);
+      retryDelay = nextRetryDelay(retryDelay);
+      retryScheduledAt = Date.now();
+      retryTimeout = setTimeout(() => {
+        retryTimeout = null;
+        openStream(true);
+      }, delay);
+    }
+
+    // Reabre na hora, a menos que uma reconexão tenha acabado de ser agendada
+    // (o celular desbloqueando dispara visibilitychange e online juntos)
+    const reopenIfDown = () => {
+      if (isClosed) return;
+      if (eventSource && eventSource.readyState !== EventSource.CLOSED) return;
+      if (retryTimeout && Date.now() - retryScheduledAt < RETRY_DEBOUNCE_MS) {
+        return;
+      }
+      if (retryTimeout) {
+        clearTimeout(retryTimeout);
+        retryTimeout = null;
+      }
+      openStream(true);
+    };
 
     openStream(false);
 
     // Ao voltar para a aba ou recuperar a rede, reabre o stream se caiu:
     // o snapshot da nova conexão reconcilia os chamados
     const handleVisibilityChange = () => {
-      if (
-        document.visibilityState === "visible" &&
-        (!eventSource || eventSource.readyState === EventSource.CLOSED)
-      ) {
-        if (retryTimeout) clearTimeout(retryTimeout);
-        openStream(true);
-      }
+      if (document.visibilityState === "visible") reopenIfDown();
     };
 
     const handleOnline = () => {
-      if (!eventSource || eventSource.readyState === EventSource.CLOSED) {
-        if (retryTimeout) clearTimeout(retryTimeout);
-        openStream(true);
-      }
+      reopenIfDown();
+    };
+
+    // Sem rede no aparelho: mostra "Sem conexão" na hora
+    const handleOffline = () => {
+      if (!isClosed) setConnectionStatus("offline");
     };
 
     document.addEventListener("visibilitychange", handleVisibilityChange);
     window.addEventListener("online", handleOnline);
+    window.addEventListener("offline", handleOffline);
 
     return () => {
       isClosed = true;
@@ -298,6 +342,7 @@ export function useTableStream(token: string) {
       }
       document.removeEventListener("visibilitychange", handleVisibilityChange);
       window.removeEventListener("online", handleOnline);
+      window.removeEventListener("offline", handleOffline);
     };
   }, [token, queryClient, reconnectTrigger]);
 

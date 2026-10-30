@@ -9,28 +9,46 @@ import {
 } from "@/shared/api/panel";
 import { useAuth } from "@/features/auth";
 import { triggerHaptic } from "@/shared/lib/haptics";
-import type { RecentAttendedCallDto } from "@/shared/types/api";
+import { useToast } from "@/shared/ui/toast";
+import type {
+  ConfirmationStatus,
+  RecentAttendedCallDto,
+} from "@/shared/types/api";
+
+const ACTION_ERROR_TOAST = {
+  title: "Não foi possível atualizar o chamado.",
+  description: "Tente de novo.",
+  type: "error" as const,
+};
 
 export function usePanelActions() {
   const { user } = useAuth();
-  const {
-    calls,
-    recent,
-    updateCall,
-    removeCall,
-    addCall,
-    addRecent,
-    setRecent,
-  } = usePanelStore();
+  const { toast } = useToast();
+  // Só as actions (referências estáveis da store). `calls` e `recent` são lidos
+  // com getState() na hora da ação: assim os callbacks não mudam a cada evento
+  // e os cards (memo) não re-renderizam todos juntos.
+  const updateCall = usePanelStore((s) => s.updateCall);
+  const removeCall = usePanelStore((s) => s.removeCall);
+  const addCall = usePanelStore((s) => s.addCall);
+  const addRecent = usePanelStore((s) => s.addRecent);
+  const setRecent = usePanelStore((s) => s.setRecent);
 
   const [isLoadingRecent, setIsLoadingRecent] = React.useState(false);
   const [submittingIds, setSubmittingIds] = React.useState<Set<string>>(
     () => new Set(),
   );
 
+  const clearSubmitting = React.useCallback((callId: string) => {
+    setSubmittingIds((prev) => {
+      const next = new Set(prev);
+      next.delete(callId);
+      return next;
+    });
+  }, []);
+
   const assumeCall = React.useCallback(
     async (callId: string): Promise<void> => {
-      const call = calls.find((c) => c.id === callId);
+      const call = usePanelStore.getState().calls.find((c) => c.id === callId);
       if (!call) return;
 
       const previousCall = { ...call };
@@ -52,24 +70,20 @@ export function usePanelActions() {
           acknowledgedAt: result.acknowledgedAt,
           acknowledgedById: result.acknowledgedById,
         });
-      } catch (err: unknown) {
-        // Rollback on error
+      } catch {
+        // Rollback on error (inclusive 429), com aviso ao garçom
         updateCall(callId, previousCall);
-        throw err;
+        toast(ACTION_ERROR_TOAST);
       } finally {
-        setSubmittingIds((prev) => {
-          const next = new Set(prev);
-          next.delete(callId);
-          return next;
-        });
+        clearSubmitting(callId);
       }
     },
-    [calls, user, updateCall],
+    [user, updateCall, toast, clearSubmitting],
   );
 
   const attendCall = React.useCallback(
     async (callId: string): Promise<void> => {
-      const call = calls.find((c) => c.id === callId);
+      const call = usePanelStore.getState().calls.find((c) => c.id === callId);
       if (!call) return;
 
       const previousCall = { ...call };
@@ -111,11 +125,26 @@ export function usePanelActions() {
 
       try {
         const result = await attendPanelCall(callId);
+        // O SSE (call.confirmed/closed) pode chegar antes desta resposta: não
+        // rebaixa um status que já avançou. Conta paga já volta CONFIRMED.
+        const current = usePanelStore
+          .getState()
+          .recent.find((r) => r.id === callId);
+        const confirmationStatus: ConfirmationStatus =
+          result.status === "CONFIRMED"
+            ? "CONFIRMED"
+            : current && current.confirmationStatus !== "AWAITING_CONFIRMATION"
+              ? current.confirmationStatus
+              : "AWAITING_CONFIRMATION";
         // Atualiza item recente com os tempos e dados consolidados
         addRecent({
           ...optimisticRecent,
           ...result,
-          confirmationStatus: "AWAITING_CONFIRMATION",
+          ...(current?.status === "CONFIRMED" ||
+          current?.status === "CLOSED_UNCONFIRMED"
+            ? { status: current.status }
+            : {}),
+          confirmationStatus,
           responseTimeSec: Math.max(
             0,
             Math.round(
@@ -124,20 +153,19 @@ export function usePanelActions() {
             ),
           ),
         });
-      } catch (err: unknown) {
-        // Rollback: remove from recent and restore to active calls
-        setRecent(recent.filter((r) => r.id !== callId));
+      } catch {
+        // Rollback: remove dos recentes (estado atual, não a cópia da closure,
+        // para não apagar itens que chegaram nesse intervalo) e volta à fila
+        setRecent(
+          usePanelStore.getState().recent.filter((r) => r.id !== callId),
+        );
         addCall(previousCall);
-        throw err;
+        toast(ACTION_ERROR_TOAST);
       } finally {
-        setSubmittingIds((prev) => {
-          const next = new Set(prev);
-          next.delete(callId);
-          return next;
-        });
+        clearSubmitting(callId);
       }
     },
-    [calls, recent, user, removeCall, addRecent, setRecent, addCall],
+    [user, removeCall, addRecent, setRecent, addCall, toast, clearSubmitting],
   );
 
   const loadRecent = React.useCallback(
@@ -153,11 +181,16 @@ export function usePanelActions() {
     [setRecent],
   );
 
+  const isSubmitting = React.useCallback(
+    (id: string) => submittingIds.has(id),
+    [submittingIds],
+  );
+
   return {
     assumeCall,
     attendCall,
     loadRecent,
     isLoadingRecent,
-    isSubmitting: (id: string) => submittingIds.has(id),
+    isSubmitting,
   };
 }

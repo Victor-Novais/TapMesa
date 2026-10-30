@@ -12,8 +12,11 @@ import {
   stopSpeech,
 } from "./panel-audio";
 import { usePanelStore } from "../model/panel-store";
-import { calculateElapsedSec, useNow } from "@/shared/lib/clock";
+import { buildCallSpeech, getCallLevel } from "./call-level";
+import { calculateElapsedSec } from "@/shared/lib/clock";
 import type { PanelCallDto } from "@/shared/types/api";
+
+const URGENT_CHECK_INTERVAL_MS = 5_000;
 
 export interface UsePanelAudioResult {
   preferences: PanelAudioPreferences;
@@ -31,10 +34,6 @@ export function usePanelAudio(isEnabled = true): UsePanelAudioResult {
   const [preferences, setPreferences] = React.useState<PanelAudioPreferences>(
     () => getSavedAudioPreferences(),
   );
-
-  const { calls, thresholds } = usePanelStore();
-  const knownCallIdsRef = React.useRef<Set<string>>(new Set());
-  const isInitialLoadRef = React.useRef(true);
 
   // Atualiza preferências e persiste
   const updatePreferences = React.useCallback(
@@ -104,90 +103,95 @@ export function usePanelAudio(isEnabled = true): UsePanelAudioResult {
     playUrgentSound(preferences.volume);
   }, [isEnabled, preferences.isMuted, preferences.volume]);
 
-  // Monitoramento de Novos Chamados (Detecção de delta para som e fala)
+  // Preferências lidas pelos efeitos de longa duração sem recriá-los
+  const preferencesRef = React.useRef(preferences);
+  React.useEffect(() => {
+    preferencesRef.current = preferences;
+  }, [preferences]);
+
+  // Monitoramento de novos chamados (delta para som e fala). Assina a store
+  // fora do ciclo de render: o hook não re-renderiza a página a cada evento.
   React.useEffect(() => {
     if (!isEnabled) return;
 
-    const currentKnown = knownCallIdsRef.current;
+    const knownIds = new Set(usePanelStore.getState().calls.map((c) => c.id));
 
-    // Na primeira carga dos chamados existentes, popula o set sem disparar todos os sons de uma vez
-    if (isInitialLoadRef.current) {
-      calls.forEach((c) => currentKnown.add(c.id));
-      isInitialLoadRef.current = false;
-      return;
-    }
+    return usePanelStore.subscribe((state, prev) => {
+      if (state.calls === prev.calls) return;
 
-    // Identifica chamados recém-chegados
-    const newCalls: PanelCallDto[] = [];
-    calls.forEach((call) => {
-      if (!currentKnown.has(call.id)) {
-        currentKnown.add(call.id);
-        newCalls.push(call);
+      const newCalls: PanelCallDto[] = [];
+      state.calls.forEach((call) => {
+        if (!knownIds.has(call.id)) {
+          knownIds.add(call.id);
+          newCalls.push(call);
+        }
+      });
+
+      // Remove chamados finalizados do set para liberar memória
+      const activeIds = new Set(state.calls.map((c) => c.id));
+      knownIds.forEach((id) => {
+        if (!activeIds.has(id)) knownIds.delete(id);
+      });
+
+      const prefs = preferencesRef.current;
+      if (newCalls.length === 0 || prefs.isMuted) return;
+
+      // Um som por tipo de chamado novo (não um por chamado numa rajada)
+      if (newCalls.some((c) => c.type === "BILL")) {
+        playBillSound(prefs.volume);
+      }
+      if (newCalls.some((c) => c.type !== "BILL")) {
+        playWaiterSound(prefs.volume);
+      }
+
+      if (prefs.voiceEnabled) {
+        buildCallSpeech(newCalls).forEach((text) => speakText(text));
       }
     });
+  }, [isEnabled]);
 
-    // Remove chamados finalizados do set para liberar memória
-    const activeIds = new Set(calls.map((c) => c.id));
-    currentKnown.forEach((id) => {
-      if (!activeIds.has(id)) {
-        currentKnown.delete(id);
-      }
-    });
-
-    if (newCalls.length === 0 || preferences.isMuted) return;
-
-    // Dispara som e voz para os novos chamados
-    newCalls.forEach((call) => {
-      if (call.type === "BILL") {
-        playBillSound(preferences.volume);
-      } else {
-        playWaiterSound(preferences.volume);
-      }
-
-      if (preferences.voiceEnabled) {
-        const typeSpeech =
-          call.type === "BILL" ? "pede a conta" : "chama o garçom";
-        const noteSpeech = call.note ? " com observação" : "";
-        speakText(`Mesa ${call.tableNumber} ${typeSpeech}${noteSpeech}.`);
-      }
-    });
-  }, [
-    calls,
-    isEnabled,
-    preferences.isMuted,
-    preferences.volume,
-    preferences.voiceEnabled,
-  ]);
-
-  // Alarme recorrente para chamados Urgentes enquanto houver algum na fila
-  useNow(); // Garante verificação periódica
-
+  // Alarme de urgente: um único intervalo verifica a fila a cada 5 s. Toca na
+  // hora quando um chamado ENTRA em urgente e repete no intervalo configurado
+  // enquanto houver algum urgente. Não depende de eventos chegarem.
   React.useEffect(() => {
     if (!isEnabled || preferences.isMuted) return;
 
-    const hasUrgent = calls.some(
-      (c) => calculateElapsedSec(c.createdAt) >= thresholds.urgentSec,
-    );
+    const alarmedIds = new Set<string>();
+    let lastAlarmAt = 0;
 
-    if (!hasUrgent) return;
+    const check = () => {
+      const { calls, thresholds } = usePanelStore.getState();
+      const urgentIds = new Set(
+        calls
+          .filter(
+            (c) =>
+              getCallLevel(calculateElapsedSec(c.createdAt), thresholds) ===
+              "urgent",
+          )
+          .map((c) => c.id),
+      );
 
-    // Toca o alarme imediatamente e agenda a repetição no intervalo configurado
-    playUrgentSound(preferences.volume);
+      alarmedIds.forEach((id) => {
+        if (!urgentIds.has(id)) alarmedIds.delete(id);
+      });
+      if (urgentIds.size === 0) return;
 
-    const intervalMs = preferences.urgentIntervalSec * 1000;
-    const intervalId = setInterval(() => {
-      playUrgentSound(preferences.volume);
-    }, intervalMs);
+      const prefs = preferencesRef.current;
+      const now = Date.now();
+      const hasNewUrgent = [...urgentIds].some((id) => !alarmedIds.has(id));
+      const repeatDue = now - lastAlarmAt >= prefs.urgentIntervalSec * 1000;
 
+      if (hasNewUrgent || repeatDue) {
+        playUrgentSound(prefs.volume);
+        lastAlarmAt = now;
+      }
+      urgentIds.forEach((id) => alarmedIds.add(id));
+    };
+
+    check();
+    const intervalId = setInterval(check, URGENT_CHECK_INTERVAL_MS);
     return () => clearInterval(intervalId);
-  }, [
-    calls,
-    thresholds.urgentSec,
-    isEnabled,
-    preferences.isMuted,
-    preferences.volume,
-    preferences.urgentIntervalSec,
-  ]);
+  }, [isEnabled, preferences.isMuted]);
 
   return {
     preferences,

@@ -12,10 +12,11 @@ import {
 } from "lucide-react";
 import { Badge } from "@/shared/ui/badge";
 import { Button } from "@/shared/ui/button";
-import { calculateElapsedSec, formatTimer } from "@/shared/lib/clock";
 import { cn } from "@/shared/lib/cn";
 import type { PanelCallDto } from "@/shared/types/api";
 import { getAttendButtonLabels } from "../lib/attend-button";
+import { useCallLevel } from "../lib/use-call-level";
+import { ElapsedTimer } from "./elapsed-timer";
 
 export interface PanelCallCardProps {
   call: PanelCallDto;
@@ -30,7 +31,8 @@ export interface PanelCallCardProps {
   className?: string;
 }
 
-export function PanelCallCard({
+// memo: com callbacks estáveis, um evento novo re-renderiza só o card afetado
+export const PanelCallCard = React.memo(function PanelCallCard({
   call,
   thresholds,
   onAssume,
@@ -39,11 +41,9 @@ export function PanelCallCard({
   currentUserId,
   className,
 }: PanelCallCardProps) {
-  const elapsedSec = calculateElapsedSec(call.createdAt);
-  const timerDisplay = formatTimer(elapsedSec);
-
-  const isUrgent = elapsedSec >= thresholds.urgentSec;
-  const isAlert = !isUrgent && elapsedSec >= thresholds.alertSec;
+  const level = useCallLevel(call.createdAt, thresholds);
+  const isUrgent = level === "urgent";
+  const isAlert = level === "alert";
 
   const isAssumed = Boolean(call.acknowledgedAt);
   const isAssumedByMe = Boolean(
@@ -148,7 +148,8 @@ export function PanelCallCard({
 
           {/* Wait Timer: nunca encolhe */}
           <div className="shrink-0 text-right">
-            <div
+            <ElapsedTimer
+              createdAt={call.createdAt}
               className={cn(
                 "text-[length:clamp(1.75rem,1.6vw+1rem,3.5rem)] leading-none font-bold tracking-tight tabular-nums",
                 isUrgent
@@ -157,10 +158,7 @@ export function PanelCallCard({
                     ? "text-warning-ink"
                     : "text-ink",
               )}
-              aria-label={`Tempo decorrido: ${timerDisplay}`}
-            >
-              {timerDisplay}
-            </div>
+            />
             <p className="mt-1 text-[length:clamp(0.75rem,0.4vw+0.5rem,1.125rem)] font-semibold tracking-wide text-ink-2 uppercase">
               Espera
             </p>
@@ -237,4 +235,4 @@ export function PanelCallCard({
       </div>
     </article>
   );
-}
+});
